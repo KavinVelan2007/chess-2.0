@@ -1,4 +1,4 @@
-from numpy import uint64 as uint  # type: ignore
+from numpy import uint64 as uint
 
 WHITE_PAWNS = uint(71776119061217280)
 WHITE_KING = uint(576460752303423488)
@@ -14,3 +14,15 @@ BLACK_QUEEN = uint(16)
 BLACK_ROOKS = uint(129)
 BLACK_KNIGHTS = uint(66)
 BLACK_BISHOPS = uint(36)
+
+
+def p_bb(bit_board):
+    c = uint(0)
+    print('    A   B   C   D   E   F   G   H')
+    print()
+    for i in range(8):
+        print(i + 1, '  ', end ='')
+        for j in range(8):
+            print('*   ' if bit_board & (uint(1) << c) else '.   ', end = '')
+            c += uint(1)
+        print('\n')
