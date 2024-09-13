@@ -88,3 +88,29 @@ def generate_rook_occupancy():
             if i // 8 != j:
                 c |= uint(1) << uint(j * 8 + i % 8)
         print('uint(', c, '),', sep = '')
+
+def generate_bishop_occupancy():
+    for i in range(64):
+        n = uint(0)
+        r,c = i // 8,i % 8
+        row,col = r + 1,c + 1
+        while row <= 6 and col <= 6:
+            n |= uint(1) << uint(row * 8 + col)
+            row += 1
+            col += 1
+        row,col = r - 1,c + 1
+        while row >= 1 and col <= 6:
+            n |= uint(1) << uint(row * 8 + col)
+            row -= 1
+            col += 1
+        row,col = r + 1,c - 1
+        while row <= 6 and col >= 1:
+            n |= uint(1) << uint(row * 8 + col)
+            row += 1
+            col -= 1
+        row,col = r - 1,c - 1
+        while row >= 1 and col >= 1:
+            n |= uint(1) << uint(row * 8 + col)
+            row -= 1
+            col -= 1
+        print(f'uint({n})',end=',')
