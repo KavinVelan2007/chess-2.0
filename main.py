@@ -29,4 +29,51 @@ def print_bitboard(bit_board):
         print('\n')
     print()
     print('BitBoard Value:', bit_board)
-   
+
+
+def generate_king_attacks():
+    for i in range(64):
+        c = uint(0)
+        if i % 8 != 0:
+            c |= uint(1) << uint(i - 1)
+            if i >= 8:
+                c |= uint(1) << uint(i - 9)
+            if i <= 55:
+                c |= uint(1) << uint(i + 7)
+        if i % 8 != 7:
+            c |= uint(1) << uint(i + 1)
+            if i >= 8:
+                c |= uint(1) << uint(i - 7)
+            if i <= 55:
+                c |= uint(1) << uint(i + 9)
+        if i >= 8:
+            c |= uint(1) << uint(i - 8)
+        if i <= 55:
+            c |= uint(1) << uint(i + 8)
+        print('uint(', c, '),', sep = '')
+        
+
+def generate_knight_attacks():
+    for i in range(64):
+        c = uint(0)
+        if i % 8 >= 1:
+            if i >= 16:
+                c |= uint(1) << uint(i - 17)
+            if i <= 47:
+                c |= uint(1) << uint(i + 15)
+            if i % 8 >= 2:
+                if i >= 8:
+                    c |= uint(1) << uint(i - 10)
+                if i <= 55:
+                    c |= uint(1) << uint(i + 6)
+        if i % 8 <= 6:
+            if i >= 16:
+                c |= uint(1) << uint(i - 15)
+            if i <= 47:
+                c |= uint(1) << uint(i  + 17)
+            if i % 8 <= 5:
+                if i >= 8:
+                    c |= uint(1) << uint(i - 6)
+                if i <= 55:
+                    c |= uint(1) << uint(i + 10)
+        print('uint(', c, '),', sep = '')
