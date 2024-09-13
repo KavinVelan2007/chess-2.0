@@ -1,4 +1,5 @@
 from numpy import uint64 as uint
+from data import * 
 
 WHITE_PAWNS = uint(71776119061217280)
 WHITE_KING = uint(576460752303423488)
@@ -16,7 +17,7 @@ BLACK_KNIGHTS = uint(66)
 BLACK_BISHOPS = uint(36)
 
 
-def p_bb(bit_board):
+def print_bitboard(bit_board):
     c = uint(0)
     print('    A   B   C   D   E   F   G   H')
     print()
@@ -26,3 +27,6 @@ def p_bb(bit_board):
             print('*   ' if bit_board & (uint(1) << c) else '.   ', end = '')
             c += uint(1)
         print('\n')
+    print()
+    print('BitBoard Value:', bit_board)
+   
