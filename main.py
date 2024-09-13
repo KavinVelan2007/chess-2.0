@@ -77,3 +77,14 @@ def generate_knight_attacks():
                 if i <= 55:
                     c |= uint(1) << uint(i + 10)
         print('uint(', c, '),', sep = '')
+        
+
+def generate_rook_occupancy():
+    for i in range(64):
+        c = uint(0)
+        for j in [1,2,3,4,5,6]:
+            if i % 8 != j:
+                c |= uint(1) << uint(i - i % 8 + j)
+            if i // 8 != j:
+                c |= uint(1) << uint(j * 8 + i % 8)
+        print('uint(', c, '),', sep = '')
