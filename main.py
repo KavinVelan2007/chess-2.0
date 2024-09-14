@@ -19,15 +19,15 @@ BLACK_BISHOPS = uint(36)
 
 def print_bitboard(bit_board):
     c = uint(0)
-    print()
+    print('      A   B   C   D   E   F   G   H')
+    print('\n')
+    
     for i in range(8):
-        print(8 - i, '  ', end ='')
+        print(8 - i, '    ', end ='')
         for j in range(8):
-            print('*   ' if bit_board & (uint(1) << c) else '.   ', end = '')
+            print('1   ' if bit_board & (uint(1) << c) else '.   ', end = '')
             c += uint(1)
         print('\n')
-    print('    A   B   C   D   E   F   G   H')
-    print()
     print('BitBoard Value:', bit_board)
 
 
