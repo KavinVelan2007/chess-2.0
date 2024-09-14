@@ -1,6 +1,7 @@
-from numpy import uint64 as uint
+from numpy import uint64 as uint, uint32
 import time
 import random
+random.seed(time.time())
 from data import * 
 
 WHITE_PAWNS = uint(71776119061217280)
@@ -30,7 +31,7 @@ def print_bitboard(bit_board):
         print('\n')
     print()        
     print('      A   B   C   D   E   F   G   H')
-
+    print()
     print('BitBoard Value:', bit_board)
     print('\n')
 
@@ -142,26 +143,100 @@ def fill_occupancy(value, bit_board):
     return occupancy
 
 
-def random_number_generate():
-    seed = uint(time.time())
-    
-    seed ^= seed << uint(15)
-    seed ^= seed >> uint(47)
-    seed ^= seed << uint(45)
-    seed ^= seed >> uint(10)
-    seed ^= seed << uint(55)
-    seed ^= seed >> uint(49)
-    
-    return seed
+
+seed = uint32(time.time())
+def random_number_generate(): 
+    def rand():
+       global seed
+       seed ^= seed << uint32(13)
+       seed ^= seed >> uint32(17)
+       seed ^= seed << uint32(5)     
+       return seed
+    return ((uint(rand() & uint32(0xFFFF))) | (uint(rand() & uint32(0xFFFF)) << uint(16)) | (uint(rand() & uint32(0xFFFF)) << uint(32)) | (uint(rand() & uint32(0xFFFF)) << uint(48)))
 
 
-'''
+def generate_bishop_attacks(i,mask):
+    n = uint(0)
+    r,c = i // 8,i % 8
+    row,col = r + 1,c + 1
+    while row <= 7 and col <= 7:
+        n |= uint(1) << uint(row * 8 + col)
+        if mask & (uint(1) << uint(row * 8 + col)):
+            break
+        row += 1
+        col += 1
+    row,col = r - 1,c + 1
+    while row >= 0 and col <= 7:
+        n |= uint(1) << uint(row * 8 + col)
+        if mask & (uint(1) << uint(row * 8 + col)):
+            break
+        row -= 1
+        col += 1
+    row,col = r + 1,c - 1
+    while row <= 7 and col >= 0:
+        n |= uint(1) << uint(row * 8 + col)
+        if mask & (uint(1) << uint(row * 8 + col)):
+            break
+        row += 1
+        col -= 1
+    row,col = r - 1,c - 1
+    while row >= 0 and col >= 0:
+        n |= uint(1) << uint(row * 8 + col)
+        if mask & (uint(1) << uint(row * 8 + col)):
+            break
+        row -= 1
+        col -= 1
+    return n
+
+def generate_rook_attacks(i,mask):
+    row = i // 8
+    col = i % 8
+    n = uint(0)
+    for r in range(row + 1,8):
+        n |= uint(1) << uint(r * 8 + col)
+        if mask & (uint(1) << uint(r * 8 + col)):
+            break
+    for r in range(row - 1,-1,-1):
+        n |= uint(1) << uint(r * 8 + col)
+        if mask & (uint(1) << uint(r * 8 + col)):
+            break
+    for c in range(col + 1,8):
+        n |= uint(1) << uint(row * 8 + c)
+        if mask & (uint(1) << uint(row * 8 + c)):
+            break
+    for c in range(col - 1,-1,-1):
+        n |= uint(1) << uint(row * 8 + c)
+        if mask & (uint(1) << uint(row * 8 + c)):
+            break
+    return n
+
+
 def generate_magic_numbers(position, bits_present, piece): # For the piece parameter, bishop = 0, rook = 1
     occupancy = []
     attack = []
     used_attacks = []
-    for i in range(1 << (ROOK_OCCUPANCY_BITS[position] if piece else BISHOP_OCCUPANCY_BITS[position])):
-        occupancy += [fill_occupancy(uint(i), ROOK_OCCUPANCY[position])]
-'''
-
+    current_occupancy = ROOK_OCCUPANCY[position] if piece else BISHOP_OCCUPANCY[position]
+    for i in range(uint(1) << uint(bits_present)):
+        occupancy += [fill_occupancy(uint(i), current_occupancy)]
+        attack += [generate_rook_attacks(position, occupancy[i]) if piece else generate_bishop_attacks(position, occupancy[i])]
+        
+    for i in range(100000000):
+        magic_number = uint(random.randint(0, (1 << 64) - 1)) & uint(random.randint(0, (1 << 64) - 1))   
+        if count_bits((current_occupancy * magic_number) & uint(0xFF00000000000000)) < 6:
+            continue
+        used_attacks = [uint(0) for i in range(uint(1) << uint(bits_present))]
+        
+        index = 0
+        failed = False
+        
+        while not failed and index < (uint(1) << uint(bits_present)):
+            magic_index = ((occupancy[index] * magic_number) >> uint(64 - bits_present))
+            if used_attacks[magic_index] == uint(0):
+                used_attacks[magic_index] = attack[index]
+            elif used_attacks[magic_index] != attack[index]:
+                failed = True
+            index += 1
+        if not failed:
+            return magic_number
+    return uint(0)
 
