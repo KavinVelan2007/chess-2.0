@@ -1,10 +1,6 @@
-import pygame
 from data import *
-
-display = pygame.display.set_mode((0,0),pygame.FULLSCREEN)
-
-WINDOW_WIDTH,WINDOW_HEIGHT = pygame.display.Info().current_w,pygame.display.Info().current_h
-BOARD_WIDTH,BOARD_HEIGHT = WINDOW_HEIGHT,WINDOW_HEIGHT
+from sprites import *
+from main import *
 
 def display_board(display):
     for row in range(8):
@@ -13,8 +9,86 @@ def display_board(display):
                 pygame.draw.rect(display,(255,255,255),(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8),BOARD_WIDTH // 8,BOARD_HEIGHT // 8))
             else:
                 pygame.draw.rect(display,(114,149,83),(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8),BOARD_WIDTH // 8,BOARD_HEIGHT // 8))
-            
+
+def display_black_pieces(display):
+    temp = BLACK_BISHOPS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['b'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = BLACK_ROOKS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['r'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = BLACK_QUEEN
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['q'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = BLACK_KNIGHTS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['n'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = BLACK_PAWNS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['p'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = BLACK_KING
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['k'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    
+def display_white_pieces(display):
+    temp = WHITE_BISHOPS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['B'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = WHITE_ROOKS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['R'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = WHITE_QUEEN
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['Q'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = WHITE_KNIGHTS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['N'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = WHITE_PAWNS
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['P'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+    temp = WHITE_KING
+    while temp:
+        index = least_significant_bit_count(temp)
+        row,col = index // 8,index % 8
+        display.blit(sprites['K'],(WINDOW_WIDTH // 2 - WINDOW_HEIGHT // 2 + col * (BOARD_WIDTH // 8),row * (BOARD_HEIGHT // 8)))
+        temp &= temp - uint(1)
+
 def run():
+    global BLACK_BISHOPS,BLACK_KING,BLACK_KNIGHTS,BLACK_QUEEN,BLACK_ROOKS,BLACK_PAWNS
+    global WHITE_BISHOPS,WHITE_KING,WHITE_KNIGHTS,WHITE_QUEEN,WHITE_ROOKS,WHITE_PAWNS
     run = True
     while run:
         for event in pygame.event.get():
@@ -24,6 +98,8 @@ def run():
                     
         display.fill((30,30,30))
         display_board(display)
+        display_black_pieces(display)
+        display_white_pieces(display)
         pygame.display.update()
         
     pygame.quit()
