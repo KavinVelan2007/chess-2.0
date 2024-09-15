@@ -231,14 +231,20 @@ def init_magic_tables():
     ROOK_ATTACKS = []
     BISHOP_ATTACKS = []
     for i in range(64):
-        ROOK_ATTACKS += [[uint(0) for x in range(1 << ROOK_OCCUPANCY_BITS[i])]]
-        BISHOP_ATTACKS += [[uint(0) for x in range(1 << BISHOP_OCCUPANCY_BITS[i])]]
+        ROOK_ATTACKS += [[None for x in range(1 << ROOK_OCCUPANCY_BITS[i])]]
+        BISHOP_ATTACKS += [[None for x in range(1 << BISHOP_OCCUPANCY_BITS[i])]]
         for j in range(1 << ROOK_OCCUPANCY_BITS[i]):
             magic_index = ((fill_occupancy(uint(j), ROOK_OCCUPANCY[i]) * ROOK_MAGIC_NUMBERS[i]) >> uint(64 - ROOK_OCCUPANCY_BITS[i]))
-            ROOK_ATTACKS[i][magic_index] = generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i]))
+            if ROOK_ATTACKS[i][magic_index] == None:
+                ROOK_ATTACKS[i][magic_index] = generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i]))
+            elif ROOK_ATTACKS[i][magic_index] != generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i])):
+                raise ValueError('Magic Number is not so magical!')
         for j in range(1 << BISHOP_OCCUPANCY_BITS[i]):
             magic_index = ((fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]) * BISHOP_MAGIC_NUMBERS[i]) >> uint(64 - BISHOP_OCCUPANCY_BITS[i]))
-            BISHOP_ATTACKS[i][magic_index] = generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]))
+            if BISHOP_ATTACKS[i][magic_index] == None:
+                BISHOP_ATTACKS[i][magic_index] = generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]))
+            elif BISHOP_ATTACKS[i][magic_index] != generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i])):
+                raise ValueError('Magic Number is not so magical!')
 
 
 def generate_rook_moves(square, attack_mask):
@@ -247,3 +253,5 @@ def generate_rook_moves(square, attack_mask):
 
 def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
+
+init_magic_tables()
