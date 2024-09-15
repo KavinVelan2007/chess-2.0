@@ -19,33 +19,6 @@ def translate_from_fen(fen: str):
 			index += 1
 	return board
 
-def translate_to_fen(board):
-	s = ''
-	for i,rank in enumerate(board.board):
-		c = 0
-		for pos in rank:
-			if pos:
-				if c:
-					s += str(c)
-					c = 0
-				if pos.color == 'black':
-					if pos.role == 'knight':
-						s += 'n'
-					else:
-						s += pos.role[0].lower()
-				else:
-					if pos.role == 'knight':
-						s += 'N'
-					else:
-						s += pos.role[0].upper()
-			else:
-				c += 1
-		if c == 8:
-			s += '8'
-		if i != 7:
-			s += '/'
-	return s
-
 def generate_bitboards_from_board(fen):
     board = translate_from_fen(fen)
     p = r = b = n = q = k = P = R = B = N = Q = K = uint(0)
