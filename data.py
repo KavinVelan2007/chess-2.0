@@ -1,4 +1,4 @@
-from numpy import uint64 as uint
+from numpy import uint64 as uint, array
 from fen import *
 
 BITBOARDS = generate_bitboards_from_board(fenString)
@@ -17,7 +17,7 @@ WHITE_KNIGHTS = BITBOARDS[9]
 WHITE_QUEEN = BITBOARDS[10]
 WHITE_KING = BITBOARDS[11]
 
-WHITE_PAWN_PUSHES = [
+WHITE_PAWN_PUSHES = array([
     uint(0),
     uint(0),
     uint(0),
@@ -74,9 +74,9 @@ WHITE_PAWN_PUSHES = [
     uint(35321811042304),
     uint(70643622084608),
     uint(141287244169216),
-]
+])
 
-BLACK_PAWN_PUSHES = [
+BLACK_PAWN_PUSHES = array([
     uint(16842752),
     uint(33685504),
     uint(67371008),
@@ -133,9 +133,9 @@ BLACK_PAWN_PUSHES = [
     uint(0),
     uint(0),
     uint(0),
-]
+])
 
-WHITE_PAWN_ATTACKS = [
+WHITE_PAWN_ATTACKS = array([
     uint(0),
     uint(0),
     uint(0),
@@ -200,9 +200,9 @@ WHITE_PAWN_ATTACKS = [
     uint(22517998136852480),
     uint(45035996273704960),
     uint(18014398509481984),
-]
+])
 
-BLACK_PAWN_ATTACKS = [
+BLACK_PAWN_ATTACKS = array([
     uint(512),
     uint(1280),
     uint(2560),
@@ -267,9 +267,9 @@ BLACK_PAWN_ATTACKS = [
     uint(0),
     uint(0),
     uint(0),
-]
+])
 
-KING_ATTACKS = [
+KING_ATTACKS = array([
     uint(770),
     uint(1797),
     uint(3594),
@@ -334,9 +334,9 @@ KING_ATTACKS = [
     uint(5796132720425828352),
     uint(11592265440851656704),
     uint(4665729213955833856),
-]
+])
 
-KNIGHT_ATTACKS = [
+KNIGHT_ATTACKS = array([
     uint(132096),
     uint(329728),
     uint(659712),
@@ -401,10 +401,10 @@ KNIGHT_ATTACKS = [
     uint(38368557762871296),
     uint(4679521487814656),
     uint(9077567998918656),
-]
+])
 
 
-ROOK_OCCUPANCY = [
+ROOK_OCCUPANCY = array([
     uint(282578800148862),
     uint(565157600297596),
     uint(1130315200595066),
@@ -469,9 +469,9 @@ ROOK_OCCUPANCY = [
     uint(6782456361169985536),
     uint(4485655873561051136),
     uint(9115426935197958144),
-]
+])
 
-BISHOP_OCCUPANCY = [
+BISHOP_OCCUPANCY = array([
     uint(18049651735527936),
     uint(70506452091904),
     uint(275415828992),
@@ -536,9 +536,9 @@ BISHOP_OCCUPANCY = [
     uint(22526811443298304),
     uint(9024825867763712),
     uint(18049651735527936),
-]
+])
 
-ROOK_OCCUPANCY_BITS = [
+ROOK_OCCUPANCY_BITS = array([
     12,11,11,11,11,11,11,12,
     11,10,10,10,10,10,10,11,
     11,10,10,10,10,10,10,11,
@@ -547,9 +547,9 @@ ROOK_OCCUPANCY_BITS = [
     11,10,10,10,10,10,10,11,
     11,10,10,10,10,10,10,11,
     12,11,11,11,11,11,11,12
-]
+])
 
-BISHOP_OCCUPANCY_BITS = [
+BISHOP_OCCUPANCY_BITS = array([
     6,5,5,5,5,5,5,6,
     5,5,5,5,5,5,5,5,
     5,5,7,7,7,7,5,5,
@@ -558,10 +558,10 @@ BISHOP_OCCUPANCY_BITS = [
     5,5,7,7,7,7,5,5,
     5,5,5,5,5,5,5,5,
     6,5,5,5,5,5,5,6
-]
+])
 
 
-ROOK_MAGIC_NUMBERS = [
+ROOK_MAGIC_NUMBERS = array([
     uint(36029381405327360),
     uint(1170971088562163712),
     uint(612524735842488320),
@@ -626,10 +626,10 @@ ROOK_MAGIC_NUMBERS = [
     uint(79375950479380482),
     uint(576478417640358020),
     uint(45599496524071938)
-]
+])
 
 
-BISHOP_MAGIC_NUMBERS = [
+BISHOP_MAGIC_NUMBERS = array([
     uint(1225647816496513056),
     uint(9027267506275584),
     uint(1768093866612753408),
@@ -694,4 +694,4 @@ BISHOP_MAGIC_NUMBERS = [
     uint(18014742648521985),
     uint(288235397036114048),
     uint(4521201074455568),
-]
+])

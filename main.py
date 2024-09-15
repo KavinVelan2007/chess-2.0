@@ -1,6 +1,6 @@
-from pickle import NONE
-from numpy import uint64 as uint, uint32
+from numpy import uint64 as uint, uint32, array
 import time
+import os
 import random
 random.seed(time.time())
 from data import * 
@@ -228,23 +228,21 @@ def generate_magic_numbers(position, bits_present, piece): # For the piece param
 
 def init_magic_tables():
     global ROOK_ATTACKS, BISHOP_ATTACKS
-    ROOK_ATTACKS = []
-    BISHOP_ATTACKS = []
+    ROOK_ATTACKS = array([[uint(0) for x in range(1 << 12)] for i in range(64)])
+    BISHOP_ATTACKS = array([[uint(0) for x in range(1 << 9)] for i in range(64)])
     for i in range(64):
-        ROOK_ATTACKS += [[None for x in range(1 << ROOK_OCCUPANCY_BITS[i])]]
-        BISHOP_ATTACKS += [[None for x in range(1 << BISHOP_OCCUPANCY_BITS[i])]]
         for j in range(1 << ROOK_OCCUPANCY_BITS[i]):
             magic_index = ((fill_occupancy(uint(j), ROOK_OCCUPANCY[i]) * ROOK_MAGIC_NUMBERS[i]) >> uint(64 - ROOK_OCCUPANCY_BITS[i]))
-            if ROOK_ATTACKS[i][magic_index] == None:
+            if ROOK_ATTACKS[i][magic_index] == uint(0):
                 ROOK_ATTACKS[i][magic_index] = generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i]))
             elif ROOK_ATTACKS[i][magic_index] != generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i])):
                 raise ValueError('Magic Number is not so magical!')
         for j in range(1 << BISHOP_OCCUPANCY_BITS[i]):
             magic_index = ((fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]) * BISHOP_MAGIC_NUMBERS[i]) >> uint(64 - BISHOP_OCCUPANCY_BITS[i]))
-            if BISHOP_ATTACKS[i][magic_index] == None:
+            if BISHOP_ATTACKS[i][magic_index] == uint(0):
                 BISHOP_ATTACKS[i][magic_index] = generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]))
             elif BISHOP_ATTACKS[i][magic_index] != generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i])):
-                raise ValueError('Magic Number is not so magical!')
+                raise ValueError('Magic Number is not so magical!') 
 
 
 def generate_rook_moves(square, attack_mask):
@@ -255,3 +253,4 @@ def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
 
 init_magic_tables()
+os.system('cls')
