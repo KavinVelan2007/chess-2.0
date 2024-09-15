@@ -1,3 +1,4 @@
+from pickle import NONE
 from numpy import uint64 as uint, uint32
 import time
 import random
@@ -240,3 +241,28 @@ def generate_magic_numbers(position, bits_present, piece): # For the piece param
             return magic_number
     return uint(0)
 
+
+def init_magic_tables():
+    global ROOK_ATTACKS, BISHOP_ATTACKS
+    ROOK_ATTACKS = []
+    BISHOP_ATTACKS = []
+    for i in range(64):
+        ROOK_ATTACKS += [[uint(0) for x in range(1 << ROOK_OCCUPANCY_BITS[i])]]
+        BISHOP_ATTACKS += [[uint(0) for x in range(1 << BISHOP_OCCUPANCY_BITS[i])]]
+        for j in range(1 << ROOK_OCCUPANCY_BITS[i]):
+            magic_index = ((fill_occupancy(uint(j), ROOK_OCCUPANCY[i]) * ROOK_MAGIC_NUMBERS[i]) >> uint(64 - ROOK_OCCUPANCY_BITS[i]))
+            ROOK_ATTACKS[i][magic_index] = generate_rook_attacks(i, fill_occupancy(uint(j), ROOK_OCCUPANCY[i]))
+        for j in range(1 << BISHOP_OCCUPANCY_BITS[i]):
+            magic_index = ((fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]) * BISHOP_MAGIC_NUMBERS[i]) >> uint(64 - BISHOP_OCCUPANCY_BITS[i]))
+            BISHOP_ATTACKS[i][magic_index] = generate_bishop_attacks(i, fill_occupancy(uint(j), BISHOP_OCCUPANCY[i]))
+
+
+def generate_rook_moves(square, attack_mask):
+    return ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & attack_mask) * ROOK_MAGIC_NUMBERS[square]) >> uint(64 - ROOK_OCCUPANCY_BITS[square]))]
+
+
+def generate_bishop_moves(square, attack_mask):
+    return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
+
+
+init_magic_tables()
