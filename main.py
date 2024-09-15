@@ -251,6 +251,3 @@ def generate_rook_moves(square, attack_mask):
 
 def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
-
-init_magic_tables()
-os.system('cls')
