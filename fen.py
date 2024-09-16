@@ -48,5 +48,5 @@ def generate_bitboards_from_board(fen):
                 Q |= uint(1) << uint(row * 8 + col)
             elif board[row][col] == 'K':
                 K |= uint(1) << uint(row * 8 + col)
-    return (p,r,b,n,q,k,P,R,B,N,Q,K)
+    return (P,N,B,R,Q,K,p,n,b,r,q,k)
             
