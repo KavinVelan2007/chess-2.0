@@ -1,13 +1,14 @@
-from numpy import uint64 as uint, uint32, array
+from numpy import uint64 as uint, uint32, array,set_printoptions
 import time
-import os
+import sys
 import random
 random.seed(time.time())
 from data import * 
 
+set_printoptions(threshold=sys.maxsize)
+
 def print_bitboard(bit_board):
     c = uint(0)
-    
     for i in range(8):
         print(8 - i, '    ', end ='')
         for j in range(8):

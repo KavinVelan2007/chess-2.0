@@ -5,7 +5,7 @@ from main import *
 def display_board(display):
     for row in range(8):
         for col in range(8):
-            if (row + col) % 2:
+            if (row + col) & 1:
                 pygame.draw.rect(display,(255,255,255),((WINDOW_WIDTH >> 1) - (WINDOW_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
             else:
                 pygame.draw.rect(display,(114,149,83),((WINDOW_WIDTH >> 1) - (WINDOW_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
