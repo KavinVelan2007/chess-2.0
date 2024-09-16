@@ -252,3 +252,43 @@ def generate_rook_moves(square, attack_mask):
 
 def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
+
+#init_magic_tables()
+
+
+'''
+BOARD REPRESENTATION
+12 bitboards for positions in order of 'PNBRQKpnbrqk'
+
+13 32 bit integer
+
+first bit = 0 if white to play 1 if black to play
+next four bits for castling data = KQkq
+next bit = enpassant possible or not
+next 6 bits = enpassant square
+'''
+pieces = 'PNBRQKpnbrqk'
+
+board = BITBOARDS
+board_data = uint32(0b01111000000000000000000000000000)
+
+def print_chess_board(boards, board_data):
+    c = uint(0)
+    
+    for i in range(8):
+        print(8 - i, '    ', end ='')
+        for j in range(8):
+            for k in range(12):
+                if boards[k] & (uint(1) << c):
+                    print(f'{pieces[k]} ', end = '')
+            c += uint(1)
+        print('\n')
+    print()        
+    print('      A   B   C   D   E   F   G   H')
+    print()
+    print(f'Castling rights: {}{}{}{}')
+    print()
+    print(f'Side to move: {}')
+    print()
+    print(f'En Passant: {}')
+    print('\n')
