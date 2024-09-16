@@ -1,13 +1,14 @@
-from numpy import uint64 as uint, uint32, array
+from numpy import uint64 as uint, uint32, array,set_printoptions
 import time
-import os
+import sys
 import random
 random.seed(time.time())
 from data import * 
 
+set_printoptions(threshold=sys.maxsize)
+
 def print_bitboard(bit_board):
     c = uint(0)
-    
     for i in range(8):
         print(8 - i, '    ', end ='')
         for j in range(8):
@@ -251,6 +252,3 @@ def generate_rook_moves(square, attack_mask):
 
 def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
-
-init_magic_tables()
-os.system('cls')
