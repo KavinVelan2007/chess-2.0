@@ -1,5 +1,6 @@
 from numpy import uint64 as uint, array
 from fen import *
+import pickle
 
 BITBOARDS = array(generate_bitboards_from_board(fenString))
 
@@ -695,3 +696,9 @@ BISHOP_MAGIC_NUMBERS = array([
     uint(288235397036114048),
     uint(4521201074455568),
 ])
+
+with open('rookAttacks.dat','rb') as f:
+    ROOK_ATTACKS = pickle.load(f)
+
+with open('bishopAttacks.dat','rb') as f:
+    BISHOP_ATTACKS = pickle.load(f)
