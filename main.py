@@ -286,15 +286,12 @@ def return_moves(square):
             temp -= (uint(1) << uint(index))
         return res
     elif (BLACK_BISHOPS | WHITE_BISHOPS) & (uint(1) << uint(square)):
-        moves = generate_bishop_moves(square,WHITE_PIECES | BLACK_PIECES)
+        moves = BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES)) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
         if BLACK_BISHOPS & (uint(1) << uint(square)):
             friendly_attacks = moves & BLACK_PIECES
         else:
             friendly_attacks = moves & WHITE_PIECES
-        while friendly_attacks:
-            index = least_significant_bit_count(friendly_attacks)
-            moves -= (uint(1) << uint(index))
-            friendly_attacks &= friendly_attacks - uint(1)
+        moves &= ~friendly_attacks
         return moves
     elif (BLACK_KNIGHTS | WHITE_KNIGHTS) & (uint(1) << uint(square)):
         moves = KNIGHT_ATTACKS[square]
@@ -302,36 +299,34 @@ def return_moves(square):
             friendly_attacks = moves & (BLACK_PIECES)
         else:
             friendly_attacks = moves & (WHITE_PIECES)
-        while friendly_attacks:
-            index = least_significant_bit_count(friendly_attacks)
-            moves -= (uint(1) << uint(index))
-            friendly_attacks &= friendly_attacks - uint(1)
+        moves &= ~friendly_attacks
         return moves
     elif (BLACK_ROOKS | WHITE_ROOKS) & (uint(1) << uint(square)):
-        moves = generate_rook_moves(square,WHITE_PIECES | BLACK_PIECES)
+        moves = ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES)) * ROOK_MAGIC_NUMBERS[square]) >> uint(64 - ROOK_OCCUPANCY_BITS[square]))]
         if BLACK_ROOKS & (uint(1) << uint(square)):
             friendly_attacks = moves & BLACK_PIECES
         else:
             friendly_attacks = moves & WHITE_PIECES
-        while friendly_attacks:
-            index = least_significant_bit_count(friendly_attacks)
-            moves -= (uint(1) << uint(index))
-            friendly_attacks &= friendly_attacks - uint(1)
+        moves &= ~friendly_attacks
         return moves
     elif (BLACK_QUEEN | WHITE_QUEEN) & (uint(1) << uint(square)):
-        moves = generate_rook_moves(square,WHITE_PIECES | BLACK_PIECES) | generate_bishop_moves(square,WHITE_PIECES | BLACK_PIECES)
+        rook_moves = ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES)) * ROOK_MAGIC_NUMBERS[square]) >> uint(64 - ROOK_OCCUPANCY_BITS[square]))]
+        bishop_moves = BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES)) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
+        moves = rook_moves | bishop_moves
         if BLACK_QUEEN & (uint(1) << uint(square)):
             friendly_attacks = moves & BLACK_PIECES
         else:
             friendly_attacks = moves & WHITE_PIECES
-        while friendly_attacks:
-            index = least_significant_bit_count(friendly_attacks)
-            moves -= (uint(1) << uint(index))
-            friendly_attacks &= friendly_attacks - uint(1)
+        moves &= ~friendly_attacks
         return moves
-    
-WHITE_QUEEN |= uint(1) << uint(35)
-print_bitboard(return_moves(35))
+    elif (BLACK_KING | WHITE_KING) & (uint(1) << uint(square)):
+        moves = KING_ATTACKS[square]
+        if BLACK_KING & (uint(1) << uint(square)):
+            friendly_attacks = moves & BLACK_PIECES
+        else:
+            friendly_attacks = moves & WHITE_PIECES
+        moves &= ~friendly_attacks
+        return moves
     
 '''
 BOARD REPRESENTATION
