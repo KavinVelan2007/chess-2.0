@@ -117,6 +117,13 @@ def count_bits(bit_board):
 def least_significant_bit_count(bit_board):
     return(count_bits(bit_board - uint(1)) - count_bits(bit_board) + 1)
 
+def most_significant_bit_count(bitboard):
+    ndx = 0
+    n = bitboard // 2
+    while n:
+        n //= 2
+        ndx += 1
+    return ndx
 
 def fill_occupancy(value, bit_board):
     occupancy = uint(0)
@@ -253,9 +260,79 @@ def generate_rook_moves(square, attack_mask):
 def generate_bishop_moves(square, attack_mask):
     return BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & attack_mask) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))]
 
-#init_magic_tables()
-
-
+def return_moves(square):
+    WHITE_PIECES = WHITE_BISHOPS | WHITE_KING | WHITE_KNIGHTS | WHITE_PAWNS | WHITE_QUEEN | WHITE_ROOKS
+    BLACK_PIECES = BLACK_BISHOPS | BLACK_KING | BLACK_KNIGHTS | BLACK_PAWNS | BLACK_QUEEN | BLACK_ROOKS
+    if BLACK_PAWNS & (uint(1) << uint(square)):
+        res = (BLACK_PAWN_ATTACKS[square] & WHITE_PIECES)
+        temp = BLACK_PAWN_PUSHES[square]
+        while temp:
+            index = least_significant_bit_count(temp)
+            if not (uint(1) << uint(index)) & (BLACK_PIECES | WHITE_PIECES):
+                res |= uint(1) << uint(index)
+            else:
+                break
+            temp &= temp - uint(1)
+        return res
+    elif WHITE_PAWNS & (uint(1) << uint(square)):
+        res = (WHITE_PAWN_ATTACKS[square] & BLACK_PIECES)
+        temp = WHITE_PAWN_PUSHES[square]
+        while temp:
+            index = most_significant_bit_count(temp)
+            if not (uint(1) << uint(index)) & (BLACK_PIECES | WHITE_PIECES):
+                res |= uint(1) << uint(index)
+            else:
+                break
+            temp -= (uint(1) << uint(index))
+        return res
+    elif (BLACK_BISHOPS | WHITE_BISHOPS) & (uint(1) << uint(square)):
+        moves = generate_bishop_moves(square,WHITE_PIECES | BLACK_PIECES)
+        if BLACK_BISHOPS & (uint(1) << uint(square)):
+            friendly_attacks = moves & BLACK_PIECES
+        else:
+            friendly_attacks = moves & WHITE_PIECES
+        while friendly_attacks:
+            index = least_significant_bit_count(friendly_attacks)
+            moves -= (uint(1) << uint(index))
+            friendly_attacks &= friendly_attacks - uint(1)
+        return moves
+    elif (BLACK_KNIGHTS | WHITE_KNIGHTS) & (uint(1) << uint(square)):
+        moves = KNIGHT_ATTACKS[square]
+        if BLACK_KNIGHTS & (uint(1) << uint(square)):
+            friendly_attacks = moves & (BLACK_PIECES)
+        else:
+            friendly_attacks = moves & (WHITE_PIECES)
+        while friendly_attacks:
+            index = least_significant_bit_count(friendly_attacks)
+            moves -= (uint(1) << uint(index))
+            friendly_attacks &= friendly_attacks - uint(1)
+        return moves
+    elif (BLACK_ROOKS | WHITE_ROOKS) & (uint(1) << uint(square)):
+        moves = generate_rook_moves(square,WHITE_PIECES | BLACK_PIECES)
+        if BLACK_ROOKS & (uint(1) << uint(square)):
+            friendly_attacks = moves & BLACK_PIECES
+        else:
+            friendly_attacks = moves & WHITE_PIECES
+        while friendly_attacks:
+            index = least_significant_bit_count(friendly_attacks)
+            moves -= (uint(1) << uint(index))
+            friendly_attacks &= friendly_attacks - uint(1)
+        return moves
+    elif (BLACK_QUEEN | WHITE_QUEEN) & (uint(1) << uint(square)):
+        moves = generate_rook_moves(square,WHITE_PIECES | BLACK_PIECES) | generate_bishop_moves(square,WHITE_PIECES | BLACK_PIECES)
+        if BLACK_QUEEN & (uint(1) << uint(square)):
+            friendly_attacks = moves & BLACK_PIECES
+        else:
+            friendly_attacks = moves & WHITE_PIECES
+        while friendly_attacks:
+            index = least_significant_bit_count(friendly_attacks)
+            moves -= (uint(1) << uint(index))
+            friendly_attacks &= friendly_attacks - uint(1)
+        return moves
+    
+WHITE_QUEEN |= uint(1) << uint(35)
+print_bitboard(return_moves(35))
+    
 '''
 BOARD REPRESENTATION
 12 bitboards for positions in order of 'PNBRQKpnbrqk'
@@ -271,7 +348,7 @@ pieces = 'PNBRQKpnbrqk'
 
 board = BITBOARDS
 board_data = uint32(0b01111000000000000000000000000000)
-
+'''
 def print_chess_board(boards, board_data):
     c = uint(0)
     
@@ -291,4 +368,4 @@ def print_chess_board(boards, board_data):
     print(f'Side to move: {}')
     print()
     print(f'En Passant: {}')
-    print('\n')
+    print('\n')'''

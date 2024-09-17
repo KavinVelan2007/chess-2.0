@@ -78,6 +78,14 @@ WHITE_PAWN_PUSHES = array([
 ])
 
 BLACK_PAWN_PUSHES = array([
+    uint(0),
+    uint(0),
+    uint(0),
+    uint(0),
+    uint(0),
+    uint(0),
+    uint(0),
+    uint(0),
     uint(16842752),
     uint(33685504),
     uint(67371008),
