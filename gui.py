@@ -8,7 +8,7 @@ def display_board(display):
             if (row + col) & 1:
                 pygame.draw.rect(display,(255,255,255),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
             else:
-                pygame.draw.rect(display,(114,149,83),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+                pygame.draw.rect(display,(86,99,239),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
 
 def display_black_pieces(display):
     temp = BLACK_BISHOPS
@@ -116,12 +116,15 @@ def run():
         pygame.draw.line(display,(255,255,255),(WINDOW_WIDTH - 50,0),(WINDOW_WIDTH,47),3)
         
         if curr:
-            pygame.draw.rect(display,(255,0,0),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + curr[1] * (BOARD_WIDTH >> 3),curr[0] * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3),3)
+            display.blit(POINTER,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + curr[1] * (BOARD_WIDTH >> 3),curr[0] * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             moves = return_moves(curr[0] * 8 + curr[1])
             while moves:
                 index = least_significant_bit_count(moves)
                 row,col = index // 8,index % 8
-                pygame.draw.rect(display,(255,0,0),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+                surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
+                surface.fill((0,0,0))
+                surface.set_alpha(150)
+                display.blit(surface,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
                 moves &= moves - uint(1)
 
         pygame.display.update()
