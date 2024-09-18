@@ -98,6 +98,8 @@ def run():
                 if event.key == pygame.K_q:
                     run = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
+                    run = False
                 x,y = pygame.mouse.get_pos()
                 x -= (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1)
                 y -= (WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)
@@ -108,10 +110,20 @@ def run():
         display_board(display)
         display_black_pieces(display)
         display_white_pieces(display)
+
+        pygame.draw.rect(display,(255,0,0),(WINDOW_WIDTH - 50,0,50,50),0,0,0,0,5)
+        pygame.draw.line(display,(255,255,255),(WINDOW_WIDTH,0),(WINDOW_WIDTH - 47,47),3)
+        pygame.draw.line(display,(255,255,255),(WINDOW_WIDTH - 50,0),(WINDOW_WIDTH,47),3)
         
         if curr:
             pygame.draw.rect(display,(255,0,0),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + curr[1] * (BOARD_WIDTH >> 3),curr[0] * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3),3)
-        
+            moves = return_moves(curr[0] * 8 + curr[1])
+            while moves:
+                index = least_significant_bit_count(moves)
+                row,col = index // 8,index % 8
+                pygame.draw.rect(display,(255,0,0),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+                moves &= moves - uint(1)
+
         pygame.display.update()
         
     pygame.quit()
