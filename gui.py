@@ -100,7 +100,8 @@ class Game:
             surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
             surface.fill((0,0,0))
             surface.set_alpha(150)
-            display.blit(surface,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
+            x,y = (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))
+            display.blit(surface,(x,y))
             moves &= moves - uint(1)
 
     def run(self):
