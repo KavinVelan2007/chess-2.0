@@ -312,7 +312,20 @@ def generate_bishop_moves(square, attack_mask):
     ]
 
 
-def return_moves(square):
+def return_moves(square,bitboards):
+    WHITE_PAWNS = bitboards[0]
+    WHITE_KNIGHTS = bitboards[1]
+    WHITE_BISHOPS = bitboards[2]
+    WHITE_ROOKS = bitboards[3]
+    WHITE_QUEEN = bitboards[4]
+    WHITE_KING = bitboards[5]
+
+    BLACK_PAWNS = bitboards[6]
+    BLACK_KNIGHTS = bitboards[7]
+    BLACK_BISHOPS = bitboards[8]
+    BLACK_ROOKS = bitboards[9]
+    BLACK_QUEEN = bitboards[10]
+    BLACK_KING = bitboards[11]
     WHITE_PIECES = (
         WHITE_BISHOPS
         | WHITE_KING
