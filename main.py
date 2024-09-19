@@ -312,7 +312,7 @@ def generate_bishop_moves(square, attack_mask):
     ]
 
 
-def return_moves(square,bitboards):
+def return_moves(square, bitboards):
     WHITE_PAWNS = bitboards[0]
     WHITE_KNIGHTS = bitboards[1]
     WHITE_BISHOPS = bitboards[2]
@@ -356,13 +356,17 @@ def return_moves(square,bitboards):
     elif WHITE_PAWNS & (uint(1) << uint(square)):
         res = WHITE_PAWN_ATTACKS[square] & BLACK_PIECES
         temp = WHITE_PAWN_PUSHES[square]
+        indices = []
         while temp:
-            index = most_significant_bit_count(temp)
+            index = least_significant_bit_count(temp)
+            indices.append(index)
+            temp -= uint(1) << uint(index)
+        for i in range(len(indices) - 1,-1,-1):
+            index = indices[i]
             if not (uint(1) << uint(index)) & (BLACK_PIECES | WHITE_PIECES):
                 res |= uint(1) << uint(index)
             else:
                 break
-            temp -= uint(1) << uint(index)
         return res
     elif (BLACK_BISHOPS | WHITE_BISHOPS) & (uint(1) << uint(square)):
         moves = BISHOP_ATTACKS[square][
@@ -440,6 +444,7 @@ def return_moves(square,bitboards):
         return moves
     else:
         return uint(0)
+
 
 """
 BOARD REPRESENTATION

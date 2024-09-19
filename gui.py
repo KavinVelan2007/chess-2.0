@@ -120,9 +120,10 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         for i in range(48,56):
+                            if self.curr and i == (self.curr[0] * 8 + self.curr[1]):
+                                self.curr = None
                             WHITE_PAWNS -= (uint(1) << uint(i))
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    # IF THE WINDOW CLOSE BUTTON IS PRESSED, STOP
                     if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
                         run = False
                     x,y = pygame.mouse.get_pos()
