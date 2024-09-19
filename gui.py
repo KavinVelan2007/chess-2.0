@@ -12,9 +12,9 @@ class Game:
         for row in range(8):
             for col in range(8):
                 if (row + col) & 1:
-                    pygame.draw.rect(display,(255,255,255),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+                    pygame.draw.rect(display,(255,255,255,255),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
                 else:
-                    pygame.draw.rect(display,(86,99,239),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+                    pygame.draw.rect(display,(86,99,239,255),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
 
     def display_black_pieces(self,display):
         temp = BLACK_BISHOPS
@@ -98,8 +98,12 @@ class Game:
             index = least_significant_bit_count(moves)
             row,col = index // 8,index % 8
             surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
-            surface.fill((0,0,0))
-            surface.set_alpha(150)
+            surface.fill((255,255,255) if (row + col) & 1 else (86,99,239))
+            surface.set_alpha(100)
+            if (uint(1) << uint(index)) & self.white_pieces or (uint(1) << uint(index)) & self.black_pieces:
+                pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 4,12)
+            else:
+                pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 5)
             x,y = (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))
             display.blit(surface,(x,y))
             moves &= moves - uint(1)
@@ -110,12 +114,13 @@ class Game:
         run = True
         while run:
             self.bitboard = (WHITE_PAWNS,WHITE_KNIGHTS,WHITE_BISHOPS,WHITE_ROOKS,WHITE_QUEEN,WHITE_KING,BLACK_PAWNS,BLACK_KNIGHTS,BLACK_BISHOPS,BLACK_ROOKS,BLACK_QUEEN,BLACK_KING)
-            white_pieces = WHITE_PAWNS | WHITE_KNIGHTS | WHITE_BISHOPS | WHITE_ROOKS | WHITE_QUEEN | WHITE_KING
+            self.white_pieces = WHITE_PAWNS | WHITE_KNIGHTS | WHITE_BISHOPS | WHITE_ROOKS | WHITE_QUEEN | WHITE_KING
+            self.black_pieces = BLACK_PAWNS | BLACK_KNIGHTS | BLACK_BISHOPS | BLACK_ROOKS | BLACK_QUEEN | BLACK_KING
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    '''if event.key == pygame.K_q:
+                    if event.key == pygame.K_q:
                         for i in range(48,56):
-                            WHITE_PAWNS -= (uint(1) << uint(i))'''
+                            WHITE_PAWNS -= (uint(1) << uint(i))
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     # IF THE WINDOW CLOSE BUTTON IS PRESSED, STOP
                     if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
@@ -124,14 +129,12 @@ class Game:
                     x -= (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1)
                     y -= (WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)
                     row,col = y // (BOARD_HEIGHT >> 3),x // (BOARD_WIDTH >> 3)
-                    if white_pieces & (uint(1) << uint((row << 3) + col)):
+                    if self.white_pieces & (uint(1) << uint((row << 3) + col)):
                         self.curr = (row,col)
-            display.fill((30,30,30))
+            display.fill((30,30,30,255))
             
-            # DISPLAYING BOARD AND PIECES
+            # DISPLAYING BOARD
             self.display_board(self.display)
-            self.display_black_pieces(self.display)
-            self.display_white_pieces(self.display)
 
             # DISPLAYING WINDOW CLOSE BUTTON
             pygame.draw.rect(self.display,(255,0,0),(WINDOW_WIDTH - 50,0,50,50),0,0,0,0,5)
@@ -142,6 +145,10 @@ class Game:
                 # DISPLAY POINTER
                 self.display.blit(POINTER,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + self.curr[1] * (BOARD_WIDTH >> 3),self.curr[0] * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
                 self.display_moves(self.curr)
+                
+            # DISPLAYLING PIECES
+            self.display_black_pieces(self.display)
+            self.display_white_pieces(self.display)
 
             pygame.display.update()
             
