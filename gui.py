@@ -9,6 +9,18 @@ class Game:
         self.display = display
         self.halfMoves = halfMoves
         self.data = data
+        self.black_bishops = BLACK_BISHOPS
+        self.white_bishops = WHITE_BISHOPS
+        self.black_pawns = BLACK_PAWNS
+        self.white_pawns = WHITE_PAWNS
+        self.black_queen = BLACK_QUEEN
+        self.white_queen = WHITE_QUEEN
+        self.black_knights = BLACK_KNIGHTS
+        self.white_knights = WHITE_KNIGHTS
+        self.black_king = BLACK_KING
+        self.white_king = WHITE_KING
+        self.black_rooks = BLACK_ROOKS
+        self.white_rooks = WHITE_ROOKS
 
     def display_board(self,display):
         for row in range(8):
@@ -19,37 +31,37 @@ class Game:
                     pygame.draw.rect(display,(86,99,239,255),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
 
     def display_black_pieces(self,display):
-        temp = BLACK_BISHOPS
+        temp = self.black_bishops
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['b'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = BLACK_ROOKS
+        temp = self.black_rooks
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['r'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = BLACK_QUEEN
+        temp = self.black_queen
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = BLACK_KNIGHTS
+        temp = self.black_knights
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['n'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = BLACK_PAWNS
+        temp = self.black_pawns
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['p'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = BLACK_KING
+        temp = self.black_king
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
@@ -57,37 +69,37 @@ class Game:
             temp &= temp - uint(1)
         
     def display_white_pieces(self,display):
-        temp = WHITE_BISHOPS
+        temp = self.white_bishops
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['B'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = WHITE_ROOKS
+        temp = self.white_rooks
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['R'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = WHITE_QUEEN
+        temp = self.white_queen
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['Q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = WHITE_KNIGHTS
+        temp = self.white_knights
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['N'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = WHITE_PAWNS
+        temp = self.white_pawns
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
             display.blit(sprites['P'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
-        temp = WHITE_KING
+        temp = self.white_king
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
@@ -111,13 +123,11 @@ class Game:
             moves &= moves - uint(1)
 
     def run(self):
-        global BLACK_BISHOPS,BLACK_KING,BLACK_KNIGHTS,BLACK_QUEEN,BLACK_ROOKS,BLACK_PAWNS
-        global WHITE_BISHOPS,WHITE_KING,WHITE_KNIGHTS,WHITE_QUEEN,WHITE_ROOKS,WHITE_PAWNS
         run = True
         while run:
-            self.bitboard = (WHITE_PAWNS,WHITE_KNIGHTS,WHITE_BISHOPS,WHITE_ROOKS,WHITE_QUEEN,WHITE_KING,BLACK_PAWNS,BLACK_KNIGHTS,BLACK_BISHOPS,BLACK_ROOKS,BLACK_QUEEN,BLACK_KING)
-            self.white_pieces = WHITE_PAWNS | WHITE_KNIGHTS | WHITE_BISHOPS | WHITE_ROOKS | WHITE_QUEEN | WHITE_KING
-            self.black_pieces = BLACK_PAWNS | BLACK_KNIGHTS | BLACK_BISHOPS | BLACK_ROOKS | BLACK_QUEEN | BLACK_KING
+            self.bitboard = (self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king)
+            self.white_pieces = self.white_pawns | self.white_knights | self.white_bishops | self.white_rooks | self.white_queen | self.white_king
+            self.black_pieces = self.black_pawns | self.black_knights | self.black_bishops | self.black_rooks | self.black_queen | self.black_king
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
