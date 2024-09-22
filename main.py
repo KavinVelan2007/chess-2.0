@@ -426,12 +426,12 @@ def return_moves(square, bitboards):
         return uint(0)
 
 def make_move(bitboards,from_,to,data):
-    # bitboards format: list[PNBRQKpnbrqk]
+    # bitboards format: list[P,N,B,R,Q,K,p,n,b,r,q,k]
     # from_,to: tuple(row,col)
     # data: uint64 (format for data given below this fn)
     pass
 
-"""
+    """
 BOARD REPRESENTATION
 12 bitboards for positions in order of 'PNBRQKpnbrqk'
 

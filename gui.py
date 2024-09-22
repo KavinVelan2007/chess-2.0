@@ -124,6 +124,7 @@ class Game:
 
     def run(self):
         run = True
+        clock = pygame.time.Clock()
         while run:
             self.bitboard = (self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king)
             self.white_pieces = self.white_pawns | self.white_knights | self.white_bishops | self.white_rooks | self.white_queen | self.white_king
@@ -160,8 +161,13 @@ class Game:
             # DISPLAYLING PIECES
             self.display_black_pieces(self.display)
             self.display_white_pieces(self.display)
+            
+            text = SMALL_FONT.render(f'{round(clock.get_fps(),2)}',True,(255,255,255))
+            self.display.blit(text,(0,0))
 
             pygame.display.update()
+            
+            clock.tick()
             
         pygame.quit()
 
