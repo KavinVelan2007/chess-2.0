@@ -1,18 +1,19 @@
-from data import *
 from sprites import *
 from main import *
+from utils import *
 
 class Game:
     
     def __init__(self,display):
         self.curr = None
         self.display = display
-        self.flipped = False
+        self.halfMoves = halfMoves
+        self.data = data
 
     def display_board(self,display):
         for row in range(8):
             for col in range(8):
-                if (row + col) & 1:
+                if (row + col) & 1 == 0:
                     pygame.draw.rect(display,(255,255,255,255),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
                 else:
                     pygame.draw.rect(display,(86,99,239,255),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
@@ -22,54 +23,36 @@ class Game:
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['b'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = BLACK_ROOKS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['r'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = BLACK_QUEEN
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = BLACK_KNIGHTS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['n'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = BLACK_PAWNS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['p'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = BLACK_KING
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['k'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         
@@ -78,54 +61,36 @@ class Game:
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['B'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = WHITE_ROOKS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['R'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = WHITE_QUEEN
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['Q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = WHITE_KNIGHTS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['N'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = WHITE_PAWNS
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['P'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
         temp = WHITE_KING
         while temp:
             index = least_significant_bit_count(temp)
             row,col = index >> 3,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             display.blit(sprites['K'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
             temp &= temp - uint(1)
 
@@ -134,11 +99,8 @@ class Game:
         while moves:
             index = least_significant_bit_count(moves)
             row,col = index // 8,index % 8
-            if self.flipped:
-                row = 8 - row - 1
-                col = 8 - col - 1
             surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
-            surface.fill((255,255,255) if (row + col) & 1 else (86,99,239))
+            surface.fill((255,255,255) if (row + col) & 1 == 0 else (86,99,239))
             surface.set_alpha(100)
             if (uint(1) << uint(index)) & self.white_pieces or (uint(1) << uint(index)) & self.black_pieces:
                 pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 4,12)
@@ -160,8 +122,6 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         run = False
-                    elif event.key == pygame.K_r:
-                        self.flipped = not self.flipped
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
                         run = False
@@ -169,9 +129,6 @@ class Game:
                     x -= (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1)
                     y -= (WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)
                     row,col = y // (BOARD_HEIGHT >> 3),x // (BOARD_WIDTH >> 3)
-                    if self.flipped:
-                        row = 8 - row - 1
-                        col = 8 - col - 1
                     if self.white_pieces & (uint(1) << uint((row << 3) + col)):
                         self.curr = (row,col)
             display.fill((30,30,30,255))
@@ -187,9 +144,6 @@ class Game:
             if self.curr:
                 # DISPLAY POINTER
                 row,col = self.curr
-                if self.flipped:
-                    row = 8 - row - 1
-                    col = 8 - col - 1
                 self.display.blit(POINTER,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
                 self.display_moves(self.curr)
                 

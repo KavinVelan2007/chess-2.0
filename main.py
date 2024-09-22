@@ -2,6 +2,7 @@ from numpy import uint64 as uint, uint32, array, set_printoptions
 import time
 import sys
 import random
+from utils import *
 
 random.seed(time.time())
 from data import *
@@ -108,27 +109,6 @@ def generate_bishop_occupancy():
             row -= 1
             col -= 1
         print(f"uint({n})", end=",")
-
-
-def count_bits(bit_board):
-    c = 0
-    while bit_board:
-        bit_board &= bit_board - uint(1)
-        c += 1
-    return c
-
-
-def least_significant_bit_count(bit_board):
-    return count_bits(bit_board - uint(1)) - count_bits(bit_board) + 1
-
-
-def most_significant_bit_count(bitboard):
-    ndx = 0
-    n = bitboard // 2
-    while n:
-        n //= 2
-        ndx += 1
-    return ndx
 
 
 def fill_occupancy(value, bit_board):
@@ -445,6 +425,11 @@ def return_moves(square, bitboards):
     else:
         return uint(0)
 
+def make_move(bitboards,from_,to,data):
+    # bitboards format: list[PNBRQKpnbrqk]
+    # from_,to: tuple(row,col)
+    # data: uint64 (format for data given below this fn)
+    pass
 
 """
 BOARD REPRESENTATION
@@ -457,10 +442,10 @@ next four bits for castling data = KQkq
 next bit = enpassant possible or not
 next 6 bits = enpassant square
 """
-pieces = "PNBRQKpnbrqk"
+#pieces = "PNBRQKpnbrqk"
 
-board = BITBOARDS
-board_data = uint32(0b01111000000000000000000000000000)
+#board = BITBOARDS
+#board_data = uint32(0b01111000000000000000000000000000)
 """
 def print_chess_board(boards, board_data):
     c = uint(0)
