@@ -1,13 +1,10 @@
-from numpy import uint64 as uint, uint32, array, set_printoptions
+from numpy import uint64 as uint, uint32, array, zeros
 import time
 import sys
 import random
 from utils import *
-
 random.seed(time.time())
 from data import *
-
-set_printoptions(threshold=sys.maxsize)
 
 
 def print_bitboard(bit_board):
@@ -292,7 +289,8 @@ def generate_bishop_moves(square, attack_mask):
     ]
 
 
-def return_moves(square, bitboards):
+def return_moves(side, bitboards):
+
     WHITE_PAWNS = bitboards[0]
     WHITE_KNIGHTS = bitboards[1]
     WHITE_BISHOPS = bitboards[2]
@@ -306,6 +304,7 @@ def return_moves(square, bitboards):
     BLACK_ROOKS = bitboards[9]
     BLACK_QUEEN = bitboards[10]
     BLACK_KING = bitboards[11]
+
     WHITE_PIECES = (
         WHITE_BISHOPS
         | WHITE_KING
@@ -314,6 +313,7 @@ def return_moves(square, bitboards):
         | WHITE_QUEEN
         | WHITE_ROOKS
     )
+
     BLACK_PIECES = (
         BLACK_BISHOPS
         | BLACK_KING
@@ -322,6 +322,26 @@ def return_moves(square, bitboards):
         | BLACK_QUEEN
         | BLACK_ROOKS
     )
+
+    ALL_PIECES = BLACK_PIECES | WHITE_PIECES
+
+    moves = zeros(218, dtype = uint32)
+    count = 0
+    def add_move(source, target, piece, promoted, promoted_piece, enpassant, castling):
+        moves[count] = uint32(source) | uint32(target << 6) | uint32(piece << 12) | uint32(promoted << 16) | uint32(promoted_piece << 17) | uint32(enpassant << 19) | uint32(castling << 20) 
+        count += 1
+
+    if side == 0:
+        while WHITE_PAWNS:
+            curr_square = least_significant_bit_count(WHITE_PAWNS)
+            WHITE_PAWNS &= WHITE_PAWNS - uint(1)
+            attacks = WHITE_PAWN_ATTACKS[curr_square] & BLACK_PIECES
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= attacks - uint(1)
+                add_move(curr_square, to_square, 0, 0, 0, 0)
+            if WHITE_PAWN_PUSHES[curr_square] & (~ALL_PIECES):
+                add_move(curr_square, least_significant_bit_count(WHITE_PAWN_PUSHES[curr_square]), 0, 0, 0, 0, 0) 
     if BLACK_PAWNS & (uint(1) << uint(square)):
         res = BLACK_PAWN_ATTACKS[square] & WHITE_PIECES
         temp = BLACK_PAWN_PUSHES[square]
@@ -333,6 +353,8 @@ def return_moves(square, bitboards):
                 break
             temp &= temp - uint(1)
         return res
+
+
     elif WHITE_PAWNS & (uint(1) << uint(square)):
         res = WHITE_PAWN_ATTACKS[square] & BLACK_PIECES
         temp = WHITE_PAWN_PUSHES[square]
