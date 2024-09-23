@@ -6,6 +6,7 @@ from utils import *
 random.seed(time.time())
 from data import *
 
+ 
 
 def print_bitboard(bit_board):
     c = uint(0)
