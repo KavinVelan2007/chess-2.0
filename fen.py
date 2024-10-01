@@ -20,7 +20,6 @@ def least_significant_bit_count(bit_board):
 def translate_from_fen(fen: str):
     board = [[' ' for _ in range(8)] for _ in range(8)]
     fen = fen.split(' ')
-    print(fen)
     position = fen[0].split('/')
     for rank in range(len(position)):
         file = 0
