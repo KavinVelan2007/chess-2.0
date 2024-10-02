@@ -599,14 +599,13 @@ def print_chess_board(boards, board_data):
     print()
     print(f'Side to move: {"Black" if (board_data & uint32(1)) else "White"}')
     print()
-    print(f'En Passant: {"Not possible" if (board_data & uint32(1 << 5)) else piece_string[((board_data << uint32(6)) & (uint32(1 << 6) - 1))]}')
+    print(f'En Passant: {"Not possible" if (board_data & uint32(1 << 5)) else square_string[((board_data << uint32(6)) & (uint32(1 << 6) - 1))]}')
     print('\n')
 
 
 
-
 bitboards = array(BITBOARDS.copy())
-board_data = uint32(0b000000011110)
+board_data = data
 
 moves = return_moves(0, bitboards, board_data)
 
