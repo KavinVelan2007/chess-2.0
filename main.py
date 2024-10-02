@@ -376,10 +376,17 @@ def return_moves(side, bitboards, board_data):
                 add_move(curr_square, to_square, 0, 0, 0, 0, 0)
 
             if uint(1 << (curr_square - 8) & ((1 << 64) - 1)) & (~ALL_PIECES):
-                add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
+                if 0 <= curr_square <= 7:
+                    add_move(curr_square, curr_square - 8, 1, 1, 0, 0, 0)
+                    add_move(curr_square, curr_square - 8, 1, 2, 0, 0, 0)
+                    add_move(curr_square, curr_square - 8, 1, 3, 0, 0, 0)
+                    add_move(curr_square, curr_square - 8, 1, 4, 0, 0, 0)
 
-                if 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
+                elif 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
                      add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
+
+                else:
+                    add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
 
             if board_data & uint32(1 << 5) and ((board_data >> uint32(6)) == curr_square - 9 or (board_data >> uint32(6)) == curr_square - 7) and not (uint32(1 << (board_data >> uint32(6))) & ALL_PIECES):
                 add_move(curr_square, ((board_data >> uint(6))), 0, 0, 0, 1, 0)
@@ -432,6 +439,8 @@ def return_moves(side, bitboards, board_data):
                 to_square = least_significant_bit_count(attacks)
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 2, 0, 0, 0, 0)
+
+
                      
 
     '''               
