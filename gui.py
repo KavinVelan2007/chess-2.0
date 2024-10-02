@@ -145,9 +145,9 @@ class Game:
                     x -= (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1)
                     y -= (WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)
                     row,col = y // (BOARD_HEIGHT >> 3),x // (BOARD_WIDTH >> 3)
-                    if self.white_pieces & (uint(1) << uint((row << 3) + col)):
+                    if self.white_pieces & (uint(1) << uint((row << 3) + col)) and 0 <= row < 8 and 0 <= col < 8:
                         self.curr = (row,col)
-            display.fill((30,30,30,255))
+            display.fill((30,30,30))
             
             # DISPLAYING BOARD
             self.display_board(self.display)
