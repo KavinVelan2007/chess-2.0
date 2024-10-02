@@ -1,4 +1,4 @@
-from numpy import uint64 as uint
+from numpy import uint64 as uint,uint32
 
 with open('fenString.txt','r') as file:
 	fenString = file.read()
@@ -31,25 +31,25 @@ def translate_from_fen(fen: str):
             elif '1' <= position[rank][index] <= '9':
                 file += int(position[rank][index])
             index += 1
-    data = uint(0)
+    data = uint32(0)
     if fen[1] == 'b':
-        data |= (uint(1) << uint(31))
+        data |= uint32(1)
     if fen[2] != '-':
         bit_positions_for_castling = {
-            'K': 30,
-            'Q': 29,
-            'k': 28,
-            'q': 27
+            'K': 1,
+            'Q': 2,
+            'k': 3,
+            'q': 4
         }
         for side in fen[2]:
-            data |= (uint(1) << uint(bit_positions_for_castling[side]))
+            data |= (uint32(1) << uint32(bit_positions_for_castling[side]))
     if fen[3] != '-':
-        data |= (uint(1) << uint(26))
+        data |= uint32(1 << 5)
         pos = fen[3]
         index = uint(ord(pos[0]) - ord('a') + (8 - int(pos[1])) * 8)
         while index:
             ls1b = least_significant_bit_count(index)
-            data |= (uint(1) << uint(ls1b + 20))
+            data |= uint32(1 << ls1b + 6)
             index &= index - uint(1)
     halfMoves = uint(fen[4])
     return board,data,halfMoves
