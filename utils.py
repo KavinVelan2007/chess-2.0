@@ -19,3 +19,6 @@ def most_significant_bit_count(bitboard):
         n //= 2
         ndx += 1
     return ndx
+
+def chess_square_to_index(position: str):
+    return (ord(position[0]) - ord('A')) + ((8 - int(position[1])) * 8)
