@@ -289,6 +289,32 @@ def generate_bishop_moves(square, attack_mask):
     ]
 
 
+def is_square_atacked(side, square, bitboards, board_data, black_pieces, white_pieces):
+    if side  == 0:
+        if bitboards[0] & BLACK_PAWN_ATTACKS[square]:
+            return True
+        elif bitboards[1] & KNIGHT_ATTACKS[square]:
+            return True
+        elif (bitboards[2] | bitboards[4]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))] & (~white_pieces):
+            return True
+        elif (bitboards[3] | bitboards[4]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> uint(64 - ROOK_OCCUPANCY_BITS[square]))] & (~white_pieces):
+            return True
+        elif bitboards[5] & KING_ATTACKS[square]:
+            return True
+    else:
+        if bitboards[6] & WHITE_PAWN_ATTACKS[square]:
+            return True
+        elif bitboards[7] & KNIGHT_ATTACKS[square]:
+            return True
+        elif (bitboards[8] | bitboards[10]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> uint(64 - BISHOP_OCCUPANCY_BITS[square]))] & (~black_pieces):
+            return True
+        elif (bitboards[9] | bitboards[10]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> uint(64 - ROOK_OCCUPANCY_BITS[square]))] & (~black_pieces):
+            return True
+        elif bitboards[11] & KING_ATTACKS[square]:
+            return True
+
+    return False
+
 def return_moves(side, bitboards, board_data):
 
     WHITE_PAWNS = bitboards[0]
@@ -328,30 +354,89 @@ def return_moves(side, bitboards, board_data):
 
     moves = zeros(218, dtype = uint32)      
     count = 0
+
     def add_move(source, target, piece, promoted, promoted_piece, enpassant, castling):
         nonlocal moves, count
+
         moves[count] = uint32(source) | uint32(target << 6) | uint32(piece << 12) | uint32(promoted << 16) | uint32(promoted_piece << 17) | uint32(enpassant << 19) | uint32(castling << 20) 
         count += 1
 
+
     if side == 0:
+
+
         while WHITE_PAWNS:
             curr_square = least_significant_bit_count(WHITE_PAWNS)
             WHITE_PAWNS ^= uint(1 << curr_square)
             attacks = WHITE_PAWN_ATTACKS[curr_square] & BLACK_PIECES
+
             while attacks:
                 to_square = least_significant_bit_count(attacks)
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 0, 0, 0, 0, 0)
+
             if uint(1 << (curr_square - 8) & ((1 << 64) - 1)) & (~ALL_PIECES):
                 add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
+
                 if 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
                      add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
+
             if board_data & uint32(1 << 5) and ((board_data >> uint32(6)) == curr_square - 9 or (board_data >> uint32(6)) == curr_square - 7) and not (uint32(1 << (board_data >> uint32(6))) & ALL_PIECES):
                 add_move(curr_square, ((board_data >> uint(6))), 0, 0, 0, 1, 0)
-    '''
+
+
+        while WHITE_KNIGHTS:
+            curr_square = least_significant_bit_count(WHITE_KNIGHTS)
+            WHITE_KNIGHTS ^= uint(1 << curr_square)
+            attacks = KNIGHT_ATTACKS[curr_square] & BLACK_PIECES
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 1, 0, 0, 0, 0)
+            
+            moves_possible = KNIGHT_ATTACKS[curr_square] & (~ALL_PIECES)
+
+            while moves_possible:
+                to_square = least_significant_bit_count(moves_possible)
+                moves_possible &= (moves_possible - uint(1))
+                add_move(curr_square, to_square, 1, 0, 0, 0, 0)
+
+
+        while WHITE_BISHOPS:
+            curr_square = least_significant_bit_count(WHITE_BISHOPS)
+            WHITE_BISHOPS ^= uint(1 << curr_square)
+            attacks = BISHOP_ATTACKS[curr_square][
+                (
+                    (BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~WHITE_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 2, 0, 0, 0, 0)
+
+        while WHITE_ROOKS:
+            curr_square = least_significant_bit_count(WHITE_ROOKS)
+            WHITE_ROOKS ^= uint(1 << curr_square)
+            attacks = ROOK_ATTACKS[curr_square][
+                (
+                    (ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~WHITE_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 2, 0, 0, 0, 0)
                      
     
-                
+
+
+    '''               
     if BLACK_PAWNS & (uint(1) << uint(square)):
         res = BLACK_PAWN_ATTACKS[square] & WHITE_PIECES
         temp = BLACK_PAWN_PUSHES[square]
@@ -476,7 +561,7 @@ def make_move(bitboards,from_,to,data):
     # data: uint64 (format for data given below this fn)
     pass
 
-    """
+"""
 BOARD REPRESENTATION
 12 bitboards for positions in order of 'PNBRQKpnbrqk'
 
@@ -488,8 +573,6 @@ next bit = enpassant possible or not
 next 6 bits = enpassant square
 """
 
-boards = array(BITBOARDS.copy())
-board_data = uint32(0b000000011110)
 
 def print_chess_board(boards, board_data):
     c = uint(0)
@@ -513,8 +596,13 @@ def print_chess_board(boards, board_data):
     print('\n')
 
 
-moves = return_moves(0, boards, board_data)
+
+
+bitboards = array(BITBOARDS.copy())
+board_data = uint32(0b000000011110)
+
+moves = return_moves(0, bitboards, board_data)
 
 print_moves(moves)
 
-print_chess_board(boards, board_data)
+print_chess_board(bitboards, board_data)
