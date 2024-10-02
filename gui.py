@@ -4,23 +4,24 @@ from utils import *
 
 class Game:
     
-    def __init__(self,display):
+    def __init__(self,display,bitboards):
         self.curr = None
         self.display = display
         self.halfMoves = halfMoves
         self.data = data
-        self.black_bishops = BLACK_BISHOPS
-        self.white_bishops = WHITE_BISHOPS
-        self.black_pawns = BLACK_PAWNS
-        self.white_pawns = WHITE_PAWNS
-        self.black_queen = BLACK_QUEEN
-        self.white_queen = WHITE_QUEEN
-        self.black_knights = BLACK_KNIGHTS
-        self.white_knights = WHITE_KNIGHTS
-        self.black_king = BLACK_KING
-        self.white_king = WHITE_KING
-        self.black_rooks = BLACK_ROOKS
-        self.white_rooks = WHITE_ROOKS
+        self.white_pawns = bitboards[0]
+        self.white_knights = bitboards[1]
+        self.white_bishops = bitboards[2]
+        self.white_rooks = bitboards[3]
+        self.white_queen = bitboards[4]
+        self.white_king = bitboards[5]
+        self.black_pawns = bitboards[6]
+        self.black_knights = bitboards[7]
+        self.black_bishops = bitboards[8]
+        self.black_rooks = bitboards[9]
+        self.black_queen = bitboards[10]
+        self.black_king = bitboards[11]
+
 
     def display_board(self,display):
         for row in range(8):
@@ -107,20 +108,21 @@ class Game:
             temp &= temp - uint(1)
 
     def display_moves(self,curr):
-        moves = return_moves(curr[0] * 8 + curr[1],self.bitboard)
-        while moves:
-            index = least_significant_bit_count(moves)
-            row,col = index // 8,index % 8
-            surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
-            surface.fill((255,255,255) if (row + col) & 1 == 0 else (86,99,239))
-            surface.set_alpha(100)
-            if (uint(1) << uint(index)) & self.white_pieces or (uint(1) << uint(index)) & self.black_pieces:
-                pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 4,12)
-            else:
-                pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 5)
-            x,y = (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))
-            display.blit(surface,(x,y))
-            moves &= moves - uint(1)
+        moves = return_moves(0,self.bitboard,self.data)
+        for move in moves:
+            from_index = chess_square_to_index(square_string[move & uint32((1 << 6) - 1)])
+            to_index = chess_square_to_index(square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)])
+            if curr[0] * 8 + curr[1] == from_index:
+                row,col = to_index // 8,to_index % 8
+                surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
+                surface.fill((255,255,255) if (row + col) & 1 == 0 else (86,99,239))
+                surface.set_alpha(100)
+                if (uint(1) << uint(to_index)) & self.white_pieces or (uint(1) << uint(to_index)) & self.black_pieces:
+                    pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 4,12)
+                else:
+                    pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 5)
+                x,y = (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))
+                display.blit(surface,(x,y))
 
     def run(self):
         run = True
@@ -172,5 +174,5 @@ class Game:
         pygame.quit()
 
 if __name__ == '__main__':
-    game = Game(display)
+    game = Game(display,BITBOARDS)
     game.run()
