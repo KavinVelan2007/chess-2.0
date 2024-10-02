@@ -433,8 +433,6 @@ def return_moves(side, bitboards, board_data):
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 2, 0, 0, 0, 0)
                      
-    
-
 
     '''               
     if BLACK_PAWNS & (uint(1) << uint(square)):
@@ -551,9 +549,9 @@ def print_moves(moves):
         print(f'From: {square_string[move & uint32((1 << 6) - 1)]}')
         print(f'To: {square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)]}')
         print(f'Piece: {piece_string[(move >> uint32(12)) & uint32((1 << 4) - 1)]}')
-        print(f'Promotion: {'No' if not ((move >> uint32(16)) & uint32(1)) else piece_string[(move >> uint32(17)) & (uint32((1 << 4) - 1))]}')
-        print(f'EnPassant: {'Yes' if ((move >> uint32(19)) & uint32(1)) else 'No'}')
-        print(f'Castling: {'Yes' if ((move >> uint32(20)) & uint32(1)) else 'No'}')
+        print(f'Promotion: {"No" if not ((move >> uint32(16)) & uint32(1)) else piece_string[(move >> uint32(17)) & (uint32((1 << 4) - 1))]}')
+        print(f'EnPassant: {"Yes" if ((move >> uint32(19)) & uint32(1)) else "No"}')
+        print(f'Castling: {"Yes" if ((move >> uint32(20)) & uint32(1)) else "No"}')
 
 def make_move(bitboards,from_,to,data):
     # bitboards format: list[P,N,B,R,Q,K,p,n,b,r,q,k]
@@ -588,11 +586,11 @@ def print_chess_board(boards, board_data):
     print()        
     print('      A   B   C   D   E   F   G   H')
     print()
-    print(f'Castling rights: {'K' if ((board_data << uint32(1)) & uint32(1)) else '-'}{'Q' if ((board_data << uint32(2)) & uint32(1)) else '-'}{'k' if ((board_data << uint32(3)) & uint32(1)) else '-'}{'q' if ((board_data << uint32(4)) & uint32(1)) else '-'}')
+    print(f'Castling rights: {"K" if ((board_data << uint32(1)) & uint32(1)) else "-"}{"Q" if ((board_data << uint32(2)) & uint32(1)) else "-"}{"k" if ((board_data << uint32(3)) & uint32(1)) else "-"}{"q" if ((board_data << uint32(4)) & uint32(1)) else "-"}')
     print()
-    print(f'Side to move: {'Black' if (board_data & uint32(1)) else 'White'}')
+    print(f'Side to move: {"Black" if (board_data & uint32(1)) else "White"}')
     print()
-    print(f'En Passant: {'Not possible' if (board_data & uint32(1 << 5)) else piece_string[((board_data << uint32(6)) & (uint32(1 << 6) - 1))]}')
+    print(f'En Passant: {"Not possible" if (board_data & uint32(1 << 5)) else piece_string[((board_data << uint32(6)) & (uint32(1 << 6) - 1))]}')
     print('\n')
 
 

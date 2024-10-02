@@ -135,6 +135,9 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         run = False
+                    elif event.key == pygame.K_r:
+                        for i in range(48,48 + 8):
+                            self.white_pawns ^= uint(1 << i)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
                         run = False
