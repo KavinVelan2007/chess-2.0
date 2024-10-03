@@ -20,7 +20,7 @@ class Game:
         self.black_rooks = bitboards[9]
         self.black_queen = bitboards[10]
         self.black_king = bitboards[11]
-
+        self.moves = None
 
     def display_board(self,display):
         for row in range(8):
@@ -107,8 +107,7 @@ class Game:
             temp &= temp - uint(1)
 
     def display_moves(self,curr):
-        moves = return_moves(0,self.bitboard,self.data)
-        for move in moves:
+        for move in self.moves:
             from_index = chess_square_to_index(square_string[move & uint32((1 << 6) - 1)])
             to_index = chess_square_to_index(square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)])
             if curr[0] * 8 + curr[1] == from_index:
@@ -146,6 +145,7 @@ class Game:
                     row,col = y // (BOARD_HEIGHT >> 3),x // (BOARD_WIDTH >> 3)
                     if self.white_pieces & (uint(1) << uint((row << 3) + col)) and 0 <= row < 8 and 0 <= col < 8:
                         self.curr = (row,col)
+                        self.moves = return_moves(0,self.bitboard,self.data)
             display.fill((30,30,30))
             
             # DISPLAYING BOARD
