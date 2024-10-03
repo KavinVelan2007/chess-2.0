@@ -389,8 +389,8 @@ def return_moves(side, bitboards, board_data):
                 else:
                     add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
             # print('Test', (((board_data >> uint32(6)) & uint((1 << 6) - 1))))
-            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 1) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 1)) and not (uint32(1 << (((board_data >> uint32(6)) & uint32((1 << 6) - 1))  - 8)) & ALL_PIECES):
-                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1)) - 8), 0, 0, 0, 1, 0)
+            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)) and not (uint32(1 << (((board_data >> uint32(6)) & uint32((1 << 6) - 1))  - 8)) & ALL_PIECES):
+                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 0, 0, 0, 1, 0)
 
 
         while WHITE_KNIGHTS:
