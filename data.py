@@ -2,7 +2,7 @@ from numpy import uint64 as uint, array
 from fen import *
 import pickle
 
-BITBOARDS,data,halfMoves = generate_bitboards_from_board(fenString)
+BITBOARDS,data = generate_bitboards_from_board(fenString)
 
 BITBOARDS = list(BITBOARDS)
 

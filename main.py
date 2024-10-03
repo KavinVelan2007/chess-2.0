@@ -383,13 +383,14 @@ def return_moves(side, bitboards, board_data):
                     add_move(curr_square, curr_square - 8, 1, 4, 0, 0, 0)
 
                 elif 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
-                     add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
+                    add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
+                    add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
 
                 else:
                     add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-
-            if board_data & uint32(1 << 5) and ((board_data >> uint32(6)) == curr_square - 9 or (board_data >> uint32(6)) == curr_square - 7) and not (uint32(1 << (board_data >> uint32(6))) & ALL_PIECES):
-                add_move(curr_square, ((board_data >> uint32(6))), 0, 0, 0, 1, 0)
+            # print('Test', (((board_data >> uint32(6)) & uint((1 << 6) - 1))))
+            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 1) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 1)) and not (uint32(1 << (((board_data >> uint32(6)) & uint32((1 << 6) - 1))  - 8)) & ALL_PIECES):
+                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1)) - 8), 0, 0, 0, 1, 0)
 
 
         while WHITE_KNIGHTS:
@@ -425,6 +426,7 @@ def return_moves(side, bitboards, board_data):
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 2, 0, 0, 0, 0)
 
+
         while WHITE_ROOKS:
             curr_square = least_significant_bit_count(WHITE_ROOKS)
             WHITE_ROOKS ^= uint(1 << curr_square)
@@ -438,8 +440,35 @@ def return_moves(side, bitboards, board_data):
             while attacks:
                 to_square = least_significant_bit_count(attacks)
                 attacks &= (attacks - uint(1))
-                add_move(curr_square, to_square, 2, 0, 0, 0, 0)
+                add_move(curr_square, to_square, 3, 0, 0, 0, 0)
 
+
+        while WHITE_QUEEN:
+            curr_square = least_significant_bit_count(WHITE_QUEEN)
+            WHITE_QUEEN^= uint(1 << curr_square)
+            attacks = BISHOP_ATTACKS[curr_square][
+                (
+                    (BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~WHITE_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 4, 0, 0, 0, 0)
+
+            attacks = ROOK_ATTACKS[curr_square][
+                (
+                    (ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~WHITE_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
                      
 
@@ -578,6 +607,7 @@ first bit = 0 if white to play 1 if black to play
 next four bits for castling data = KQkq
 next bit = enpassant possible or not
 next 6 bits = enpassant square
+next 6 bits = half move clock
 """
 
 
@@ -590,25 +620,34 @@ def print_chess_board(boards, board_data):
             for k in range(12):
                 if boards[k] & (uint(1) << c):
                     print(f'{piece_string[k]}   ', end = '')
+                    break
+            else:
+                print('    ', end = '')
             c += uint(1)
         print('\n')
     print()        
     print('      A   B   C   D   E   F   G   H')
     print()
-    print(f'Castling rights: {"K" if ((board_data << uint32(1)) & uint32(1)) else "-"}{"Q" if ((board_data << uint32(2)) & uint32(1)) else "-"}{"k" if ((board_data << uint32(3)) & uint32(1)) else "-"}{"q" if ((board_data << uint32(4)) & uint32(1)) else "-"}')
-    print()
     print(f'Side to move: {"Black" if (board_data & uint32(1)) else "White"}')
     print()
-    print(f'En Passant: {"Not possible" if (board_data & uint32(1 << 5)) else square_string[((board_data << uint32(6)) & (uint32(1 << 6) - 1))]}')
+    print(f'Castling rights: {"K" if ((board_data >> uint32(1)) & uint32(1)) else "-"}{"Q" if ((board_data >> uint32(2)) & uint32(1)) else "-"}{"k" if ((board_data >> uint32(3)) & uint32(1)) else "-"}{"q" if ((board_data >> uint32(4)) & uint32(1)) else "-"}')
+    print()
+    print(f'En Passant: {"Not possible" if not (board_data & uint32(1 << 5)) else square_string[((board_data >> uint32(6)) & (uint32(1 << 6) - 1))]}')
+    print()
+    print(f'Half Moves: {(board_data >> uint32(12)) & (uint32((1 << 6 )- 1))}')
     print('\n')
-
+    print(bin(board_data))
 
 
 bitboards = array(BITBOARDS.copy())
 board_data = data
 
+'''
 moves = return_moves(0, bitboards, board_data)
 
 print_moves(moves)
+'''
+
+print_bitboard(bitboards[0])
 
 print_chess_board(bitboards, board_data)

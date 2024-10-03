@@ -1,7 +1,7 @@
 from numpy import uint64 as uint,uint32
 
 with open('fenString.txt','r') as file:
-	fenString = file.read()
+	fenString = file.read().replace('\n', '')
 	file.close()
 
 
@@ -46,16 +46,15 @@ def translate_from_fen(fen: str):
     if fen[3] != '-':
         data |= uint32(1 << 5)
         pos = fen[3]
-        index = uint(ord(pos[0]) - ord('a') + (8 - int(pos[1])) * 8)
-        while index:
-            ls1b = least_significant_bit_count(index)
-            data |= uint32(1 << ls1b + 6)
-            index &= index - uint(1)
-    halfMoves = uint(fen[4])
-    return board,data,halfMoves
+        index = uint32(ord(pos[0]) - ord('a') + (8 - int(pos[1])) * 8)
+        data |= index << uint32(6)
+    halfMoves = uint32(fen[4])
+    data |= ((halfMoves & uint32((1 << 6) - 1)) << uint32(12))
+    return board,data
 
 def generate_bitboards_from_board(fen):
-    board,data,halfMoves = translate_from_fen(fen)
+    board,data = translate_from_fen(fen)
+    print(board)
     p = r = b = n = q = k = P = R = B = N = Q = K = uint(0)
     for row in range(8):
         for col in range(8):
@@ -83,4 +82,4 @@ def generate_bitboards_from_board(fen):
                 Q |= uint(1) << uint(row * 8 + col)
             elif board[row][col] == 'K':
                 K |= uint(1) << uint(row * 8 + col)
-    return (P,N,B,R,Q,K,p,n,b,r,q,k),data,halfMoves
+    return (P,N,B,R,Q,K,p,n,b,r,q,k),data

@@ -7,7 +7,6 @@ class Game:
     def __init__(self,display,bitboards):
         self.curr = None
         self.display = display
-        self.halfMoves = halfMoves
         self.data = data
         self.white_pawns = bitboards[0]
         self.white_knights = bitboards[1]
