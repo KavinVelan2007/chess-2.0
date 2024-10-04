@@ -377,10 +377,10 @@ def return_moves(side, bitboards, board_data):
 
             if uint(1 << (curr_square - 8) & ((1 << 64) - 1)) & (~ALL_PIECES):
                 if 0 <= curr_square <= 7:
-                    add_move(curr_square, curr_square - 8, 1, 1, 0, 0, 0)
-                    add_move(curr_square, curr_square - 8, 1, 2, 0, 0, 0)
-                    add_move(curr_square, curr_square - 8, 1, 3, 0, 0, 0)
-                    add_move(curr_square, curr_square - 8, 1, 4, 0, 0, 0)
+                    add_move(curr_square, curr_square - 8, 0, 1, 1, 0, 0)
+                    add_move(curr_square, curr_square - 8, 0, 1, 2, 0, 0)
+                    add_move(curr_square, curr_square - 8, 0, 1, 3, 0, 0)
+                    add_move(curr_square, curr_square - 8, 0, 1, 4, 0, 0)
 
                 elif 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
                     add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
