@@ -388,7 +388,6 @@ def return_moves(side, bitboards, board_data):
 
                 else:
                     add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-            # print('Test', (((board_data >> uint32(6)) & uint((1 << 6) - 1))))
             if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)) and not (uint32(1 << (((board_data >> uint32(6)) & uint32((1 << 6) - 1))  - 8)) & ALL_PIECES):
                 add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 0, 0, 0, 1, 0)
 
@@ -470,7 +469,21 @@ def return_moves(side, bitboards, board_data):
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
-                     
+        while WHITE_KING:
+            curr_square = least_significant_bit_count(WHITE_KING)
+            WHITE_KING ^= uint(1 << curr_square)
+            attacks = KING_ATTACKS[curr_square] & (~WHITE_PIECES)
+            
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 5, 0, 0, 0, 0)
+
+            if board_data & uint32(2) and not (ALL_PIECES & uint((1 << 62) + (1 << 61))):
+                add_move(curr_square, 62, 5, 0, 0, 0, 1)
+
+            if board_data & uint32(4) and not (ALL_PIECES & uint((1 << 59) + (1 << 58) + (1 << 57))):
+                add_move(curr_square, 58, 5, 0, 0, 0, 1)
 
     '''               
     if BLACK_PAWNS & (uint(1) << uint(square)):
@@ -635,19 +648,20 @@ def print_chess_board(boards, board_data):
     print(f'En Passant: {"Not possible" if not (board_data & uint32(1 << 5)) else square_string[((board_data >> uint32(6)) & (uint32(1 << 6) - 1))]}')
     print()
     print(f'Half Moves: {(board_data >> uint32(12)) & (uint32((1 << 6 )- 1))}')
+    print()
+    print('Board Data:', bin(board_data))
     print('\n')
-    print(bin(board_data))
+
+
 
 
 bitboards = array(BITBOARDS.copy())
 board_data = data
 
-'''
+
 moves = return_moves(0, bitboards, board_data)
 
 print_moves(moves)
-'''
 
-print_bitboard(bitboards[0])
+print(len(moves))
 
-print_chess_board(bitboards, board_data)

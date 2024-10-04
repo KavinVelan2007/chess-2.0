@@ -54,7 +54,6 @@ def translate_from_fen(fen: str):
 
 def generate_bitboards_from_board(fen):
     board,data = translate_from_fen(fen)
-    print(board)
     p = r = b = n = q = k = P = R = B = N = Q = K = uint(0)
     for row in range(8):
         for col in range(8):
