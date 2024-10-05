@@ -375,7 +375,7 @@ def return_moves(side, bitboards, board_data):
                 attacks &= (attacks - uint(1))
                 add_move(curr_square, to_square, 0, 0, 0, 0, 0)
 
-            if uint(1 << (curr_square - 8) & ((1 << 64) - 1)) & (~ALL_PIECES):
+            if uint(1 << (curr_square - 8)) & (~ALL_PIECES):
                 if 0 <= curr_square <= 7:
                     add_move(curr_square, curr_square - 8, 0, 1, 1, 0, 0)
                     add_move(curr_square, curr_square - 8, 0, 1, 2, 0, 0)
@@ -388,21 +388,15 @@ def return_moves(side, bitboards, board_data):
 
                 else:
                     add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)) and not (uint32(1 << (((board_data >> uint32(6)) & uint32((1 << 6) - 1))  - 8)) & ALL_PIECES):
+            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)):
                 add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 0, 0, 0, 1, 0)
 
 
         while WHITE_KNIGHTS:
             curr_square = least_significant_bit_count(WHITE_KNIGHTS)
             WHITE_KNIGHTS ^= uint(1 << curr_square)
-            attacks = KNIGHT_ATTACKS[curr_square] & BLACK_PIECES
-
-            while attacks:
-                to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
-                add_move(curr_square, to_square, 1, 0, 0, 0, 0)
             
-            moves_possible = KNIGHT_ATTACKS[curr_square] & (~ALL_PIECES)
+            moves_possible = KNIGHT_ATTACKS[curr_square] & (~WHITE_PIECES)
 
             while moves_possible:
                 to_square = least_significant_bit_count(moves_possible)
@@ -485,112 +479,129 @@ def return_moves(side, bitboards, board_data):
             if board_data & uint32(4) and not (ALL_PIECES & uint((1 << 59) + (1 << 58) + (1 << 57))):
                 add_move(curr_square, 58, 5, 0, 0, 0, 1)
 
-    '''               
-    if BLACK_PAWNS & (uint(1) << uint(square)):
-        res = BLACK_PAWN_ATTACKS[square] & WHITE_PIECES
-        temp = BLACK_PAWN_PUSHES[square]
-        while temp:
-            index = least_significant_bit_count(temp)
-            if not (uint(1) << uint(index)) & (BLACK_PIECES | WHITE_PIECES):
-                res |= uint(1) << uint(index)
-            else:
-                break
-            temp &= temp - uint(1)
-        return res
 
 
-    elif WHITE_PAWNS & (uint(1) << uint(square)):
-        res = WHITE_PAWN_ATTACKS[square] & BLACK_PIECES
-        temp = WHITE_PAWN_PUSHES[square]
-        indices = []
-        while temp:
-            index = least_significant_bit_count(temp)
-            indices.append(index)
-            temp -= uint(1) << uint(index)
-        for i in range(len(indices) - 1,-1,-1):
-            index = indices[i]
-            if not (uint(1) << uint(index)) & (BLACK_PIECES | WHITE_PIECES):
-                res |= uint(1) << uint(index)
-            else:
-                break
-        return res
-    elif (BLACK_BISHOPS | WHITE_BISHOPS) & (uint(1) << uint(square)):
-        moves = BISHOP_ATTACKS[square][
-            (
-                (
-                    (BISHOP_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES))
-                    * BISHOP_MAGIC_NUMBERS[square]
-                )
-                >> uint(64 - BISHOP_OCCUPANCY_BITS[square])
-            )
-        ]
-        if BLACK_BISHOPS & (uint(1) << uint(square)):
-            friendly_attacks = moves & BLACK_PIECES
-        else:
-            friendly_attacks = moves & WHITE_PIECES
-        moves &= ~friendly_attacks
-        return moves
-    elif (BLACK_KNIGHTS | WHITE_KNIGHTS) & (uint(1) << uint(square)):
-        moves = KNIGHT_ATTACKS[square]
-        if BLACK_KNIGHTS & (uint(1) << uint(square)):
-            friendly_attacks = moves & (BLACK_PIECES)
-        else:
-            friendly_attacks = moves & (WHITE_PIECES)
-        moves &= ~friendly_attacks
-        return moves
-    elif (BLACK_ROOKS | WHITE_ROOKS) & (uint(1) << uint(square)):
-        moves = ROOK_ATTACKS[square][
-            (
-                (
-                    (ROOK_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES))
-                    * ROOK_MAGIC_NUMBERS[square]
-                )
-                >> uint(64 - ROOK_OCCUPANCY_BITS[square])
-            )
-        ]
-        if BLACK_ROOKS & (uint(1) << uint(square)):
-            friendly_attacks = moves & BLACK_PIECES
-        else:
-            friendly_attacks = moves & WHITE_PIECES
-        moves &= ~friendly_attacks
-        return moves
-    elif (BLACK_QUEEN | WHITE_QUEEN) & (uint(1) << uint(square)):
-        rook_moves = ROOK_ATTACKS[square][
-            (
-                (
-                    (ROOK_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES))
-                    * ROOK_MAGIC_NUMBERS[square]
-                )
-                >> uint(64 - ROOK_OCCUPANCY_BITS[square])
-            )
-        ]
-        bishop_moves = BISHOP_ATTACKS[square][
-            (
-                (
-                    (BISHOP_OCCUPANCY[square] & (BLACK_PIECES | WHITE_PIECES))
-                    * BISHOP_MAGIC_NUMBERS[square]
-                )
-                >> uint(64 - BISHOP_OCCUPANCY_BITS[square])
-            )
-        ]
-        moves = rook_moves | bishop_moves
-        if BLACK_QUEEN & (uint(1) << uint(square)):
-            friendly_attacks = moves & BLACK_PIECES
-        else:
-            friendly_attacks = moves & WHITE_PIECES
-        moves &= ~friendly_attacks
-        return moves
-    elif (BLACK_KING | WHITE_KING) & (uint(1) << uint(square)):
-        moves = KING_ATTACKS[square]
-        if BLACK_KING & (uint(1) << uint(square)):
-            friendly_attacks = moves & BLACK_PIECES
-        else:
-            friendly_attacks = moves & WHITE_PIECES
-        moves &= ~friendly_attacks
-        return moves
     else:
-        return uint(0)
-    '''
+
+
+        while BLACK_PAWNS:
+            curr_square = least_significant_bit_count(BLACK_PAWNS)
+            BLACK_PAWNS ^= uint(1 << curr_square)
+            attacks = BLACK_PAWN_ATTACKS[curr_square] & WHITE_PIECES
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 6, 0, 0, 0, 0)
+
+            if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+
+                if 56 <= curr_square <= 63:
+                    add_move(curr_square, curr_square + 8, 6, 1, 7, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 8, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 9, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 10, 0, 0)
+
+                elif 8 <= curr_square <= 15 and uint(1 << (curr_square + 16)) & (~ALL_PIECES):
+                    add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
+                    add_move(curr_square, curr_square + 16, 6, 0, 0, 0, 0)
+
+                else:
+                    add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
+
+            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square + 7)):
+                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 6, 0, 0, 1, 0)
+
+
+        while BLACK_KNIGHTS:
+            curr_square = least_significant_bit_count(BLACK_KNIGHTS)
+            BLACK_KNIGHTS ^= uint(1 << curr_square)
+            
+            moves_possible = KNIGHT_ATTACKS[curr_square] & (~BLACK_PIECES)
+
+            while moves_possible:
+                to_square = least_significant_bit_count(moves_possible)
+                moves_possible &= (moves_possible - uint(1))
+                add_move(curr_square, to_square, 7, 0, 0, 0, 0)
+
+
+        while BLACK_BISHOPS:
+            curr_square = least_significant_bit_count(BLACK_BISHOPS)
+            BLACK_BISHOPS ^= uint(1 << curr_square)
+            attacks = BISHOP_ATTACKS[curr_square][
+                (
+                    (BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~BLACK_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 8, 0, 0, 0, 0)
+
+
+        while BLACK_ROOKS:
+            curr_square = least_significant_bit_count(BLACK_ROOKS)
+            BLACK_ROOKS ^= uint(1 << curr_square)
+            attacks = ROOK_ATTACKS[curr_square][
+                (
+                    (ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~BLACK_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 9, 0, 0, 0, 0)
+
+
+        while BLACK_QUEEN:
+            curr_square = least_significant_bit_count(BLACK_QUEEN)
+            BLACK_QUEEN^= uint(1 << curr_square)
+            attacks = BISHOP_ATTACKS[curr_square][
+                (
+                    (BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~BLACK_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 10, 0, 0, 0, 0)
+
+            attacks = ROOK_ATTACKS[curr_square][
+                (
+                    (ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
+                    >> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+                )
+            ] & (~BLACK_PIECES)
+
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 10, 0, 0, 0, 0)
+
+        while BLACK_KING:
+            curr_square = least_significant_bit_count(BLACK_KING)
+            BLACK_KING ^= uint(1 << curr_square)
+            attacks = KING_ATTACKS[curr_square] & (~BLACK_PIECES)
+            
+            while attacks:
+                to_square = least_significant_bit_count(attacks)
+                attacks &= (attacks - uint(1))
+                add_move(curr_square, to_square, 11, 0, 0, 0, 0)
+
+            if board_data & uint32(8) and not (ALL_PIECES & uint((1 << 5) + (1 << 6))):
+                add_move(curr_square, 6, 11, 0, 0, 0, 1)
+
+            if board_data & uint32(16) and not (ALL_PIECES & uint((1 << 1) + (1 << 2) + (1 << 3))):
+                add_move(curr_square, 2, 11, 0, 0, 0, 1)
+
+
+
     return trim_zeros(moves, 'b')
 
 
@@ -604,11 +615,17 @@ def print_moves(moves):
         print(f'EnPassant: {"Yes" if ((move >> uint32(19)) & uint32(1)) else "No"}')
         print(f'Castling: {"Yes" if ((move >> uint32(20)) & uint32(1)) else "No"}')
 
-def make_move(bitboards,from_,to,data):
+def make_move(move, bitboards, data):
     # bitboards format: list[P,N,B,R,Q,K,p,n,b,r,q,k]
     # from_,to: tuple(row,col)
     # data: uint64 (format for data given below this fn)
-    pass
+    piece = (move << uint32(12)) & uint32(15)
+
+    if 0 <= piece <= 5:
+        pass
+    else:
+        pass
+    
 
 """
 BOARD REPRESENTATION
