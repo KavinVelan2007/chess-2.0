@@ -366,30 +366,46 @@ def return_moves(side, bitboards, board_data):
 
 
         while WHITE_PAWNS:
+
             curr_square = least_significant_bit_count(WHITE_PAWNS)
             WHITE_PAWNS ^= uint(1 << curr_square)
             attacks = WHITE_PAWN_ATTACKS[curr_square] & BLACK_PIECES
 
-            while attacks:
-                to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
-                add_move(curr_square, to_square, 0, 0, 0, 0, 0)
+            if 8 <= curr_square <= 15:
 
-            if uint(1 << (curr_square - 8)) & (~ALL_PIECES):
-                if 0 <= curr_square <= 7:
+                while attacks:
+                    to_square = least_significant_bit_count(attacks)
+                    attacks &= (attacks - uint(1))
+                    add_move(curr_square, to_square, 0, 1, 0, 0, 0)
+                    add_move(curr_square, to_square, 0, 1, 1, 0, 0)
+                    add_move(curr_square, to_square, 0, 1, 2, 0, 0)
+                    add_move(curr_square, to_square, 0, 1, 3, 0, 0)
+
+                if uint(1 << (curr_square - 8)) & (~ALL_PIECES):
+                    add_move(curr_square, curr_square - 8, 0, 1, 0, 0, 0)
                     add_move(curr_square, curr_square - 8, 0, 1, 1, 0, 0)
                     add_move(curr_square, curr_square - 8, 0, 1, 2, 0, 0)
                     add_move(curr_square, curr_square - 8, 0, 1, 3, 0, 0)
-                    add_move(curr_square, curr_square - 8, 0, 1, 4, 0, 0)
 
-                elif 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
-                    add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-                    add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
+                
+            else:
 
-                else:
-                    add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)):
-                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 0, 0, 0, 1, 0)
+                while attacks:
+                    to_square = least_significant_bit_count(attacks)
+                    attacks &= (attacks - uint(1))
+                    add_move(curr_square, to_square, 0, 0, 0, 0, 0)
+
+                if uint(1 << (curr_square - 8)) & (~ALL_PIECES):
+
+                    if 48 <= curr_square <= 55 and uint(1 << (curr_square - 16)) & (~ALL_PIECES):
+                        add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
+                        add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
+
+                    else:
+                        add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
+
+                if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square - 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square - 7)):
+                    add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 0, 0, 0, 1, 0)
 
 
         while WHITE_KNIGHTS:
@@ -489,28 +505,40 @@ def return_moves(side, bitboards, board_data):
             BLACK_PAWNS ^= uint(1 << curr_square)
             attacks = BLACK_PAWN_ATTACKS[curr_square] & WHITE_PIECES
 
-            while attacks:
-                to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
-                add_move(curr_square, to_square, 6, 0, 0, 0, 0)
+            if 56 <= curr_square <= 63:
 
-            if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+                while attacks:
+                    to_square = least_significant_bit_count(attacks)
+                    attacks &= (attacks - uint(1))
+                    add_move(curr_square, to_square, 6, 1, 0, 0, 0)
+                    add_move(curr_square, to_square, 6, 1, 1, 0, 0)
+                    add_move(curr_square, to_square, 6, 1, 2, 0, 0)
+                    add_move(curr_square, to_square, 6, 1, 3, 0, 0)
 
-                if 56 <= curr_square <= 63:
-                    add_move(curr_square, curr_square + 8, 6, 1, 7, 0, 0)
-                    add_move(curr_square, curr_square + 8, 6, 1, 8, 0, 0)
-                    add_move(curr_square, curr_square + 8, 6, 1, 9, 0, 0)
-                    add_move(curr_square, curr_square + 8, 6, 1, 10, 0, 0)
+                if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+                    add_move(curr_square, curr_square + 8, 6, 1, 0, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 1, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 2, 0, 0)
+                    add_move(curr_square, curr_square + 8, 6, 1, 3, 0, 0)
 
-                elif 8 <= curr_square <= 15 and uint(1 << (curr_square + 16)) & (~ALL_PIECES):
-                    add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
-                    add_move(curr_square, curr_square + 16, 6, 0, 0, 0, 0)
+            else:
 
-                else:
-                    add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
+                while attacks:
+                    to_square = least_significant_bit_count(attacks)
+                    attacks &= (attacks - uint(1))
+                    add_move(curr_square, to_square, 6, 0, 0, 0, 0)
 
-            if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square + 7)):
-                add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 6, 0, 0, 1, 0)
+                if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+
+                    if 8 <= curr_square <= 15 and uint(1 << (curr_square + 16)) & (~ALL_PIECES):
+                        add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
+                        add_move(curr_square, curr_square + 16, 6, 0, 0, 0, 0)
+
+                    else:
+                        add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
+
+                if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square + 7)):
+                    add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 6, 0, 0, 1, 0)
 
 
         while BLACK_KNIGHTS:
@@ -611,7 +639,7 @@ def print_moves(moves):
         print(f'From: {square_string[move & uint32((1 << 6) - 1)]}')
         print(f'To: {square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)]}')
         print(f'Piece: {piece_string[(move >> uint32(12)) & uint32((1 << 4) - 1)]}')
-        print(f'Promotion: {"No" if not ((move >> uint32(16)) & uint32(1)) else piece_string[(move >> uint32(17)) & (uint32((1 << 4) - 1))]}')
+        print(f'Promotion: {"No" if not ((move >> uint32(16)) & uint32(1)) else piece_string[(move >> uint32(17)) & (uint32((1 << 4) - 1)) + 1 + (((move >> uint32(12)) & uint32((1 << 4) - 1)) // uint32(6) * 6)]}')
         print(f'EnPassant: {"Yes" if ((move >> uint32(19)) & uint32(1)) else "No"}')
         print(f'Castling: {"Yes" if ((move >> uint32(20)) & uint32(1)) else "No"}')
 
@@ -620,9 +648,44 @@ def make_move(move, bitboards, data):
     # from_,to: tuple(row,col)
     # data: uint64 (format for data given below this fn)
     piece = (move << uint32(12)) & uint32(15)
+    source = move & uint32(63)
+    target = (move >> uint32(6)) & uint32(63)
+
+    if ((data << uint32(12)) & uint32(63)) == 100:
+        return False
 
     if 0 <= piece <= 5:
-        pass
+        
+        if (move >> uint32(16)) & uint32(1):
+            bitboards[0] ^= uint(1 << source)
+            bitboards[((move >> uint32(17)) & uint32(3)) + 1] |= uint(1 << target)
+            # to add capture and change half move clock
+
+        elif (move << uint32(19)) & uint32(1):
+            bitboards[0] ^= uint((1 << source) + (1 << target))
+            bitboards[6] ^= uint(1 << (target + 8))
+
+        elif (move << uint32(19)) & uint32(1):
+            bitboards[5] ^= uint((1 << source) + (1 << target))
+            bitboards[3] ^= uint(1 << ((source + target) // 2))
+
+            if target == 62:
+                bitboards[3] ^= uint(1 << 63)
+            
+            else:
+                bitboards[3] ^= uint(1 << 56)
+
+        else:
+            bitboards[piece] ^= uint((1 << source) + (1 << target))
+            bitboards[6] &= ~uint(1 << target)
+            bitboards[7] &= ~uint(1 << target)
+            bitboards[8] &= ~uint(1 << target)
+            bitboards[9] &= ~uint(1 << target)
+            bitboards[10] &= ~uint(1 << target)
+
+
+        data |= uint32(1)
+
     else:
         pass
     
