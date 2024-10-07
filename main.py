@@ -630,7 +630,7 @@ def return_moves(side, bitboards, board_data):
 
 
 
-    return trim_zeros(moves, 'b')
+    return moves[:count]
 
 
 def print_moves(moves):
