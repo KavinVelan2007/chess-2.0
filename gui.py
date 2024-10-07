@@ -126,7 +126,7 @@ class Game:
         run = True
         clock = pygame.time.Clock()
         while run:
-            self.bitboard = (self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king)
+            self.bitboard = [self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king]
             self.white_pieces = self.white_pawns | self.white_knights | self.white_bishops | self.white_rooks | self.white_queen | self.white_king
             self.black_pieces = self.black_pawns | self.black_knights | self.black_bishops | self.black_rooks | self.black_queen | self.black_king
             for event in pygame.event.get():
@@ -146,6 +146,14 @@ class Game:
                     if self.white_pieces & (uint(1) << uint((row << 3) + col)) and 0 <= row < 8 and 0 <= col < 8:
                         self.curr = (row,col)
                         self.moves = return_moves(0,self.bitboard,self.data)
+                    else:
+                        if len(self.moves):
+                            for move in self.moves:
+                                to_index = chess_square_to_index(square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)])
+                                if to_index == row * 8 + col:
+                                    self.bitboard,self.data = make_move(move,self.bitboard,self.data)
+                                    self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king = self.bitboard
+                                    self.curr = None
             display.fill((30,30,30))
             
             # DISPLAYING BOARD
