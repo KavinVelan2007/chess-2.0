@@ -1,6 +1,6 @@
 from numpy import uint64 as uint, uint32, array, zeros, trim_zeros
 import time
-import sys
+import os
 import random
 from utils import *
 random.seed(time.time())
@@ -807,17 +807,34 @@ def print_chess_board(boards, board_data):
     print('\n')
 
 
+def perft(depth, bitboards, board_data, nodes):
+    if depth == 0:
+        nodes += 1
+
+    else:
+
+        moves = return_moves(board_data & uint32(1), bitboards, board_data)
+
+        for move in moves:
+            moved = make_move(move, bitboards.copy(), board_data)
+
+            if moved == False:
+                continue
+
+            else:
+                temp_bitboards, temp_board_data = moved
+
+            perft(depth - 1, temp_bitboards, temp_board_data, nodes)
+
 
 
 bitboards = array(BITBOARDS.copy())
 board_data = data
 
-def perft():
-    pass
 
 
 moves = return_moves(0, bitboards, board_data)
-
+'''
 for move in moves:
     a = make_move(move, bitboards.copy(), board_data)
     if a == False:
@@ -835,3 +852,13 @@ for move in moves:
             temp_temp_bitboards, temp_temp_board_data = b
         print_chess_board(temp_temp_bitboards, temp_temp_board_data)
         input()
+'''
+
+
+nodes = array(0)
+
+perft(4, bitboards, board_data, nodes)
+
+os.system('cls')
+
+print(nodes)
