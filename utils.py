@@ -7,10 +7,10 @@ def count_bits(bit_board):
         c += 1
     return c
 
-
+'''
 def least_significant_bit_count(bit_board):
     return int(bit_board) & -int(bit_board)
-
+'''
 
 def most_significant_bit_count(bitboard):
     ndx = 0

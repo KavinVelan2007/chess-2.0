@@ -392,7 +392,7 @@ def return_moves(side, bitboards, board_data):
 
                 while attacks:
                     to_square = least_significant_bit_count(attacks)
-                    attacks &= (attacks - uint(1))
+                    attacks ^= uint(1 << to_square)
                     add_move(curr_square, to_square, 0, 0, 0, 0, 0)
 
                 if uint(1 << (curr_square - 8)) & (~ALL_PIECES):
@@ -416,7 +416,7 @@ def return_moves(side, bitboards, board_data):
 
             while moves_possible:
                 to_square = least_significant_bit_count(moves_possible)
-                moves_possible &= (moves_possible - uint(1))
+                moves_possible ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 1, 0, 0, 0, 0)
 
 
@@ -432,7 +432,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 2, 0, 0, 0, 0)
 
 
@@ -448,7 +448,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 3, 0, 0, 0, 0)
 
 
@@ -464,7 +464,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
             attacks = ROOK_ATTACKS[curr_square][
@@ -476,7 +476,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
         while WHITE_KING:
@@ -486,7 +486,7 @@ def return_moves(side, bitboards, board_data):
             
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 5, 0, 0, 0, 0)
 
             if board_data & uint32(2) and not (ALL_PIECES & uint((1 << 62) + (1 << 61))) and not is_square_atacked(1, 61, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not is_square_atacked(1, 60, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
@@ -509,7 +509,7 @@ def return_moves(side, bitboards, board_data):
 
                 while attacks:
                     to_square = least_significant_bit_count(attacks)
-                    attacks &= (attacks - uint(1))
+                    attacks ^= uint(1 << to_square)
                     add_move(curr_square, to_square, 6, 1, 0, 0, 0)
                     add_move(curr_square, to_square, 6, 1, 1, 0, 0)
                     add_move(curr_square, to_square, 6, 1, 2, 0, 0)
@@ -525,7 +525,7 @@ def return_moves(side, bitboards, board_data):
 
                 while attacks:
                     to_square = least_significant_bit_count(attacks)
-                    attacks &= (attacks - uint(1))
+                    attacks ^= uint(1 << to_square)
                     add_move(curr_square, to_square, 6, 0, 0, 0, 0)
 
                 if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
@@ -549,7 +549,7 @@ def return_moves(side, bitboards, board_data):
 
             while moves_possible:
                 to_square = least_significant_bit_count(moves_possible)
-                moves_possible &= (moves_possible - uint(1))
+                moves_possible ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 7, 0, 0, 0, 0)
 
 
@@ -565,7 +565,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 8, 0, 0, 0, 0)
 
 
@@ -581,7 +581,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 9, 0, 0, 0, 0)
 
 
@@ -597,7 +597,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 10, 0, 0, 0, 0)
 
             attacks = ROOK_ATTACKS[curr_square][
@@ -609,7 +609,7 @@ def return_moves(side, bitboards, board_data):
 
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 10, 0, 0, 0, 0)
 
         while BLACK_KING:
@@ -619,7 +619,7 @@ def return_moves(side, bitboards, board_data):
             
             while attacks:
                 to_square = least_significant_bit_count(attacks)
-                attacks &= (attacks - uint(1))
+                attacks ^= uint(1 << to_square)
                 add_move(curr_square, to_square, 11, 0, 0, 0, 0)
 
             if board_data & uint32(8) and not (ALL_PIECES & uint((1 << 5) + (1 << 6))) and not is_square_atacked(0, 3, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not is_square_atacked(0, 4, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
@@ -854,16 +854,24 @@ for move in moves:
         input()
 '''
 
+
+def count_bits(bit_board):
+    c = 0
+    while bit_board:
+        bit_board &= bit_board - uint(1)
+        c += 1
+    return c
+
+def least_significant_bit_count(bit_board):
+    return int(bit_board).bit_length() - 1
+
 nodes = array(0)
 stime = time.time()
 #print(stime)
-#perft(4, bitboards, board_data, nodes)
-for i in range(200000):
-    bitboards[1] & -bitboards[1]
-
+perft(4, bitboards, board_data, nodes)
 os.system('cls')
 
-print(least_significant_bit_count(bitboards[1]))
+print(int(least_significant_bit_count(bitboards[3])))
 
-#print(nodes)
+print(nodes)
 print(time.time() - stime)
