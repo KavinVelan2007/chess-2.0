@@ -9,7 +9,7 @@ def count_bits(bit_board):
 
 
 def least_significant_bit_count(bit_board):
-    return count_bits(bit_board - uint(1)) - count_bits(bit_board) + 1
+    return int(bit_board) & -int(bit_board)
 
 
 def most_significant_bit_count(bitboard):

@@ -854,11 +854,16 @@ for move in moves:
         input()
 '''
 
-
 nodes = array(0)
-
-perft(4, bitboards, board_data, nodes)
+stime = time.time()
+#print(stime)
+#perft(4, bitboards, board_data, nodes)
+for i in range(200000):
+    bitboards[1] & -bitboards[1]
 
 os.system('cls')
 
-print(nodes)
+print(least_significant_bit_count(bitboards[1]))
+
+#print(nodes)
+print(time.time() - stime)
