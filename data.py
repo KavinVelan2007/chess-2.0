@@ -4,7 +4,7 @@ import pickle
 
 BITBOARDS,data = generate_bitboards_from_board(fenString)
 
-BITBOARDS = list(BITBOARDS)
+BITBOARDS = array(BITBOARDS)
 
 '''
 WHITE_PAWNS = BITBOARDS[0]
