@@ -1,13 +1,10 @@
-#from numpy import uint64 as uint, array
 from fen import *
 import pickle
 from libc.string cimport memset, memcpy
 cimport cython
-import time
 
 # cython decorators
 '''
-@cython.cdivision(True)
 @cython.binding(False)
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -20,6 +17,7 @@ ctypedef (unsigned long long) U64
 ctypedef (unsigned int) U32
 ctypedef (unsigned char) U8
 cdef U64 one = 1
+cdef U32 one32 = 1
 
 '''
 DATA STARTS HERE
@@ -30,7 +28,7 @@ temp_BITBOARDS, temp_data = generate_bitboards_from_board(fenString)
 
 
 cdef U64 BITBOARDS[12]
-cdef U32 board_data = temp_data
+cdef U32 BOARD_DATA = temp_data
 
 for i in range(12):
 	BITBOARDS[i] = temp_BITBOARDS[i]
@@ -640,6 +638,11 @@ DATA ENDS HERE
 BOARD STARTS HERE
 '''
 
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
 cpdef U8 count_bits(U64 bit_board):
 	cdef U8 c = 0
 	while bit_board:
@@ -648,43 +651,98 @@ cpdef U8 count_bits(U64 bit_board):
 	return c
 
 
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
 cpdef U8 least_significant_bit_count(U64 bit_board):
 	return count_bits((bit_board & -bit_board) - 1)
 
 
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
 cdef class Moves:
 	cdef U32 move_list[218] 
 	cdef U8 count
 	
-	
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
 	def __cinit__(self):
 		self.count = 0
 	
-	
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
 	cpdef void add_move(self, U32 source, U32 target, U32 piece, U32 promoted, U32 promoted_piece, U32 enpassant, U32 castling):
 			self.move_list[self.count] = (source) | (target << 6) | (piece << 12) | (promoted << 16) | (promoted_piece << 17) | (enpassant << 19) | (castling << 20) 
 			self.count += 1
 
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
+	cpdef return_move_list(self):
+		return self.move_list
 
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
+	cpdef return_count(self):
+		return self.count
+
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
 cdef class Board:
 
 	cdef:
-		U64[12] bitboards
-		U32 board_data
+		public U64[12] bitboards
+		public U32 board_data
 
-	
-	def __cinit__(self):
-		self.board_data = board_data
-		memcpy(self.bitboards, BITBOARDS, sizeof(U64) * 12)
-  
-	
+
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
+	def __cinit__(self, bit_boards, boarddata):
+		self.board_data = BOARD_DATA
+		for i in range(12):
+			self.bitboards[i] = bit_boards[i]
+
+
+
+   
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
 	cpdef void print_chess_board(self):
 		cdef U8 c = 0
+		cdef U8 i
+		cdef U8 j
+		cdef U8 k
+
 		for i in range(8):
 			print(8 - i, '    ', end ='')
 			for j in range(8):
 				for k in range(12):
-					if self.bitboards[k] & ((1) << c):
+					if self.bitboards[k] & (one << c):
 						print(f'{piece_string[k]}   ', end = '')
 						break
 				else:
@@ -704,10 +762,48 @@ cdef class Board:
 		print()
 		print('Board Data:', bin(self.board_data))
 		print('\n')
-
 	
+
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
+	cpdef bint is_square_attacked(self, U8 side, U8 square, U64 black_pieces, U64 white_pieces):
+
+		if side == 1:
+			if self.bitboards[0] & BLACK_PAWN_ATTACKS[square]:
+				return True
+			elif self.bitboards[1] & KNIGHT_ATTACKS[square]:
+				return True
+			elif (self.bitboards[2] | self.bitboards[4]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~white_pieces):
+				return True
+			elif (self.bitboards[3] | self.bitboards[4]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~white_pieces):
+				return True
+			elif self.bitboards[5] & KING_ATTACKS[square]:
+				return True
+		else:
+			if self.bitboards[6] & WHITE_PAWN_ATTACKS[square]:
+				return True
+			elif self.bitboards[7] & KNIGHT_ATTACKS[square]:
+				return True
+			elif (self.bitboards[8] | self.bitboards[10]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~black_pieces):
+				return True
+			elif (self.bitboards[9] | self.bitboards[10]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~black_pieces):
+				return True
+			elif self.bitboards[11] & KING_ATTACKS[square]:
+				return True
+
+		return False
+
+
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
 	cpdef Moves return_moves(self):
-	 
+
 		cdef U64 WHITE_PAWNS = self.bitboards[0]
 		cdef U64 WHITE_KNIGHTS = self.bitboards[1]
 		cdef U64 WHITE_BISHOPS = self.bitboards[2]
@@ -746,18 +842,20 @@ cdef class Board:
 		cdef U8 curr_square
 		cdef U8 to_square
 		cdef U64 attacks
+		
+		
 		if self.board_data & 1 == 0:
 
 			while WHITE_PAWNS:
 				
 				curr_square = least_significant_bit_count(WHITE_PAWNS)
-				WHITE_PAWNS &= (WHITE_PAWNS - 1)
+				WHITE_PAWNS ^= (one << curr_square)
 				attacks = WHITE_PAWN_ATTACKS[curr_square] & BLACK_PIECES
 
 				if 8 <= curr_square <= 15:
 					while attacks:
 						to_square = least_significant_bit_count(attacks)
-						attacks &= (attacks - 1)
+						attacks ^= (one << to_square)
 						moves.add_move(curr_square, to_square, 0, 1, 0, 0, 0)
 						moves.add_move(curr_square, to_square, 0, 1, 1, 0, 0)
 						moves.add_move(curr_square, to_square, 0, 1, 2, 0, 0)
@@ -772,7 +870,7 @@ cdef class Board:
 				else:
 					while attacks:
 						to_square = least_significant_bit_count(attacks)
-						attacks &= (attacks - 1)
+						attacks ^= (one << to_square)
 						moves.add_move(curr_square, to_square, 0, 0, 0, 0, 0)
 
 					if (one << (curr_square - 8)) & (~ALL_PIECES):
@@ -782,24 +880,24 @@ cdef class Board:
 							moves.add_move(curr_square, curr_square - 16, 0, 0, 0, 0, 0)
 						else:
 							moves.add_move(curr_square, curr_square - 8, 0, 0, 0, 0, 0)
-
+		
 					if (self.board_data & (1 << 5)) and (((self.board_data >> (6)) & ((1 << 6) - 1)) == (curr_square - 9) or (((self.board_data >> (6)) & ((1 << 6) - 1)) == curr_square - 7)):
 						moves.add_move(curr_square, ((self.board_data >> (6) & ((1 << 6) - 1))), 0, 0, 0, 1, 0)
 		
 			while WHITE_KNIGHTS:
 				curr_square = least_significant_bit_count(WHITE_KNIGHTS)
-				WHITE_KNIGHTS &= (WHITE_KNIGHTS - 1)
+				WHITE_KNIGHTS ^= (one << curr_square)
 				
 				attacks = KNIGHT_ATTACKS[curr_square] & (~WHITE_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks &= (attacks - 1)
+					attacks ^= (one << to_square)
 					moves.add_move(curr_square, to_square, 1, 0, 0, 0, 0)
 		
 			while WHITE_BISHOPS:
 				curr_square = least_significant_bit_count(WHITE_BISHOPS)
-				WHITE_BISHOPS &= (WHITE_BISHOPS - 1)
+				WHITE_BISHOPS ^= (one << curr_square)
 				attacks = BISHOP_ATTACKS[curr_square][
 					(
 						(BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
@@ -809,90 +907,88 @@ cdef class Board:
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks &= (attacks - 1)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 2, 0, 0, 0, 0)
 
 
 			while WHITE_ROOKS:
 				curr_square = least_significant_bit_count(WHITE_ROOKS)
-				WHITE_ROOKS ^= uint(1 << curr_square)
+				WHITE_ROOKS ^= (one << curr_square)
 				attacks = ROOK_ATTACKS[curr_square][
 					(
 						(ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+						>> (64 - ROOK_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~WHITE_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 3, 0, 0, 0, 0)
 
 
 			while WHITE_QUEEN:
 				curr_square = least_significant_bit_count(WHITE_QUEEN)
-				WHITE_QUEEN^= uint(1 << curr_square)
+				WHITE_QUEEN^= (one << curr_square)
 				attacks = BISHOP_ATTACKS[curr_square][
 					(
 						(BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+						>> (64 - BISHOP_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~WHITE_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
 				attacks = ROOK_ATTACKS[curr_square][
 					(
 						(ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+						>> (64 - ROOK_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~WHITE_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 4, 0, 0, 0, 0)
 
 			while WHITE_KING:
 				curr_square = least_significant_bit_count(WHITE_KING)
-				WHITE_KING ^= uint(1 << curr_square)
+				WHITE_KING ^= (one << curr_square)
 				attacks = KING_ATTACKS[curr_square] & (~WHITE_PIECES)
 				
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 5, 0, 0, 0, 0)
 
-				if board_data & uint32(2) and not (ALL_PIECES & uint((1 << 62) + (1 << 61))) and not self.is_square_atacked(1, 61, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not self.is_square_atacked(1, 60, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
+				if self.board_data & (2) and not (ALL_PIECES & ((one << 62) | (one << 61))) and not self.is_square_attacked(1, 61, BLACK_PIECES, WHITE_PIECES) and not self.is_square_attacked(1, 60, BLACK_PIECES, WHITE_PIECES):
 					add_move(curr_square, 62, 5, 0, 0, 0, 1)
 
-				if board_data & uint32(4) and not (ALL_PIECES & uint((1 << 59) + (1 << 58) + (1 << 57))) and not self.is_square_atacked(1, 59, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not self.is_square_atacked(1, 60, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
+				if self.board_data & (4) and not (ALL_PIECES & ((one << 59) | (one << 58) | (one << 57))) and not self.is_square_attacked(1, 59, BLACK_PIECES, WHITE_PIECES) and not self.is_square_attacked(1, 60, BLACK_PIECES, WHITE_PIECES):
 					add_move(curr_square, 58, 5, 0, 0, 0, 1)
 
-
-
+		
 		else:
-
 
 			while BLACK_PAWNS:
 				curr_square = least_significant_bit_count(BLACK_PAWNS)
-				BLACK_PAWNS ^= uint(1 << curr_square)
+				BLACK_PAWNS ^= (one << curr_square)
 				attacks = BLACK_PAWN_ATTACKS[curr_square] & WHITE_PIECES
 
 				if 56 <= curr_square <= 63:
 
 					while attacks:
 						to_square = least_significant_bit_count(attacks)
-						attacks ^= uint(1 << to_square)
+						attacks ^= (one << to_square)
 						add_move(curr_square, to_square, 6, 1, 0, 0, 0)
 						add_move(curr_square, to_square, 6, 1, 1, 0, 0)
 						add_move(curr_square, to_square, 6, 1, 2, 0, 0)
 						add_move(curr_square, to_square, 6, 1, 3, 0, 0)
 
-					if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+					if t(one << (curr_square + 8)) & (~ALL_PIECES):
 						add_move(curr_square, curr_square + 8, 6, 1, 0, 0, 0)
 						add_move(curr_square, curr_square + 8, 6, 1, 1, 0, 0)
 						add_move(curr_square, curr_square + 8, 6, 1, 2, 0, 0)
@@ -902,107 +998,287 @@ cdef class Board:
 
 					while attacks:
 						to_square = least_significant_bit_count(attacks)
-						attacks ^= uint(1 << to_square)
+						attacks ^= (one << to_square)
 						add_move(curr_square, to_square, 6, 0, 0, 0, 0)
 
-					if uint(1 << (curr_square + 8)) & (~ALL_PIECES):
+					if (one << (curr_square + 8)) & (~ALL_PIECES):
 
-						if 8 <= curr_square <= 15 and uint(1 << (curr_square + 16)) & (~ALL_PIECES):
+						if 8 <= curr_square <= 15 and (one << (curr_square + 16)) & (~ALL_PIECES):
 							add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
 							add_move(curr_square, curr_square + 16, 6, 0, 0, 0, 0)
 
 						else:
 							add_move(curr_square, curr_square + 8, 6, 0, 0, 0, 0)
 
-					if (board_data & uint32(1 << 5)) and (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == (curr_square + 9) or (((board_data >> uint32(6)) & uint((1 << 6) - 1)) == curr_square + 7)):
-						add_move(curr_square, ((board_data >> uint32(6) & uint32((1 << 6) - 1))), 6, 0, 0, 1, 0)
+					if (board_data & (1 << 5)) and (((board_data >> (6)) & ((1 << 6) - 1)) == (curr_square + 9) or (((board_data >> (6)) & ((1 << 6) - 1)) == curr_square + 7)):
+						add_move(curr_square, (((board_data >> (6)) & ((1 << 6) - 1))), 6, 0, 0, 1, 0)
 
 
 			while BLACK_KNIGHTS:
 				curr_square = least_significant_bit_count(BLACK_KNIGHTS)
-				BLACK_KNIGHTS ^= uint(1 << curr_square)
+				BLACK_KNIGHTS ^= (one << curr_square)
 				
-				moves_possible = KNIGHT_ATTACKS[curr_square] & (~BLACK_PIECES)
+				attacks = KNIGHT_ATTACKS[curr_square] & (~BLACK_PIECES)
 
-				while moves_possible:
-					to_square = least_significant_bit_count(moves_possible)
-					moves_possible ^= uint(1 << to_square)
+				while attacks:
+					to_square = least_significant_bit_count(attacks)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 7, 0, 0, 0, 0)
 
-
+		
 			while BLACK_BISHOPS:
 				curr_square = least_significant_bit_count(BLACK_BISHOPS)
-				BLACK_BISHOPS ^= uint(1 << curr_square)
+				BLACK_BISHOPS ^= (one << curr_square)
 				attacks = BISHOP_ATTACKS[curr_square][
 					(
 						(BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+						>> (64 - BISHOP_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~BLACK_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 8, 0, 0, 0, 0)
 
 
 			while BLACK_ROOKS:
 				curr_square = least_significant_bit_count(BLACK_ROOKS)
-				BLACK_ROOKS ^= uint(1 << curr_square)
+				BLACK_ROOKS ^= (one << curr_square)
 				attacks = ROOK_ATTACKS[curr_square][
 					(
 						(ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+						>> (64 - ROOK_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~BLACK_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 9, 0, 0, 0, 0)
 
 
 			while BLACK_QUEEN:
 				curr_square = least_significant_bit_count(BLACK_QUEEN)
-				BLACK_QUEEN^= uint(1 << curr_square)
+				BLACK_QUEEN^= (one << curr_square)
 				attacks = BISHOP_ATTACKS[curr_square][
 					(
 						(BISHOP_OCCUPANCY[curr_square] & ALL_PIECES) * BISHOP_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - BISHOP_OCCUPANCY_BITS[curr_square]
+						>> (64 - BISHOP_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~BLACK_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 10, 0, 0, 0, 0)
 
 				attacks = ROOK_ATTACKS[curr_square][
 					(
 						(ROOK_OCCUPANCY[curr_square] & ALL_PIECES) * ROOK_MAGIC_NUMBERS[curr_square])
-						>> uint(64 - ROOK_OCCUPANCY_BITS[curr_square]
+						>> (64 - ROOK_OCCUPANCY_BITS[curr_square]
 					)
 				] & (~BLACK_PIECES)
 
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 10, 0, 0, 0, 0)
 
 			while BLACK_KING:
 				curr_square = least_significant_bit_count(BLACK_KING)
-				BLACK_KING ^= uint(1 << curr_square)
+				BLACK_KING ^= (one << curr_square)
 				attacks = KING_ATTACKS[curr_square] & (~BLACK_PIECES)
 				
 				while attacks:
 					to_square = least_significant_bit_count(attacks)
-					attacks ^= uint(1 << to_square)
+					attacks ^= (one << to_square)
 					add_move(curr_square, to_square, 11, 0, 0, 0, 0)
 
-				if board_data & uint32(8) and not (ALL_PIECES & uint((1 << 5) + (1 << 6))) and not self.is_square_atacked(0, 3, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not self.is_square_atacked(0, 4, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
+				if self.board_data & (8) and not (ALL_PIECES & ((one << 5) | (one << 6))) and not self.is_square_attacked(0, 3, BLACK_PIECES, WHITE_PIECES) and not self.is_square_attacked(0, 4, BLACK_PIECES, WHITE_PIECES):
 					add_move(curr_square, 6, 11, 0, 0, 0, 1)
 
-				if board_data & uint32(16) and not (ALL_PIECES & uint((1 << 1) + (1 << 2) + (1 << 3))) and not self.is_square_atacked(0, 4, bitboards , board_data, BLACK_PIECES, WHITE_PIECES) and not self.is_square_atacked(0, 5, bitboards , board_data, BLACK_PIECES, WHITE_PIECES):
+				if self.board_data & (16) and not (ALL_PIECES & ((one << 1) | (one << 2) | (one << 3))) and not self.is_square_attacked(0, 4, BLACK_PIECES, WHITE_PIECES) and not self.is_square_attacked(0, 5, BLACK_PIECES, WHITE_PIECES):
 					add_move(curr_square, 2, 11, 0, 0, 0, 1)
-		'''
+		
 		return moves
+
+
+	@cython.binding(False)
+	@cython.boundscheck(False)
+	@cython.wraparound(False)
+	@cython.initializedcheck(False)
+	@cython.cdivision(True)
+	cpdef bint make_move(self, U32 move):
+		
+		cdef U8 piece = (move >> 12) & (15)
+		cdef U8 source = move & (63)
+		cdef U8 target = (move >> (6)) & (63)
+		cdef U64 mask
+		cdef U8 i
+
+		if ((self.board_data << (12)) & (63)) == 100:
+			return False
+		
+		if 0 <= piece <= 5:
+			
+			if (move >> (16)) & (1):
+				self.bitboards[0] ^= (one << source)
+				self.bitboards[((move >> (17)) & (3)) + 1] |= (one << target)
+				self.board_data &= (4095)
+
+			elif (move << (19)) & (1):
+				self.bitboards[0] ^= ((one << source) | (one << target))
+				self.bitboards[6] ^= (one << (target + 8))
+				self.board_data &= (4095)
+
+			elif (move << (19)) & (1):
+				self.bitboards[5] ^= ((one << source) | (one << target))
+				self.bitboards[3] ^= (one << ((source + target) // 2))
+
+				if target == 62:
+					self.bitboards[3] ^= (one << 63)
+				
+				else:
+					self.bitboards[3] ^= (one << 56)
+
+				self.board_data += (4096)
+		
+			else:
+				self.bitboards[piece] ^= ((one << source) | (one << target))
+
+				mask = 0
+				for i in range(6):
+					mask |= self.bitboards[6 + i]
+					self.bitboards[i + 6] &= ~(one << target)
+
+				if mask & (one << target):
+					self.board_data &= (4095)
+				else:
+					self.board_data += (4096)
+
+			self.board_data |= (1)
+
+			if piece == 0 and source - target == 16:
+				self.board_data &= ~(((1 << 6) - 1) << 6)
+				self.board_data |= ((target + 8) << 6)
+
+			if piece == 5:
+				self.board_data &= ~(6)
+
+			if self.board_data & (2) and piece == 3 and source == 63:
+				self.board_data &= ~(2)
+
+			elif self.board_data & (4) and piece == 3 and source == 56:
+				self.board_data &= ~(4)
+
+			if self.is_square_attacked(1, least_significant_bit_count(self.bitboards[5]), self.bitboards[6] | self.bitboards[7] | self.bitboards[8] | self.bitboards[9] | self.bitboards[10] | self.bitboards[11], self.bitboards[0] | self.bitboards[1] | self.bitboards[2] | self.bitboards[3] | self.bitboards[4] | self.bitboards[5]):
+				return False
+		
+		else:
+			if (move >> (16)) & (1):
+				self.bitboards[6] ^= (one << source)
+				self.bitboards[((move >> (17)) & (3)) + 7] |= (one << target)
+				self.board_data &= (4095)
+
+			elif (move << (19)) & (1):
+				self.bitboards[6] ^= ((one << source) | (one << target))
+				self.bitboards[0] ^= (one << (target + 8))
+				self.board_data &= (4095)
+		
+			elif (move << (19)) & (1):
+				self.bitboards[11] ^= ((one << source) | (one << target))
+				self.bitboards[9] ^= (one << ((source + target) // 2))
+
+				if target == 2:
+					self.bitboards[9] ^= (one << 3)
+				
+				else:
+					self.bitboards[9] ^= (one << 5)
+
+			else:
+				self.bitboards[piece] ^= ((one << source) | (one << target))
+
+				mask = 0
+				for i in range(6):
+					mask |= bitboards[i]
+					self.bitboards[i] &= ~(one << target)
+
+				if mask & (one << target):
+					self.board_data &= (4095)
+				else:
+					self.board_data += (4096)
+
+			self.board_data ^= (1)
+		
+			if piece == 6 and target - source == 16:
+				self.board_data &= ~(((1 << 6) - 1) << 6)
+				self.board_data |= ((target - 8) << 6)
+
+			if piece == 11:
+				self.board_data &= ~(24)
+
+			if self.board_data & (8) and piece == 9 and source == 7:
+				self.board_data &= ~(8)
+
+			elif self.board_data & (16) and piece == 9 and source == 0:
+				self.board_data &= ~(16)
+
+			if self.is_square_attacked(0, least_significant_bit_count(bitboards[11]), bitboards[6] | bitboards[7] | bitboards[8] | bitboards[9] | bitboards[10] | bitboards[11], bitboards[0] | bitboards[1] | bitboards[2] | bitboards[3] | bitboards[4] | bitboards[5]):
+				return False
+
+		
+		return True
+
+	cpdef copy(self):
+		return (self.bitboards, self.board_data)
+
+
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
+cpdef U64 perft_internal(U8 depth, Board board):
+	cdef Moves moves = board.return_moves()
+	cdef U32[218] move_list = moves.return_move_list() 
+	cdef U8 i
+	cdef Board copy_board
+	cdef U64 total_nodes
+	if depth == 0:
+		return 1
+
+	else:
+		for i in range(moves.return_count):
+			copy_board = Board(*board.copy())
+			if copy_board.make_move(move_list[i]) == False:
+				continue
+			total_nodes += perft_internal(depth - 1, copy_board)
+	return total_nodes
+
+'''
+@cython.binding(False)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
+cpdef void perft(U8 depth):
+	cdef Moves moves = board.return_moves()
+	cdef U32[218] move_list = moves.return_move_list() 
+	cdef U8 i
+	cdef Board copy_board
+	cdef U64 nodes
+	cdef U64 total_nodes = 0
+	if depth == 0:
+		print("Invalid depth")
+	else:
+		for i in range(moves.return_count):
+			copy_board = Board()
+			if copy_board.make_move(move_list[i]) == False:
+				continue
+			print(f"From: {square_string[move_list[i] & 63]} To: {square_string[(move_list[i] >> 6) & 63]} ", end = '')
+			nodes = perft_internal(depth - 1, copy_board)
+			print(nodes)
+			total_nodes += nodes
+		print(f"Total Nodes: {total_nodes}")
+'''
