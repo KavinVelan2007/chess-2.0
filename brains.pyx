@@ -721,6 +721,7 @@ cdef class Board:
 	@cython.cdivision(True)
 	def __cinit__(self, bit_boards, boarddata):
 		self.board_data = BOARD_DATA
+		cdef U8 i
 		for i in range(12):
 			self.bitboards[i] = bit_boards[i]
 
