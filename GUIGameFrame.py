@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from PIL import ImageTk
-from Sprites import *
+from sprites import *
 from fen import *
 
 
@@ -14,17 +14,6 @@ def count_bits(bit_board):
 
 def least_significant_bit_count(bit_board):
 	return count_bits((bit_board & -bit_board) - 1)
-
-
-from ctypes import windll
-
-def set_opacity(widget, alpha):
-    widget = widget.winfo_id()
-    value = int(alpha) # value from 0 to 1
-    wnd_exstyle = windll.user32.GetWindowLongA(widget, -20)
-    new_exstyle = wnd_exstyle | 0x00080000  
-    windll.user32.SetWindowLongA(widget, -20, new_exstyle)  
-    windll.user32.SetLayeredWindowAttributes(widget, 0, value, 2)
 
 
 class GameFrame(ctk.CTkFrame):
