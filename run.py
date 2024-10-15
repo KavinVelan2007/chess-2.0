@@ -1,6 +1,11 @@
-from main import *
+from GUI.GUIMain import Game
 
-import time
-stime = time.time()
-perft(5)
-print(f"Time: {time.time() - stime}")
+from fen import *
+
+with open("FENString.txt", "r"):
+
+    BitBoards, BoardData = generate_bitboards_from_board(fenString)
+
+MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
+
+MainGame.MainLoop()

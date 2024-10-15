@@ -1103,9 +1103,20 @@ print_chess_board(BITBOARDS, BOARD_DATA)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 @cython.cdivision(True)
-cpdef void perft():
+cdef void perft():
 	import time
 	stime = time.time()
 	for i in range(2_000_000):
 		return_moves(BITBOARDS, BOARD_DATA)
 	print(f"Time: {time.time() - stime}")
+
+
+def ReturnMoves(BitBoards, BoardData):
+
+	cdef U64[12] bitboards = BitBoards
+
+	cdef U32 board_data = BoardData
+
+	moves = return_moves(bitboards, board_data)
+
+	return moves
