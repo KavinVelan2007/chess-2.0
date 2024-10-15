@@ -1096,9 +1096,6 @@ cdef Moves return_moves(U64 bitboards[12], U32 board_data):
 	return moves[0]
 
 
-print_chess_board(BITBOARDS, BOARD_DATA)
-
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)

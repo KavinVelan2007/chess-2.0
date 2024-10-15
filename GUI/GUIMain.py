@@ -1,10 +1,18 @@
 import pygame
 
+import pygame_widgets
+
+import threading
+
+import time
+
 from GUI.GUISideBar import *
 
 from GUI.GUIBoard import *
 
 from GUI.GUIMoveHistory import *
+
+from GUI.GUISettings import *
 
 
 class Game:
@@ -36,13 +44,45 @@ class Game:
 
         pygame.init()
 
-        self.InitPreferences()
+        self.font = pygame.font.SysFont("Arial", 100)
 
         self.Display = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
 
         pygame.display.set_caption("Chess")
 
+        self.LoadingFlag = True
+
+        def LoadingScreen():
+
+            while self.LoadingFlag:
+
+                ReferenceText = self.font.render("Loading...", False, (255, 255, 255))
+                
+                for i in range(5):
+
+                    if not self.LoadingFlag:
+
+                        break
+                
+                    self.Display.fill((70, 70, 70))
+
+                    Text = self.font.render("Loading" + '.' * i, False, (0, 0, 255))
+
+                    self.Display.blit(Text, (960 - ReferenceText.get_width() // 2, 540 - ReferenceText.get_height() // 2))
+
+                    pygame.display.update()
+
+                    time.sleep(0.2)
+
+        threading.Thread(target = LoadingScreen).start()
+
+        self.InitPreferences()
+
+        self.SettingsOpen = False
+
         self.SideBar = SideBar(self.Display)
+
+        self.Settings = Settings(self)
 
         self.Board = Board(self)
 
@@ -50,12 +90,18 @@ class Game:
 
 
     def DisplayBase(self):
+        
+        if not self.SettingsOpen:
 
-        self.Display.fill((70, 70, 70))
+            self.Display.fill((70, 70, 70))
 
-        self.SideBar.DisplaySideBar()
+            self.Board.DisplayBoard()
 
-        self.Board.DisplayBoard()
+            self.SideBar.DisplaySideBar()
+
+        else:
+
+            self.Settings.DisplaySettings()
 
 
     def InitPreferences(self):
@@ -81,11 +127,13 @@ class Game:
 
         Clock = pygame.time.Clock()
 
-        font = pygame.font.SysFont("Arial", 30)
+        self.LoadingFlag = False
 
         while self.Running:
 
-            for Event in pygame.event.get():
+            Events = pygame.event.get()
+
+            for Event in Events:
 
                 if Event.type == pygame.QUIT:
 
@@ -93,20 +141,28 @@ class Game:
 
                 elif Event.type == self.SideBar.EventSettingsOpened:
 
-                    pass
+                    self.SettingsOpen = True
 
-                self.SideBar.SideBarEventCheck(Event)
+                if not self.SettingsOpen:
 
-                self.Board.BoardEventCheck(Event)
+                    self.SideBar.SideBarEventCheck(Event)
+
+                    self.Board.BoardEventCheck(Event)
+
+                else:
+
+                    self.Settings.SettingsEventCheck(Event)
 
             self.DisplayBase()
 
             Clock.tick()
 
             """ self.Display.blit(
-                font.render(f"{Clock.get_fps()}", False,
+                self.font.render(f"{Clock.get_fps()}", False,
                             (255, 255, 255)), (0, 0)
             ) """
+
+            self.Settings.UpdateEvents(Events)
 
             pygame.display.update()
 

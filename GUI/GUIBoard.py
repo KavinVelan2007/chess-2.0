@@ -32,6 +32,8 @@ class Board:
 
         self.CurrDragPieceLocation = None
 
+        self.CurrDragPieceOffset = None
+
         self.InitImages()
 
 
@@ -84,12 +86,25 @@ class Board:
                     + self.PieceOffset[1],
                 )
 
-                self.ParentObject.Display.blit(
-                    self.Data["PieceOptions"][self.ParentObject.PiecePreference][
-                        self.ParentObject.Pieces[i]
-                    ],
-                    CurrentBlitPosition,
-                )
+
+                if not (self.Dragging and CurrentSquare == self.CurrDragPieceLocation):
+                    
+                    self.ParentObject.Display.blit(
+                        self.Data["PieceOptions"][self.ParentObject.PiecePreference][
+                            self.ParentObject.Pieces[i]
+                        ],
+                        CurrentBlitPosition,
+                    )
+
+                else:
+
+                    self.ParentObject.Display.blit(
+                        self.Data["PieceOptions"][self.ParentObject.PiecePreference][
+                            self.ParentObject.Pieces[i]
+                        ],
+                        (self.CurrDragLocation[0] - self.CurrDragPieceOffset[0], # type: ignore
+                         self.CurrDragLocation[1] - self.CurrDragPieceOffset[1]) # type: ignore
+                    )
 
 
     def DisplayBoard(self):
@@ -141,11 +156,11 @@ class Board:
 
         BoardPossibleMoves = [() for i in range(64)]
 
-        for Move in Moves['move_list']:
+        for MoveNumber in range(Moves['count']):
 
-            SourceSquare = Move & 63
+            SourceSquare = Moves['move_list'][MoveNumber] & 63
 
-            TargetSquare = (Move >> 6) & 63
+            TargetSquare = (Moves['move_list'][MoveNumber] >> 6) & 63
 
             BoardPossibleMoves[SourceSquare] += (TargetSquare, )
 
@@ -162,16 +177,25 @@ class Board:
                 (CurrentPos[0] - self.BoardRect.x) // self.SquareSize[0]
                 + (CurrentPos[1] - self.BoardRect.y) // self.SquareSize[1] * 8
             )
-
-            BoardSquareMoves = self.RefreshMoves()
             
-            if BoardSquareMoves[CurrentSquare]:
+            if self.PiecesPresent[CurrentSquare] == self.ParentObject.BoardData & 1:
 
                 self.Dragging = True
 
-                self.CurrDragLocation = CurrentSquare
+                self.CurrDragLocation = CurrentPos
 
                 self.CurrDragPieceLocation = CurrentSquare
+
+                self.CurrDragPieceOffset = (
+                    CurrentPos[0]
+                    - (CurrentSquare % 8) * self.SquareSize[0]
+                    - self.BoardCoordinates[0]
+                    - self.PieceOffset[0],
+                    CurrentPos[1]
+                    - (CurrentSquare // 8) * self.SquareSize[1]
+                    - self.BoardCoordinates[1]
+                    - self.PieceOffset[1],
+            )
 
         elif Event.type == pygame.MOUSEBUTTONUP and self.BoardRect.collidepoint(pygame.mouse.get_pos()) and self.Dragging:
 
@@ -183,9 +207,21 @@ class Board:
 
             self.CurrDragPieceLocation = None
 
-        elif self.Dragging and Event.type == pygame.MOUSEMOTION:
+            self.CurrDragPieceOffset = None
+
+        elif self.Dragging and Event.type == pygame.MOUSEMOTION and self.BoardRect.collidepoint(pygame.mouse.get_pos()):
 
             self.CurrDragLocation = pygame.mouse.get_pos()
+
+        elif self.Dragging and Event.type == pygame.MOUSEMOTION:
+            
+            self.Dragging = False
+
+            self.CurrDragLocation = None
+            
+            self.CurrDragPieceLocation = None
+            
+            self.CurrDragPieceOffset = None
         
         else:
 
@@ -196,3 +232,5 @@ class Board:
                 self.CurrDragLocation = None
 
                 self.CurrDragPieceLocation = None
+
+                self.CurrDragPieceOffset = None

@@ -1,5 +1,5 @@
 import pygame
-
+import pygame_widgets
 
 class SideBar:
 
@@ -178,11 +178,3 @@ class SideBar:
         else:
 
             self.CrossButtonHover = False
-
-
-class Settings:
-
-
-    def __init__(self):
-
-        pass
