@@ -34,13 +34,22 @@ class Settings:
         self.CancelButton = pygame_widgets.button.Button(self.ParentObject.Display, 700, 700, 150, 40, text="Cancel", fontSize=20, inactiveColour=(
             150, 150, 150), hoverColour=(70, 70, 70), pressedColour=(170, 0, 0), radius=5, onRelease=self.OnCancel, textVAlign='center', textHAlign='center')
 
-        self.ApplyButton = pygame_widgets.button.Button(self.ParentObject.Display, 700, 800, 150, 40, text="Apply", fontSize=20, inactiveColour=(
+        self.ApplyButton = pygame_widgets.button.Button(self.ParentObject.Display, 1050, 700, 150, 40, text="Apply", fontSize=20, inactiveColour=(
             150, 150, 150), hoverColour=(70, 70, 70), pressedColour=(0, 170, 0), radius=5, onRelease=self.OnApply, textVAlign='center', textHAlign='center')
-        
+    
+        print(sorted(self.ParentObject.BoardOptions, key = lambda x: x.replace('-', ' ')))
+
         self.BoardPreferenceDropdown = pygame_widgets.dropdown.Dropdown(
-        self, 440, 580, 200, 50, name='Select Board',
-        choices=sorted(self.ParentObject.BoardOptions, key = lambda x: x.replace('-', ' ')),
-        borderRadius=5,inactiveColor = (150,150,150),hoverColour=(70, 70, 70), pressedColour=(100,100,100), direction='down', textHAlign='center'
+            self.ParentObject.Display, 700, 580, 200, 100,
+            name='Select Board',
+            choices=sorted(self.ParentObject.BoardOptions, key = lambda x: x.replace('-', ' ')),
+            values=sorted(self.ParentObject.BoardOptions, key = lambda x: x.replace('-', ' ')),
+            borderRadius=5,
+            inactiveColor = (150,150,150),
+            hoverColour=(70, 70, 70),
+            pressedColour=(100,100,100),
+            direction='down',
+            textHAlign='center',
         )
 
         
