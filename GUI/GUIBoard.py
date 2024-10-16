@@ -65,15 +65,16 @@ class Board:
 
             while CurrentBitboard:
 
-                CurrentSquare = self.least_significant_bit_count(CurrentBitboard)
+                CurrentSquare = self.least_significant_bit_count(
+                    CurrentBitboard)
 
                 if 0 <= i <= 5:
 
-                    self.PiecesPresent[CurrentSquare] = False # type: ignore
+                    self.PiecesPresent[CurrentSquare] = False
 
                 else:
 
-                    self.PiecesPresent[CurrentSquare] = True # type: ignore
+                    self.PiecesPresent[CurrentSquare] = True
 
                 CurrentBitboard &= CurrentBitboard - 1
 
@@ -86,9 +87,8 @@ class Board:
                     + self.PieceOffset[1],
                 )
 
-
                 if not (self.Dragging and CurrentSquare == self.CurrDragPieceLocation):
-                    
+
                     self.ParentObject.Display.blit(
                         self.Data["PieceOptions"][self.ParentObject.PiecePreference][
                             self.ParentObject.Pieces[i]
@@ -102,24 +102,27 @@ class Board:
                         self.Data["PieceOptions"][self.ParentObject.PiecePreference][
                             self.ParentObject.Pieces[i]
                         ],
-                        (self.CurrDragLocation[0] - self.CurrDragPieceOffset[0], # type: ignore
-                         self.CurrDragLocation[1] - self.CurrDragPieceOffset[1]) # type: ignore
+                        (self.CurrDragLocation[0] - self.CurrDragPieceOffset[0],
+                         self.CurrDragLocation[1] - self.CurrDragPieceOffset[1])
                     )
 
 
     def DisplayBoard(self):
 
-        pygame.draw.rect(self.ParentObject.Display, (218, 109, 66), self.FullRect)
+        pygame.draw.rect(self.ParentObject.Display,
+                         (218, 109, 66), self.FullRect)
 
         self.ParentObject.Display.blit(self.WoodTexture, self.FullRect)
 
-        pygame.draw.line(self.Display, (170, 170, 170), (102, 0), (102, 1080), width=5)
+        pygame.draw.line(self.Display, (170, 170, 170),
+                         (102, 0), (102, 1080), width=5)
 
         pygame.draw.line(
-            self.ParentObject.Display, (170, 170, 170), (1231, 0), (1231, 1080), width=5
+            self.ParentObject.Display, (170, 170, 170), (1233, 0), (1233, 1080), width=5
         )
 
-        self.ParentObject.Display.blit(self.Data["BoardOptions"][self.ParentObject.BoardPreference], self.BoardCoordinates)
+        self.ParentObject.Display.blit(
+            self.Data["BoardOptions"][self.ParentObject.BoardPreference], self.BoardCoordinates)
 
         self.DisplayPieces()
 
@@ -127,7 +130,8 @@ class Board:
     def InitImages(self):
 
         self.WoodTexture = pygame.transform.scale(
-            pygame.image.load("GUI\\Resources\\Misc\\WoodTexture.png"), (1136, 1080)
+            pygame.image.load(
+                "GUI\\Resources\\Misc\\WoodTexture.png"), (1136, 1080)
         ).convert_alpha()
 
         self.Data = {"BoardOptions": {}, "PieceOptions": {}}
@@ -135,7 +139,8 @@ class Board:
         for i in self.ParentObject.BoardOptions:
 
             self.Data["BoardOptions"][i] = pygame.transform.scale(
-                pygame.image.load(f"GUI\\Resources\\Boards\\{i}.png"), (880, 824)
+                pygame.image.load(f"GUI\\Resources\\Boards\\{
+                                  i}.png"), (880, 824)
             ).convert_alpha()
 
         for i in self.ParentObject.PieceOptions:
@@ -152,7 +157,8 @@ class Board:
 
     def RefreshMoves(self):
 
-        Moves = ReturnMoves(self.ParentObject.BitBoards, self.ParentObject.BoardData)
+        Moves = ReturnMoves(self.ParentObject.BitBoards,
+                            self.ParentObject.BoardData)
 
         BoardPossibleMoves = [() for i in range(64)]
 
@@ -177,7 +183,7 @@ class Board:
                 (CurrentPos[0] - self.BoardRect.x) // self.SquareSize[0]
                 + (CurrentPos[1] - self.BoardRect.y) // self.SquareSize[1] * 8
             )
-            
+
             if self.PiecesPresent[CurrentSquare] == self.ParentObject.BoardData & 1:
 
                 self.Dragging = True
@@ -195,7 +201,7 @@ class Board:
                     - (CurrentSquare // 8) * self.SquareSize[1]
                     - self.BoardCoordinates[1]
                     - self.PieceOffset[1],
-            )
+                )
 
         elif Event.type == pygame.MOUSEBUTTONUP and self.BoardRect.collidepoint(pygame.mouse.get_pos()) and self.Dragging:
 
@@ -214,19 +220,19 @@ class Board:
             self.CurrDragLocation = pygame.mouse.get_pos()
 
         elif self.Dragging and Event.type == pygame.MOUSEMOTION:
-            
+
             self.Dragging = False
 
             self.CurrDragLocation = None
-            
+
             self.CurrDragPieceLocation = None
-            
+
             self.CurrDragPieceOffset = None
-        
+
         else:
 
             if self.Dragging:
-            
+
                 self.Dragging = False
 
                 self.CurrDragLocation = None

@@ -46,39 +46,47 @@ class Game:
 
         self.font = pygame.font.SysFont("Arial", 100)
 
-        self.Display = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+        self.Display = pygame.display.set_mode(
+            (1920, 1080), pygame.FULLSCREEN | pygame.SRCALPHA, depth=32)
 
         pygame.display.set_caption("Chess")
 
         self.LoadingFlag = True
 
+
         def LoadingScreen():
 
             while self.LoadingFlag:
 
-                ReferenceText = self.font.render("Loading...", False, (255, 255, 255))
-                
+                ReferenceText = self.font.render(
+                    "Loading...", False, (255, 255, 255))
+
                 for i in range(5):
 
                     if not self.LoadingFlag:
 
                         break
-                
+
                     self.Display.fill((70, 70, 70))
 
-                    Text = self.font.render("Loading" + '.' * i, False, (0, 0, 255))
+                    Text = self.font.render(
+                        "Loading" + '.' * i, False, (0, 0, 255))
 
-                    self.Display.blit(Text, (960 - ReferenceText.get_width() // 2, 540 - ReferenceText.get_height() // 2))
+                    self.Display.blit(
+                        Text, (960 - ReferenceText.get_width() // 2, 540 - ReferenceText.get_height() // 2))
 
                     pygame.display.update()
 
                     time.sleep(0.2)
 
-        threading.Thread(target = LoadingScreen).start()
+
+        threading.Thread(target=LoadingScreen).start()
 
         self.InitPreferences()
 
         self.SettingsOpen = False
+
+        self.GameRunning = False
 
         self.SideBar = SideBar(self.Display)
 
@@ -90,7 +98,7 @@ class Game:
 
 
     def DisplayBase(self):
-        
+
         if not self.SettingsOpen:
 
             self.Display.fill((70, 70, 70))
@@ -147,7 +155,9 @@ class Game:
 
                     self.SideBar.SideBarEventCheck(Event)
 
-                    self.Board.BoardEventCheck(Event)
+                    if self.GameRunning:
+
+                        self.Board.BoardEventCheck(Event)
 
                 else:
 

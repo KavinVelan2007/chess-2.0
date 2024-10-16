@@ -1,5 +1,5 @@
 import pygame
-import pygame_widgets
+
 
 class SideBar:
 
@@ -28,9 +28,23 @@ class SideBar:
 
         self.SettingsRect = self.SettingsIcon.get_rect()
 
-        self.SettingsRect.topleft = (0, 930)
+        self.SettingsRect.topleft = (0, 960)
 
         self.SettingsPressed = False
+
+        self.SettingsHover = False
+
+        self.NewGameAI = False
+
+        self.NewGameHuman = False
+
+        self.NewGameAIHover = False
+
+        self.NewGameHumanHover = False
+
+        self.NewGameAISelected = False
+
+        self.NewGameHumanSelected = False
 
 
     def DisplaySideBar(self):
