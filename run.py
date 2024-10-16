@@ -9,3 +9,7 @@ with open("FENString.txt", "r"):
 MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
 
 MainGame.MainLoop()
+
+import os
+
+os.system('cls')

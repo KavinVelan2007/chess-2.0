@@ -165,14 +165,16 @@ class Game:
 
             self.DisplayBase()
 
+            if self.SettingsOpen:
+
+                self.Settings.WidgetsUpdate(Events)
+
             Clock.tick()
 
             """ self.Display.blit(
                 self.font.render(f"{Clock.get_fps()}", False,
                             (255, 255, 255)), (0, 0)
             ) """
-
-            self.Settings.UpdateEvents(Events)
 
             pygame.display.update()
 

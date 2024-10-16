@@ -23,9 +23,8 @@ class Settings:
 
         self.CrossButtonHover = False
 
-        self.CancelButton = pygame_widgets.button.Button(self.FullSurface, 220, 890, 150, 30, text="Cancel", fontSize=20, inactiveColour=(
-            120, 120, 120), hoverColour=(150, 150, 150), pressedColour=(70, 70, 70), radius=5, onClick=self.Cancel)
-
+        self.CancelButton = pygame_widgets.button.Button(self.ParentObject.Display, 700, 700, 150, 40, text="Cancel", fontSize=20, inactiveColour=(
+            150, 150, 150), hoverColour=(70, 70, 70), pressedColour=(170, 0, 0), radius=5, onRelease=self.OnCancel, textVAlign='center', textHAlign='center')
 
     def DisplaySettings(self):
 
@@ -55,7 +54,7 @@ class Settings:
 
         pygame.draw.rect(
             self.FullSurface,
-            (170, 170, 170),
+            (0, 0, 0),
             self.CrossButtonRect,
             width=2,
             border_radius=10
@@ -88,11 +87,6 @@ class Settings:
             radius=15,  # Radius of border corners (leave empty for not curved)
             onClick=lambda: print('Click')  # Function to call when clicked on
         )'''
-
-
-    def UpdateEvents(self, events):
-        pygame_widgets.update(events)
-
 
     def SettingsEventCheck(self, Event):
 
@@ -129,6 +123,11 @@ class Settings:
             self.CrossButtonHover = False
 
 
-    def Cancel(self):
+    def WidgetsUpdate(self, Events):
 
-        pass
+        pygame_widgets.update(Events)
+
+
+    def OnCancel(self):
+
+        self.ParentObject.SettingsOpen = False
