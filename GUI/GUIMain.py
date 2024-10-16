@@ -46,6 +46,8 @@ class Game:
 
         self.font = pygame.font.SysFont("Arial", 100)
 
+        self.SmallFont = pygame.font.SysFont("Arial", 30)
+
         self.Display = pygame.display.set_mode(
             (1920, 1080), pygame.FULLSCREEN | pygame.SRCALPHA, depth=32)
 
