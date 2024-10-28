@@ -101,15 +101,13 @@ class Game:
 
     def DisplayBase(self):
 
-        if not self.SettingsOpen:
+        self.Display.fill((70, 70, 70))
 
-            self.Display.fill((70, 70, 70))
+        self.Board.DisplayBoard()
 
-            self.Board.DisplayBoard()
+        self.SideBar.DisplaySideBar()
 
-            self.SideBar.DisplaySideBar()
-
-        else:
+        if self.SettingsOpen:
 
             self.Settings.DisplaySettings()
 
