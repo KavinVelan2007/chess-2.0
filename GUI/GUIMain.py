@@ -18,7 +18,7 @@ from GUI.GUISettings import *
 class Game:
 
 
-    def __init__(self, **kwargs):
+    def __init__(self,display, **kwargs):
 
         if kwargs["BitBoards"] and kwargs["BoardData"]:
 
@@ -48,10 +48,7 @@ class Game:
 
         self.SmallFont = pygame.font.SysFont("Arial", 30)
 
-        self.Display = pygame.display.set_mode(
-            (1920, 1080), pygame.FULLSCREEN | pygame.SRCALPHA, depth=32)
-
-        pygame.display.set_caption("Chess")
+        self.Display = display
 
         self.LoadingFlag = True
 

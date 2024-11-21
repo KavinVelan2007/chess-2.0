@@ -32,13 +32,15 @@ class SideBar(ctk.CTkFrame):
 
         self.NewGameButton.grid(row=1, column=0, ipadx=10, ipady=10, pady=20)
 
-        self.SaveQuitButton = ctk.CTkButton(self, height=25, text="Save Progress", image=ctk.CTkImage(light_image=Image.open(
-            "GUI\\Resources\\Misc\\SaveIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\SaveIcon.png"), size=(25, 25)), anchor="center")
+        photo = Image.open("GUI\\Resources\\Misc\\SaveIcon.png")
+        self.SaveQuitButton = ctk.CTkButton(self, height=25, text="Save Progress", image=ctk.CTkImage(light_image=photo, dark_image=photo, size=(25, 25)), anchor="center")
+        self.SaveQuitButton.image = ctk.CTkImage(light_image=photo, dark_image=photo, size=(25, 25))
 
         self.SaveQuitButton.grid(row=2, column=0, ipadx=10, ipady=10, pady=20)
 
-        self.AppeareceModeLabel = ctk.CTkLabel(self, font=ctk.CTkFont(size=20), text=" Appearance Mode", anchor="center", image=ctk.CTkImage(light_image=Image.open(
-            "GUI\\Resources\\Misc\\AppearanceModeIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\AppearanceModeIcon.png"), size=(30, 30)), compound="left")
+        photo = Image.open("GUI\\Resources\\Misc\\AppearanceModeIcon.png")
+        self.AppeareceModeLabel = ctk.CTkLabel(self, font=ctk.CTkFont(size=20), text=" Appearance Mode", anchor="center", image=ctk.CTkImage(light_image=photo, dark_image=photo, size=(30, 30)), compound="left")
+        self.AppeareceModeLabel.image = ctk.CTkImage(light_image=photo, dark_image=photo, size=(30, 30))
 
         self.AppeareceModeLabel.grid(
             row=4, column=0, ipadx=10, ipady=10, padx=20, pady=10, sticky="s")
