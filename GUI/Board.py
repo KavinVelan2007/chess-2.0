@@ -1,11 +1,10 @@
 import pygame
-import os
 
 
 class Board:
 
 
-    def __init__(self,ParentObject):
+    def __init__(self, ParentObject):
 
         self.ParentObject = ParentObject
 
@@ -15,8 +14,10 @@ class Board:
 
         self.Height = 800
 
+        self.OffSet = (24, 0)
+
         self.InitImages()
-    
+
 
     def InitImages(self):
 
@@ -25,8 +26,8 @@ class Board:
         for i in self.ParentObject.BoardOptions:
 
             self.Data["BoardOptions"][i] = pygame.transform.scale(
-                pygame.image.load(f"GUI\\Resources\\Boards\\{i}"),
-                (720, int(824 * 0.8181))
+                pygame.image.load(f"GUI\\Resources\\Boards\\{i}.png"),
+                (720, 674)
             ).convert_alpha()
 
         for i in self.ParentObject.PieceOptions:
@@ -36,23 +37,22 @@ class Board:
             for j in self.ParentObject.Pieces:
 
                 self.Data["PieceOptions"][i][j] = pygame.transform.scale(
-                    pygame.image.load(f"GUI\\Resources\\Pieces\\{i}\\{j}"),
-                    (int(154 * 0.8181), int(197 * 0.8181)),
+                    pygame.image.load(f"GUI\\Resources\\Pieces\\{i}\\{j}.png"),
+                    (126, 161),
                 ).convert_alpha()
 
 
     def drawBoard(self):
 
-        for row in range(8):
+        self.Display.blit(self.Data["BoardOptions"]
+                          [self.ParentObject.BoardPreference], (40, 63))
 
-            for col in range(8):
+        for Square in range(64):
 
-                x,y = col * (self.Width // 8),row * (self.Height // 8)
+            for Piece in range(12):
 
-                if (row + col) % 2 == 0:
+                if self.ParentObject.BitBoards[Piece] & (1 << Square):
 
-                    pygame.draw.rect(self.Display,(0,0,0),(x,y,self.Width / 8,self.Height / 8))
-
-                else:
-
-                    pygame.draw.rect(self.Display,(255,255,255),(x,y,self.Width / 8,self.Height / 8))
+                    self.Display.blit(
+                        self.Data["PieceOptions"][self.ParentObject.PiecePreference][self.ParentObject.Pieces[Piece]],
+                        (self.OffSet[0] + (Square % 8) * 90, self.OffSet[1] + (Square // 8) * 83))

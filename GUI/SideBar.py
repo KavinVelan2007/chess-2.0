@@ -1,7 +1,5 @@
 import customtkinter as ctk
 
-import tkinter
-
 from PIL import Image
 
 ctk.set_default_color_theme("GUI\\Themes.json")
@@ -10,11 +8,11 @@ ctk.set_default_color_theme("GUI\\Themes.json")
 class SideBar(ctk.CTkFrame):
 
 
-    def __init__(self, Master):
+    def __init__(self, ParentObject):
 
-        self.Master = Master
+        self.ParentObject = ParentObject
 
-        super().__init__(self.Master)
+        super().__init__(self.ParentObject)
 
         self.grid(row=0, column=0, sticky="nsew")
 
@@ -33,14 +31,22 @@ class SideBar(ctk.CTkFrame):
         self.NewGameButton.grid(row=1, column=0, ipadx=10, ipady=10, pady=20)
 
         photo = Image.open("GUI\\Resources\\Misc\\SaveIcon.png")
-        self.SaveQuitButton = ctk.CTkButton(self, height=25, text="Save Progress", image=ctk.CTkImage(light_image=photo, dark_image=photo, size=(25, 25)), anchor="center")
-        self.SaveQuitButton.image = ctk.CTkImage(light_image=photo, dark_image=photo, size=(25, 25))
+
+        self.SaveQuitButton = ctk.CTkButton(self, height=25, text="Save Progress", image=ctk.CTkImage(
+            light_image=photo, dark_image=photo, size=(25, 25)), anchor="center")
+
+        self.SaveQuitButton.image = ctk.CTkImage(
+            light_image=photo, dark_image=photo, size=(25, 25))
 
         self.SaveQuitButton.grid(row=2, column=0, ipadx=10, ipady=10, pady=20)
 
         photo = Image.open("GUI\\Resources\\Misc\\AppearanceModeIcon.png")
-        self.AppeareceModeLabel = ctk.CTkLabel(self, font=ctk.CTkFont(size=20), text=" Appearance Mode", anchor="center", image=ctk.CTkImage(light_image=photo, dark_image=photo, size=(30, 30)), compound="left")
-        self.AppeareceModeLabel.image = ctk.CTkImage(light_image=photo, dark_image=photo, size=(30, 30))
+
+        self.AppeareceModeLabel = ctk.CTkLabel(self, font=ctk.CTkFont(size=20), text=" Appearance Mode", anchor="center", image=ctk.CTkImage(
+            light_image=photo, dark_image=photo, size=(30, 30)), compound="left")
+
+        self.AppeareceModeLabel.image = ctk.CTkImage(
+            light_image=photo, dark_image=photo, size=(30, 30))
 
         self.AppeareceModeLabel.grid(
             row=4, column=0, ipadx=10, ipady=10, padx=20, pady=10, sticky="s")
@@ -66,38 +72,19 @@ class SideBar(ctk.CTkFrame):
             "GUI\\Resources\\Misc\\AccountIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\AccountIcon.png"), size=(30, 30)), compound="left")
 
         self.AccountButton.grid(
-                row=8, column=0, ipadx=10, ipady=10, pady=20)
-
-
-        """
-        self.PlayFriendLocal = ctk.CTkButton(
-            self, text = "🤝♟ Friend (Local)", anchor = "center")
-
-        self.PlayFriendLocal.grid(row=2, column=0, ipadx = 10, ipady = 15)
-
-        self.PlayFriendOnline = ctk.CTkButton(
-            self, text = "Play with a Friend (Online)", width = 240, anchor = "w")
-
-        self.PlayFriendOnline.grid(row=3, column=0, ipadx = 10, ipady = 15)
-        """
-        """
-        self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_3 = ctk.CTkButton(self)
-        self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
-        self.appearance_mode_label = ctk.CTkLabel(
-            self, text="Appearance Mode:", anchor="w")
-        self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
-        self.appearance_mode_optionemenu = ctk.CTkOptionMenu(
-            self, values=["Light", "Dark", "System"])
-        """
+            row=8, column=0, ipadx=10, ipady=10, pady=20)
 
 
     def ChangeScaling(self, ScalingValue):
 
         ctk.set_widget_scaling(
-        int(ScalingValue.replace('%', '')) / 100)
+            int(ScalingValue.replace('%', '')) / 100)
 
 
     def ChangeAppearanceMode(self, AppearanceMode):
 
         ctk.set_appearance_mode(AppearanceMode)
+
+        ctk.AppearanceModeTracker.update()
+
+        self.ParentObject.BaseColour = (26, 26, 26) if ctk.get_appearance_mode() == "Dark" else (242, 242, 242)
