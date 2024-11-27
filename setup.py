@@ -1,4 +1,4 @@
-from distutils.core import setup
+from distutils.core import setup # type: ignore
 from Cython.Build import cythonize
 from os import remove, rmdir
 from shutil import rmtree

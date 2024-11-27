@@ -648,11 +648,6 @@ DATA ENDS HERE
 '''
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
 cdef U8 count_bits(U64 bit_board):
 	cdef U8 c = 0
 	while bit_board:
@@ -661,36 +656,22 @@ cdef U8 count_bits(U64 bit_board):
 	return c
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
+
 cdef  U8 least_significant_bit_count(U64 bit_board):
 	return count_bits((bit_board & -bit_board) - 1)
 
 
 ctypedef struct Moves:
 	U8 count
-	U32 move_list[218]
+	U32[218] move_list
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-cdef void add_move(Moves moves[1], U32 source, U32 target, U32 piece, U32 promoted, U32 promoted_piece, U32 enpassant, U32 castling):
+cdef void add_move(Moves[1] moves, U32 source, U32 target, U32 piece, U32 promoted, U32 promoted_piece, U32 enpassant, U32 castling):
 		moves[0].move_list[moves[0].count] = (source) | (target << 6) | (piece << 12) | (promoted << 16) | (promoted_piece << 17) | (enpassant << 19) | (castling << 20) 
 		moves[0].count += 1
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-cdef void print_chess_board(U64 bitboards[12], U32 board_data):
+cdef void print_chess_board(U64[12] bitboards, U32 board_data):
 	cdef U8 c = 0
 	cdef U8 i
 	cdef U8 j
@@ -722,12 +703,7 @@ cdef void print_chess_board(U64 bitboards[12], U32 board_data):
 	print('\n')
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-cdef bint is_square_attacked(U8 side, U8 square, U64 bitboards[12], U64 black_pieces, U64 white_pieces):
+cdef bint is_square_attacked(U8 side, U8 square, U64[12] bitboards, U64 black_pieces, U64 white_pieces):
 
 	if side == 0:
 		if bitboards[0] & BLACK_PAWN_ATTACKS[square]:
@@ -755,12 +731,7 @@ cdef bint is_square_attacked(U8 side, U8 square, U64 bitboards[12], U64 black_pi
 	return False
 
 
-@cython.binding(False)
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-cdef Moves return_moves(U64 bitboards[12], U32 board_data):
+cdef Moves return_moves(U64[12] bitboards, U32 board_data):
 
 	cdef U64 WHITE_PAWNS = bitboards[0]
 	cdef U64 WHITE_KNIGHTS = bitboards[1]
@@ -1096,19 +1067,190 @@ cdef Moves return_moves(U64 bitboards[12], U32 board_data):
 	return moves[0]
 
 
-@cython.boundscheck(False)
-@cython.wraparound(False)
-@cython.initializedcheck(False)
-@cython.cdivision(True)
-cdef void perft():
+cdef bint make_move(U32 move, U64[12] bitboards, U32 board_data):
+	
+	cdef U8 piece = (move >> 12) & (15)
+	cdef U8 source = move & (63)
+	cdef U8 target = (move >> (6)) & (63)
+	cdef U64 mask
+	cdef U8 i
+	if ((board_data << (12)) & (63)) == 100:
+		return False
+	
+	if 0 <= piece <= 5:
+		
+		if (move >> (16)) & (1):
+			bitboards[0] ^= (one << source)
+			bitboards[((move >> (17)) & (3)) + 1] |= (one << target)
+			board_data &= (4095)
+		elif (move << (19)) & (1):
+			bitboards[0] ^= ((one << source) | (one << target))
+			bitboards[6] ^= (one << (target + 8))
+			board_data &= (4095)
+		elif (move << (19)) & (1):
+			bitboards[5] ^= ((one << source) | (one << target))
+			bitboards[3] ^= (one << ((source + target) // 2))
+			if target == 62:
+				bitboards[3] ^= (one << 63)
+			
+			else:
+				bitboards[3] ^= (one << 56)
+			board_data += (4096)
+	
+		else:
+			bitboards[piece] ^= ((one << source) | (one << target))
+			mask = 0
+			for i in range(6):
+				mask |= bitboards[6 + i]
+				bitboards[i + 6] &= ~(one << target)
+			if mask & (one << target):
+				board_data &= (4095)
+			else:
+				board_data += (4096)
+		board_data |= (1)
+		if piece == 0 and source - target == 16:
+			board_data &= ~(((1 << 6) - 1) << 6)
+			board_data |= ((target + 8) << 6)
+		if piece == 5:
+			board_data &= ~(6)
+		if board_data & (2) and piece == 3 and source == 63:
+			board_data &= ~(2)
+		elif board_data & (4) and piece == 3 and source == 56:
+			board_data &= ~(4)
+		if is_square_attacked(1, least_significant_bit_count(bitboards[5]), bitboards, bitboards[6] | bitboards[7] | bitboards[8] | bitboards[9] | bitboards[10] | bitboards[11], bitboards[0] | bitboards[1] | bitboards[2] | bitboards[3] | bitboards[4] | bitboards[5]):
+			return False
+	
+	else:
+		if (move >> (16)) & (1):
+			bitboards[6] ^= (one << source)
+			bitboards[((move >> (17)) & (3)) + 7] |= (one << target)
+			board_data &= (4095)
+		elif (move << (19)) & (1):
+			bitboards[6] ^= ((one << source) | (one << target))
+			bitboards[0] ^= (one << (target + 8))
+			board_data &= (4095)
+	
+		elif (move << (19)) & (1):
+			bitboards[11] ^= ((one << source) | (one << target))
+			bitboards[9] ^= (one << ((source + target) // 2))
+			if target == 2:
+				bitboards[9] ^= (one << 3)
+			
+			else:
+				bitboards[9] ^= (one << 5)
+		else:
+			bitboards[piece] ^= ((one << source) | (one << target))
+			mask = 0
+			for i in range(6):
+				mask |= bitboards[i]
+				bitboards[i] &= ~(one << target)
+			if mask & (one << target):
+				board_data &= (4095)
+			else:
+				board_data += (4096)
+	
+		if piece == 6 and target - source == 16:
+			board_data &= ~(((1 << 6) - 1) << 6)
+			board_data |= ((target - 8) << 6)
+		if piece == 11:
+			board_data &= ~(24)
+		if board_data & (8) and piece == 9 and source == 7:
+			board_data &= ~(8)
+		elif board_data & (16) and piece == 9 and source == 0:
+			board_data &= ~(16)
+		if is_square_attacked(0, least_significant_bit_count(bitboards[11]), bitboards, bitboards[6] | bitboards[7] | bitboards[8] | bitboards[9] | bitboards[10] | bitboards[11], bitboards[0] | bitboards[1] | bitboards[2] | bitboards[3] | bitboards[4] | bitboards[5]):
+			return False
+	
+	return True
+
+
+cdef U64 perft_internal(U8 depth, U64[12] bitboards, U32 board_data):
+
+	cdef U64[12] bitboards_copy
+		
+	cdef U32 board_data_copy 
+	
+	cdef U64 total_nodes = 0
+
+	cdef Moves moves = return_moves(bitboards, board_data)
+
+	if depth == 0:
+
+		return 1
+
+	else:
+
+		for i in range(moves.count):
+
+			bitboards_copy = bitboards
+
+			board_data_copy = board_data
+
+			if make_move(moves.move_list[i], bitboards, board_data):
+
+				board_data ^= 1
+
+				total_nodes += perft_internal(depth - 1, bitboards, board_data)
+
+				bitboards = bitboards_copy
+
+				board_data = board_data_copy
+
+			else:
+
+				bitboards = bitboards_copy
+
+				board_data = board_data_copy
+
+		return total_nodes
+
+
+cdef void perft(U8 depth):
 	import time
 	stime = time.time()
-	for i in range(2_000_000):
-		return_moves(BITBOARDS, BOARD_DATA)
-	print(f"Time: {time.time() - stime}")
+	cdef U64[12] bitboards = BITBOARDS
+	cdef U32 board_data = BOARD_DATA
+	cdef U64[12] bitboards_copy
+	cdef U32 board_data_copy
+	cdef U64 total_nodes = 0
+
+	cdef Moves moves = return_moves(bitboards, board_data)
+
+	for i in range(moves.count):
+
+		bitboards_copy = bitboards
+
+		board_data_copy = board_data
+
+		if make_move(moves.move_list[i], bitboards, board_data):
+
+			board_data ^= 1
+
+			nodes = perft_internal(depth - 1, bitboards, board_data)
+
+			print_chess_board(bitboards, board_data)
+
+			bitboards = bitboards_copy
+
+			board_data = board_data_copy
+
+			print('Nodes: ', nodes)
+
+			total_nodes += nodes
+
+		else:
+
+			bitboards = bitboards_copy
+
+			board_data = board_data_copy
+
+	
+	print('\n\n\nNodes: ', total_nodes)
+
+	print('Time: ', time.time() - stime)
 
 
-def ReturnMoves(BitBoards, BoardData):
+cpdef Moves ReturnMoves(BitBoards, BoardData):
 
 	cdef U64[12] bitboards = BitBoards
 
@@ -1117,3 +1259,20 @@ def ReturnMoves(BitBoards, BoardData):
 	moves = return_moves(bitboards, board_data)
 
 	return moves
+
+
+cpdef void perft_ext():
+
+	cdef U64[12] bitboards = BITBOARDS
+
+	cdef U32 board_data = BOARD_DATA
+
+	print_chess_board(bitboards, board_data)
+
+	cdef Moves moves = return_moves(bitboards, board_data)
+
+	make_move(moves.move_list[0], bitboards, board_data)
+
+	print_chess_board(bitboards, board_data)
+
+	perft(int(input('Enter Depth: ')))
