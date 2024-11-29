@@ -3,7 +3,7 @@ from Cython.Build import cythonize
 from os import remove, rmdir
 from shutil import rmtree
 
-files = ["main.pyx"]
+files = ["brains.pyx"]
 setup(
     ext_modules=cythonize(
         files, compiler_directives={"language_level": "3"}

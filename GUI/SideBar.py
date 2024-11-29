@@ -68,10 +68,10 @@ class SideBar(ctk.CTkFrame):
 
         self.ScalingMenu.set("100%")
 
-        self.AccountButton = ctk.CTkButton(self, text="Account", height=30, anchor="center", image=ctk.CTkImage(light_image=Image.open(
-            "GUI\\Resources\\Misc\\AccountIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\AccountIcon.png"), size=(30, 30)), compound="left")
+        self.PreferencesButton = ctk.CTkButton(self, text="Preferences", height=30, anchor="center", image=ctk.CTkImage(light_image=Image.open(
+            "GUI\\Resources\\Misc\\PreferencesIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\PreferencesIcon.png"), size=(30, 30)), compound="left")
 
-        self.AccountButton.grid(
+        self.PreferencesButton.grid(
             row=8, column=0, ipadx=10, ipady=10, pady=20)
 
 

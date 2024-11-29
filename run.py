@@ -12,3 +12,9 @@ from GUI.GUIAccount import Account
 
 a = Account()
 a.mainloop()
+
+
+"""from brains import perft # type: ignore
+
+perft(int(input('Enter Depth: ')))
+"""

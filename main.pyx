@@ -1067,8 +1067,9 @@ cdef Moves return_moves(U64[12] bitboards, U32 board_data):
 	return moves[0]
 
 
-cdef bint make_move(U32 move, U64[12] bitboards, U32 board_data):
+cdef bint make_move(U32 move, U64[12] bitboards, U32[1] boarddata):
 	
+	cdef U32 board_data = boarddata[0]
 	cdef U8 piece = (move >> 12) & (15)
 	cdef U8 source = move & (63)
 	cdef U8 target = (move >> (6)) & (63)
@@ -1160,7 +1161,8 @@ cdef bint make_move(U32 move, U64[12] bitboards, U32 board_data):
 			board_data &= ~(16)
 		if is_square_attacked(0, least_significant_bit_count(bitboards[11]), bitboards, bitboards[6] | bitboards[7] | bitboards[8] | bitboards[9] | bitboards[10] | bitboards[11], bitboards[0] | bitboards[1] | bitboards[2] | bitboards[3] | bitboards[4] | bitboards[5]):
 			return False
-	
+	board_data ^= 1
+	boarddata[0] = board_data
 	return True
 
 
@@ -1171,6 +1173,8 @@ cdef U64 perft_internal(U8 depth, U64[12] bitboards, U32 board_data):
 	cdef U32 board_data_copy 
 	
 	cdef U64 total_nodes = 0
+
+	cdef U32[1] board_data_pointer = [board_data]
 
 	cdef Moves moves = return_moves(bitboards, board_data)
 
@@ -1186,9 +1190,9 @@ cdef U64 perft_internal(U8 depth, U64[12] bitboards, U32 board_data):
 
 			board_data_copy = board_data
 
-			if make_move(moves.move_list[i], bitboards, board_data):
+			if make_move(moves.move_list[i], bitboards, board_data_pointer):
 
-				board_data ^= 1
+				board_data = board_data_pointer[0]
 
 				total_nodes += perft_internal(depth - 1, bitboards, board_data)
 
@@ -1208,6 +1212,7 @@ cdef U64 perft_internal(U8 depth, U64[12] bitboards, U32 board_data):
 cdef void perft(U8 depth):
 	import time
 	stime = time.time()
+	cdef U32[1] board_data_pointer = [BOARD_DATA]
 	cdef U64[12] bitboards = BITBOARDS
 	cdef U32 board_data = BOARD_DATA
 	cdef U64[12] bitboards_copy
@@ -1222,18 +1227,16 @@ cdef void perft(U8 depth):
 
 		board_data_copy = board_data
 
-		if make_move(moves.move_list[i], bitboards, board_data):
+		if make_move(moves.move_list[i], bitboards, board_data_pointer):
 
-			board_data ^= 1
-
+			board_data = board_data_pointer[0]
+			
 			nodes = perft_internal(depth - 1, bitboards, board_data)
-
-			print_chess_board(bitboards, board_data)
 
 			bitboards = bitboards_copy
 
 			board_data = board_data_copy
-
+			
 			print('Nodes: ', nodes)
 
 			total_nodes += nodes
@@ -1266,13 +1269,5 @@ cpdef void perft_ext():
 	cdef U64[12] bitboards = BITBOARDS
 
 	cdef U32 board_data = BOARD_DATA
-
-	print_chess_board(bitboards, board_data)
-
-	cdef Moves moves = return_moves(bitboards, board_data)
-
-	make_move(moves.move_list[0], bitboards, board_data)
-
-	print_chess_board(bitboards, board_data)
 
 	perft(int(input('Enter Depth: ')))

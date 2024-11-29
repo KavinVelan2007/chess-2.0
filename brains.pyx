@@ -1264,6 +1264,8 @@ cdef U64 perft_internal(U8 depth, Board board):
 @cython.initializedcheck(False)
 @cython.cdivision(True)
 cpdef void perft(U8 depth):
+	import time
+	stime = time.time()
 	cdef Board board = Board(BITBOARDS, BOARD_DATA)
 	cdef Moves moves = board.return_moves()
 	cdef U32[218] move_list = moves.return_move_list() 
@@ -1283,3 +1285,4 @@ cpdef void perft(U8 depth):
 			print(nodes)
 			total_nodes += nodes
 		print(f"Total Nodes: {total_nodes}")
+	print("Time:", time.time() - stime)

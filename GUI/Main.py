@@ -12,7 +12,7 @@ ctk.set_default_color_theme("GUI\\Themes.json")
 class Game(ctk.CTk):
 
 
-    def __init__(self, BitBoards, BoardData):
+    def __init__(self, **kwargs):
 
         super().__init__()
 
@@ -26,7 +26,7 @@ class Game(ctk.CTk):
 
         self.SideBarFrame = SideBar(self)
 
-        self.BitBoards, self.BoardData = BitBoards, BoardData
+        self.BitBoards, self.BoardData = kwargs["BitBoards"], kwargs["BoardData"]
 
         self.BoardCanvas = ctk.CTkCanvas(self, width=800, height=800)
 
