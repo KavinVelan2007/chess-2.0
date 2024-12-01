@@ -47,12 +47,22 @@ class Board:
         self.Display.blit(self.Data["BoardOptions"]
                           [self.ParentObject.BoardPreference], (40, 63))
 
+    def drawPieces(self):
         for Square in range(64):
 
             for Piece in range(12):
 
+                if self.ParentObject.ActivePoint:
+                    x,y = self.ParentObject.ActivePoint
+                    x -= self.ParentObject.x
+                    y -= self.ParentObject.y
+                    row = y // 83
+                    col = x // 90
+
                 if self.ParentObject.BitBoards[Piece] & (1 << Square):
 
-                    self.Display.blit(
-                        self.Data["PieceOptions"][self.ParentObject.PiecePreference][self.ParentObject.Pieces[Piece]],
-                        (self.OffSet[0] + (Square % 8) * 90, self.OffSet[1] + (Square // 8) * 83))
+                    if not self.ParentObject.ActivePoint or (self.ParentObject.ActivePoint and Square != row * 8 + col):
+
+                        self.Display.blit(
+                            self.Data["PieceOptions"][self.ParentObject.PiecePreference][self.ParentObject.Pieces[Piece]],
+                            (self.OffSet[0] + (Square % 8) * 90, self.OffSet[1] + (Square // 8) * 83))
