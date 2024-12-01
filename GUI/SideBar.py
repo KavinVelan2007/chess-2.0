@@ -1,5 +1,6 @@
 import customtkinter as ctk
-
+import brains
+from fen import *
 from PIL import Image
 
 ctk.set_default_color_theme("GUI\\Themes.json")
@@ -26,7 +27,7 @@ class SideBar(ctk.CTkFrame):
         self.LogoLabel.grid(row=0, column=0, padx=30, pady=20)
 
         self.NewGameButton = ctk.CTkButton(
-            self, text="➕  New Game", height=30, anchor="center")
+            self, text="➕  New Game", height=30, anchor="center", command=self.StartNewGame)
 
         self.NewGameButton.grid(row=1, column=0, ipadx=10, ipady=10, pady=20)
 
@@ -50,6 +51,12 @@ class SideBar(ctk.CTkFrame):
 
         self.AppeareceModeLabel.grid(
             row=4, column=0, ipadx=10, ipady=10, padx=20, pady=10, sticky="s")
+        
+        self.OpponentMode = ctk.CTkOptionMenu(
+            self, height=40, width=200, values=["Human","Bot"], command=self.SwitchToAIMode
+        )
+
+        self.OpponentMode.grid(row=3,column=0,pady=50)
 
         self.AppeareceModeDropDown = ctk.CTkOptionMenu(
             self, height=40, width=200, values=["System", "Light", "Dark"], command=self.ChangeAppearanceMode)
@@ -88,3 +95,27 @@ class SideBar(ctk.CTkFrame):
         ctk.AppearanceModeTracker.update()
 
         self.ParentObject.BaseColour = (26, 26, 26) if ctk.get_appearance_mode() == "Dark" else (242, 242, 242)
+
+    def StartNewGame(self):
+
+        self.ParentObject.Turn = 'W'
+
+        with open("FENString.txt", "r"):
+
+            BitBoards, BoardData = generate_bitboards_from_board(fenString)
+
+        self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
+
+        self.ParentObject.CurrentSquare = None
+
+    def SwitchToAIMode(self, Mode):
+
+        if Mode == 'Bot':
+
+            self.ParentObject.AgainstAI = True
+        
+        else:
+
+            self.ParentObject.AgainstAI = False
+
+        self.ParentObject.CurrentSquare = None
