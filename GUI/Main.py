@@ -7,6 +7,7 @@ from numpy import uint64 as uint
 from numpy import uint32
 import platform
 import brains
+import sqlite3
 
 
 ctk.set_default_color_theme("GUI\\Themes.json")
@@ -26,6 +27,8 @@ class Game(ctk.CTk):
         self.after(0, lambda: self.state('zoomed'))
 
         self.grid_rowconfigure(0, weight=1)
+
+        self.UserName = kwargs["username"]
 
         self.SideBarFrame = SideBar(self)
 
@@ -50,10 +53,6 @@ class Game(ctk.CTk):
         self.Display = pygame.display.set_mode(
             (800, 800), pygame.NOFRAME)
 
-        self.BoardPreference = 'Light-Wood'
-
-        self.PiecePreference = 'Glass'
-
         self.BoardOptions = ['Black-White-Aluminium', 'Brushed-Aluminium', 'China-Blue', 'China-Green', 'China-Grey', 'China-Scarlet', 'China-Yellow',
                              'Classic-Blue', 'Glass', 'Gold-Silver', 'Green-Glass', 'Jade', 'Light-Wood', 'Power-Coated', 'Purple-Black', 'Rosewood', 'Wax', 'Wood-Glass']
 
@@ -63,6 +62,17 @@ class Game(ctk.CTk):
         self.Pieces = ['White-Pawn', 'White-Knight', 'White-Bishop', 'White-Rook', 'White-Queen', 'White-King',
                        'Black-Pawn', 'Black-Knight', 'Black-Bishop', 'Black-Rook', 'Black-Queen', 'Black-King']
                        
+        sqliteobj = sqlite3.connect('database.db')
+
+        pyobj = sqliteobj.cursor()
+
+        pyobj.execute('select piece,board from chess where username = ?',(self.UserName,))
+
+        d = pyobj.fetchone()
+
+        self.BoardPreference = d[1]
+
+        self.PiecePreference = d[0]
 
         self.Board = Board(self)
 
@@ -85,7 +95,7 @@ class Game(ctk.CTk):
 
         self.ChessBoardObj = brains.Board(self.BitBoards,self.BoardData)
 
-        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+        self.ValidMoves = self.ChessBoardObj.return_moves()
 
         self.update()
 
@@ -136,7 +146,7 @@ class Game(ctk.CTk):
         if self.CurrentSquare:
 
             row,col = self.CurrentSquare
-            for move in self.ValidMoves:
+            for move in self.ValidMoves.return_move_list():
                 from_index = move & uint32((1 << 6) - 1)
                 to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
                 if from_index == row * 8 + col:
@@ -195,13 +205,17 @@ class Game(ctk.CTk):
                 y -= self.y
                 to_row,to_col = y // 83,x // 90
 
-                for move in self.ValidMoves:
+                for move in self.ValidMoves.return_move_list():
                     from_index = move & uint32((1 << 6) - 1)
                     to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
                     if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
-                        self.ChessBoardObj.MakeMove(move)
-                        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                        self.ChessBoardObj.make_move(move)
+                        self.ValidMoves = self.ChessBoardObj.return_moves()
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
 
                 self.ActivePoint = None
+
+if __name__ == '__main__':
+    a = Game(username='kavin')
+    a.mainloop()

@@ -29,7 +29,7 @@ class Account(ctk.CTk):
 
         self.sqliteobj = sqlite3.connect('database.db')
         self.pyobj = self.sqliteobj.cursor()
-        self.pyobj.execute('create table if not exists chess (username varchar(50), password varchar(50), wins integer, losses integer)')
+        self.pyobj.execute('create table if not exists chess (username varchar(50), password varchar(50), piece varchar(30), board varchar(30))')
 
         self.username = ctk.StringVar()
         self.password = ctk.StringVar()
@@ -95,10 +95,10 @@ class Account(ctk.CTk):
         if username and password:
             self.pyobj.execute('select username,password from chess where username = ?',(username,))
             if not self.pyobj.fetchall():
-                self.pyobj.execute(f'insert into chess values ("{username}", "{password}", 0, 0)')
+                self.pyobj.execute(f'insert into chess values ("{username}", "{password}", "Glass", "Light-Wood")')
                 self.sqliteobj.commit()
                 self.destroy()
-                self.startGame(username,password,0,0)
+                self.startGame(username)
             else:
                 tkinter.messagebox.showerror('User Exists','A user with the same username exists')
         else:
@@ -112,13 +112,13 @@ class Account(ctk.CTk):
             d = self.pyobj.fetchall()
             if d:
                 self.destroy()
-                self.startGame(username,password,d[0][2],d[0][3])
+                self.startGame(username)
             else:
                 self.statusLabel.configure(text='Wrong Credentials')
 
-    def startGame(self,username,password,wins,losses):
+    def startGame(self,username):
         with open("FENString.txt", "r"):
 
             BitBoards, BoardData = generate_bitboards_from_board(fenString)
 
-        MainGame = Game(BitBoards=BitBoards, BoardData=BoardData,username=username,password=password,wins=wins,losses=losses)
+        MainGame = Game(BitBoards=BitBoards, BoardData=BoardData,username=username)

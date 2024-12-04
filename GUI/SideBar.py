@@ -2,9 +2,9 @@ import customtkinter as ctk
 import brains
 from fen import *
 from PIL import Image
+from GUI.GUIPreferences import Preferences
 
 ctk.set_default_color_theme("GUI\\Themes.json")
-
 
 class SideBar(ctk.CTkFrame):
 
@@ -75,12 +75,15 @@ class SideBar(ctk.CTkFrame):
 
         self.ScalingMenu.set("100%")
 
-        self.PreferencesButton = ctk.CTkButton(self, text="Preferences", height=30, anchor="center", image=ctk.CTkImage(light_image=Image.open(
+        self.PreferencesButton = ctk.CTkButton(self, text="Preferences", command=self.showPreferences, height=30, anchor="center", image=ctk.CTkImage(light_image=Image.open(
             "GUI\\Resources\\Misc\\PreferencesIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\PreferencesIcon.png"), size=(30, 30)), compound="left")
 
         self.PreferencesButton.grid(
             row=8, column=0, ipadx=10, ipady=10, pady=20)
+        
+    def showPreferences(self):
 
+        Preferences(self.ParentObject).show()
 
     def ChangeScaling(self, ScalingValue):
 
