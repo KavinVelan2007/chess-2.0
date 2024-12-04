@@ -797,6 +797,16 @@ cdef class Board:
 
 		return False
 
+	cpdef bint check_for_check(self, U8 side):
+
+		if side == 0:
+			
+			return self.is_square_attacked(not side, least_significant_bit_count(self.bitboards[5]), self.bitboards[6] | self.bitboards[7] | self.bitboards[8] | self.bitboards[9] | self.bitboards[10] | self.bitboards[11], self.bitboards[0] | self.bitboards[1] | self.bitboards[2] | self.bitboards[3] | self.bitboards[4] | self.bitboards[5])
+		
+		else:
+
+			return  self.is_square_attacked(not side, least_significant_bit_count(self.bitboards[11]), self.bitboards[6] | self.bitboards[7] | self.bitboards[8] | self.bitboards[9] | self.bitboards[10] | self.bitboards[11], self.bitboards[0] | self.bitboards[1] | self.bitboards[2] | self.bitboards[3] | self.bitboards[4] | self.bitboards[5])
+
 
 	@cython.binding(False)
 	@cython.boundscheck(False)
@@ -1128,12 +1138,12 @@ cdef class Board:
 				self.bitboards[((move >> (17)) & (3)) + 1] |= (one << target)
 				self.board_data &= (4095)
 
-			elif (move << (19)) & (1):
+			elif (move >> (19)) & (1):
 				self.bitboards[0] ^= ((one << source) | (one << target))
 				self.bitboards[6] ^= (one << (target + 8))
 				self.board_data &= (4095)
 
-			elif (move << (19)) & (1):
+			elif (move >> (20)) & (1):
 				self.bitboards[5] ^= ((one << source) | (one << target))
 				self.bitboards[3] ^= (one << ((source + target) // 2))
 
@@ -1182,12 +1192,12 @@ cdef class Board:
 				self.bitboards[((move >> (17)) & (3)) + 7] |= (one << target)
 				self.board_data &= (4095)
 
-			elif (move << (19)) & (1):
+			elif (move >> (19)) & (1):
 				self.bitboards[6] ^= ((one << source) | (one << target))
 				self.bitboards[0] ^= (one << (target + 8))
 				self.board_data &= (4095)
 		
-			elif (move << (19)) & (1):
+			elif (move >> (20)) & (1):
 				self.bitboards[11] ^= ((one << source) | (one << target))
 				self.bitboards[9] ^= (one << ((source + target) // 2))
 
