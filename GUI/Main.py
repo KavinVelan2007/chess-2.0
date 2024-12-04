@@ -144,7 +144,7 @@ class Game(ctk.CTk):
                     self.Display.blit(self.SquareSurface,(self.x + to_col * 90,self.y + to_row * 83))
 
     def showDraggingPiece(self):
-        if self.ActivePoint:
+        if self.ActivePoint and self.CurrentSquare:
 
             x,y = self.ActivePoint
             x -= self.x
@@ -186,7 +186,7 @@ class Game(ctk.CTk):
                             self.ActivePoint = (x,y)
 
                     
-            elif Event.type == pygame.MOUSEBUTTONUP:
+            elif Event.type == pygame.MOUSEBUTTONUP and self.CurrentSquare:
 
                 row,col = self.CurrentSquare
 
@@ -202,5 +202,6 @@ class Game(ctk.CTk):
                         self.ChessBoardObj.make_move(move)
                         self.ValidMoves = self.ChessBoardObj.return_moves()
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
+                        self.CurrentSquare = None
 
                 self.ActivePoint = None
