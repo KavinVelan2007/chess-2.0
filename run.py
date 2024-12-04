@@ -6,7 +6,12 @@ with open("FENString.txt", "r"):
 
     BitBoards, BoardData = generate_bitboards_from_board(fenString)
 
-MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
+# MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
+
+from brains import *
+
+perft()
+
 """
 from GUI.GUIAccount import Account
 

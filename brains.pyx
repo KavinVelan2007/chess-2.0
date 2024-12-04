@@ -27,7 +27,7 @@ DATA STARTS HERE
 temp_BITBOARDS, temp_data = generate_bitboards_from_board(fenString)
 
 
-cdef U64 BITBOARDS[12]
+cdef U64[12] BITBOARDS
 cdef U32 BOARD_DATA = temp_data
 
 for i in range(12):
@@ -643,7 +643,7 @@ BOARD STARTS HERE
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 @cython.cdivision(True)
-cpdef U8 count_bits(U64 bit_board):
+cdef U8 count_bits(U64 bit_board):
 	cdef U8 c = 0
 	while bit_board:
 		bit_board &= bit_board - 1
@@ -656,7 +656,7 @@ cpdef U8 count_bits(U64 bit_board):
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 @cython.cdivision(True)
-cpdef U8 least_significant_bit_count(U64 bit_board):
+cdef U8 least_significant_bit_count(U64 bit_board):
 	return count_bits((bit_board & -bit_board) - 1)
 
 
@@ -666,7 +666,7 @@ cpdef U8 least_significant_bit_count(U64 bit_board):
 @cython.initializedcheck(False)
 @cython.cdivision(True)
 cdef class Moves:
-	cdef U32 move_list[218] 
+	cdef U32[218] move_list
 	cdef U8 count
 	
 	@cython.binding(False)
@@ -682,7 +682,7 @@ cdef class Moves:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef void add_move(self, U32 source, U32 target, U32 piece, U32 promoted, U32 promoted_piece, U32 enpassant, U32 castling):
+	cdef void add_move(self, U32 source, U32 target, U32 piece, U32 promoted, U32 promoted_piece, U32 enpassant, U32 castling):
 			self.move_list[self.count] = (source) | (target << 6) | (piece << 12) | (promoted << 16) | (promoted_piece << 17) | (enpassant << 19) | (castling << 20) 
 			self.count += 1
 
@@ -691,7 +691,7 @@ cdef class Moves:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef return_move_list(self):
+	cdef return_move_list(self):
 		return self.move_list
 
 	@cython.binding(False)
@@ -699,7 +699,7 @@ cdef class Moves:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef return_count(self):
+	cdef return_count(self):
 		return self.count
 
 @cython.binding(False)
@@ -733,7 +733,7 @@ cdef class Board:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef void print_chess_board(self):
+	cdef void print_chess_board(self):
 		cdef U8 c = 0
 		cdef U8 i
 		cdef U8 j
@@ -770,16 +770,16 @@ cdef class Board:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef bint is_square_attacked(self, U8 side, U8 square, U64 black_pieces, U64 white_pieces):
+	cdef bint is_square_attacked(self, U8 side, U8 square, U64 black_pieces, U64 white_pieces):
 
 		if side == 0:
 			if self.bitboards[0] & BLACK_PAWN_ATTACKS[square]:
 				return True
 			elif self.bitboards[1] & KNIGHT_ATTACKS[square]:
 				return True
-			elif (self.bitboards[2] | self.bitboards[4]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~white_pieces):
+			elif (self.bitboards[2] | self.bitboards[4]) & (BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~black_pieces)):
 				return True
-			elif (self.bitboards[3] | self.bitboards[4]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~white_pieces):
+			elif (self.bitboards[3] | self.bitboards[4]) & (ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~black_pieces)):
 				return True
 			elif self.bitboards[5] & KING_ATTACKS[square]:
 				return True
@@ -788,9 +788,9 @@ cdef class Board:
 				return True
 			elif self.bitboards[7] & KNIGHT_ATTACKS[square]:
 				return True
-			elif (self.bitboards[8] | self.bitboards[10]) & BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~black_pieces):
+			elif (self.bitboards[8] | self.bitboards[10]) & (BISHOP_ATTACKS[square][(((BISHOP_OCCUPANCY[square] & (black_pieces | white_pieces)) * BISHOP_MAGIC_NUMBERS[square]) >> (64 - BISHOP_OCCUPANCY_BITS[square]))] & (~white_pieces)):
 				return True
-			elif (self.bitboards[9] | self.bitboards[10]) & ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~black_pieces):
+			elif (self.bitboards[9] | self.bitboards[10]) & (ROOK_ATTACKS[square][(((ROOK_OCCUPANCY[square] & (black_pieces | white_pieces)) * ROOK_MAGIC_NUMBERS[square]) >> (64 - ROOK_OCCUPANCY_BITS[square]))] & (~white_pieces)):
 				return True
 			elif self.bitboards[11] & KING_ATTACKS[square]:
 				return True
@@ -803,7 +803,7 @@ cdef class Board:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef Moves return_moves(self):
+	cdef Moves return_moves(self):
 
 		cdef U64 WHITE_PAWNS = self.bitboards[0]
 		cdef U64 WHITE_KNIGHTS = self.bitboards[1]
@@ -989,7 +989,7 @@ cdef class Board:
 						moves.add_move(curr_square, to_square, 6, 1, 2, 0, 0)
 						moves.add_move(curr_square, to_square, 6, 1, 3, 0, 0)
 
-					if t(one << (curr_square + 8)) & (~ALL_PIECES):
+					if (one << (curr_square + 8)) & (~ALL_PIECES):
 						moves.add_move(curr_square, curr_square + 8, 6, 1, 0, 0, 0)
 						moves.add_move(curr_square, curr_square + 8, 6, 1, 1, 0, 0)
 						moves.add_move(curr_square, curr_square + 8, 6, 1, 2, 0, 0)
@@ -1110,7 +1110,7 @@ cdef class Board:
 	@cython.wraparound(False)
 	@cython.initializedcheck(False)
 	@cython.cdivision(True)
-	cpdef bint make_move(self, U32 move):
+	cdef bint make_move(self, U32 move):
 		
 		cdef U8 piece = (move >> 12) & (15)
 		cdef U8 source = move & (63)
@@ -1231,11 +1231,44 @@ cdef class Board:
 		
 		return True
 
-	cpdef copy(self):
+	cpdef bint MakeMove(self, U32 move):
+
+		return self.make_move(move)
+
+	def  ReturnMoves(self):
+
+		cdef Moves moves = self.return_moves()
+
+		MovesToReturn = []
+
+		cdef U64[12] bitboard_copy
+
+		cdef U32 board_data_copy
+
+		for i in range(moves.count):
+
+			temp = self.copy()
+
+			bitboard_copy = temp[0]
+
+			board_data_copy = temp[1]
+
+			if not self.make_move(moves.move_list[i]):
+
+				self.bitboards, self.board_data = bitboard_copy, board_data_copy
+
+			else:
+
+				self.bitboards, self.board_data = bitboard_copy, board_data_copy
+
+				MovesToReturn += [moves.move_list[i]]
+
+		return MovesToReturn
+
+	cdef copy(self):
 		return (self.bitboards, self.board_data)
 
 
-@cython.binding(False)
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
@@ -1263,10 +1296,9 @@ cdef U64 perft_internal(U8 depth, Board board):
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 @cython.cdivision(True)
-cpdef void perft(U8 depth):
-	import time
-	stime = time.time()
+cdef void perft_(U8 depth):
 	cdef Board board = Board(BITBOARDS, BOARD_DATA)
+	board.print_chess_board()
 	cdef Moves moves = board.return_moves()
 	cdef U32[218] move_list = moves.return_move_list() 
 	cdef U8 i
@@ -1285,4 +1317,11 @@ cpdef void perft(U8 depth):
 			print(nodes)
 			total_nodes += nodes
 		print(f"Total Nodes: {total_nodes}")
-	print("Time:", time.time() - stime)
+
+
+def perft():
+	import time
+	depth = int(input("Enter depth: "))
+	stime = time.time()
+	perft_(depth)
+	print(f'Time: {time.time() - stime}')
