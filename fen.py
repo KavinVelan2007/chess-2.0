@@ -1,10 +1,10 @@
+from numpy import uint64 as uint,uint32
+
 with open('fenString.txt','r') as file:
 	fenString = file.read().replace('\n', '')
 	file.close()
 
-
 def count_bits(bit_board):
-	from numpy import uint64 as uint,uint32
 	c = 0
 	while bit_board:
 		bit_board &= bit_board - uint(1)
@@ -13,12 +13,10 @@ def count_bits(bit_board):
 
 
 def least_significant_bit_count(bit_board):
-	from numpy import uint64 as uint,uint32
 	return count_bits(bit_board - uint(1)) - count_bits(bit_board) + 1
 
 
 def translate_from_fen(fen: str):
-	from numpy import uint64 as uint,uint32
 	board = [[' ' for _ in range(8)] for _ in range(8)]
 	fen = fen.split(' ')
 	position = fen[0].split('/')
@@ -51,10 +49,11 @@ def translate_from_fen(fen: str):
 		data |= index << uint32(6)
 	halfMoves = uint32(fen[4])
 	data |= ((halfMoves & uint32((1 << 6) - 1)) << uint32(12))
+	moves = uint32(fen[5])
+	data |= ((moves & uint32((1 << 8) - 1)) << uint(18))
 	return board,data
 
 def generate_bitboards_from_board(fen):
-	from numpy import uint64 as uint,uint32
 	board,data = translate_from_fen(fen)
 	p = r = b = n = q = k = P = R = B = N = Q = K = uint(0)
 	for row in range(8):
@@ -84,3 +83,80 @@ def generate_bitboards_from_board(fen):
 			elif board[row][col] == 'K':
 				K |= uint(1) << uint(row * 8 + col)
 	return (P,N,B,R,Q,K,p,n,b,r,q,k),data
+
+def convert_bitboards_to_2d(bitboards):
+
+	chars = {
+		0: 'p',
+		1: 'n',
+		2: 'b',
+		3: 'r',
+		4: 'q',
+		5: 'k',
+		6: 'P',
+		7: 'N',
+		8: 'B',
+		9: 'R',
+		10: 'Q',
+		11: 'K'
+	}
+
+	board = [['' for _ in range(8)] for _ in range(8)]
+
+	for row in range(7,-1,-1):
+		for col in range(7,-1,-1):
+			pos = row * 8 + col
+			for i in range(12):
+				if bitboards[i] & (uint(1) << pos):
+					board[row][col] = chars[i]
+					break
+	
+	return board[::-1]
+
+def convert_2d_to_fen(bitboard,board_data):
+	board = convert_bitboards_to_2d(bitboard)
+	fen = ''
+	for rank in board:
+		count = 0
+		for square in rank:
+			if square:
+				if count:
+					fen += str(count)
+				fen += square
+			else:
+				count += 1
+		if count:
+			fen += str(count)
+		fen += '/'
+	fen = fen[:-1] + ' '
+	fen += 'b' if board_data & uint(1) else 'w'
+	fen += ' '
+	bit_positions_for_castling = {
+		1: 'K',
+		2: 'Q',
+		3: 'k',
+		4: 'q'
+	}
+	castlingPresent = False
+	for shift in range(1,5):
+		if board_data & (uint(1) << shift):
+			fen += bit_positions_for_castling[shift]
+			castlingPresent = True
+	fen += ' ' if castlingPresent else '- '
+	if board_data & (uint(1) << 5):
+		pos = (data >> 6) & ((uint(1) << 6) - 1)
+		row = 8 - pos // 8 - 1
+		col = pos % 8
+		fen += f'{chr(97 + col)}{row + 1} '
+	else:
+		fen += '- '
+	halfMoves = board_data >> 12 & uint((1 << 6) - 1)
+	fen += str(halfMoves) + ' '
+	moves = board_data >> 18 & uint((1 << 8) - 1)
+	fen += str(moves)
+	return fen
+
+if __name__ == '__main__':
+	bitboards,data = generate_bitboards_from_board(fenString)
+	print(fenString)
+	print(convert_2d_to_fen(bitboards,data))

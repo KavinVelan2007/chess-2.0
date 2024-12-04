@@ -95,7 +95,7 @@ class Game(ctk.CTk):
 
         self.ChessBoardObj = brains.Board(self.BitBoards,self.BoardData)
 
-        self.ValidMoves = self.ChessBoardObj.return_moves()
+        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
 
         self.update()
 
@@ -146,7 +146,7 @@ class Game(ctk.CTk):
         if self.CurrentSquare:
 
             row,col = self.CurrentSquare
-            for move in self.ValidMoves.return_move_list():
+            for move in self.ValidMoves:
                 from_index = move & uint32((1 << 6) - 1)
                 to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
                 if from_index == row * 8 + col:
@@ -205,12 +205,12 @@ class Game(ctk.CTk):
                 y -= self.y
                 to_row,to_col = y // 83,x // 90
 
-                for move in self.ValidMoves.return_move_list():
+                for move in self.ValidMoves:
                     from_index = move & uint32((1 << 6) - 1)
                     to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
                     if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
-                        self.ChessBoardObj.make_move(move)
-                        self.ValidMoves = self.ChessBoardObj.return_moves()
+                        self.ChessBoardObj.MakeMove(move)
+                        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
 
