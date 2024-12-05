@@ -87,18 +87,18 @@ def generate_bitboards_from_board(fen):
 def convert_bitboards_to_2d(bitboards):
 
 	chars = {
-		0: 'p',
-		1: 'n',
-		2: 'b',
-		3: 'r',
-		4: 'q',
-		5: 'k',
-		6: 'P',
-		7: 'N',
-		8: 'B',
-		9: 'R',
-		10: 'Q',
-		11: 'K'
+		0: 'P',
+		1: 'N',
+		2: 'B',
+		3: 'R',
+		4: 'Q',
+		5: 'K',
+		6: 'p',
+		7: 'n',
+		8: 'b',
+		9: 'r',
+		10: 'q',
+		11: 'k'
 	}
 
 	board = [['' for _ in range(8)] for _ in range(8)]
@@ -113,7 +113,7 @@ def convert_bitboards_to_2d(bitboards):
 	
 	return board[::-1]
 
-def convert_2d_to_fen(bitboard,board_data):
+def convert_bitboards_to_fen(bitboard,board_data):
 	board = convert_bitboards_to_2d(bitboard)
 	fen = ''
 	for rank in board:
@@ -122,6 +122,7 @@ def convert_2d_to_fen(bitboard,board_data):
 			if square:
 				if count:
 					fen += str(count)
+					count = 0
 				fen += square
 			else:
 				count += 1
@@ -159,4 +160,4 @@ def convert_2d_to_fen(bitboard,board_data):
 if __name__ == '__main__':
 	bitboards,data = generate_bitboards_from_board(fenString)
 	print(fenString)
-	print(convert_2d_to_fen(bitboards,data))
+	print(convert_bitboards_to_fen(bitboards,data))

@@ -3,6 +3,8 @@ import brains
 from fen import *
 from PIL import Image
 from GUI.GUIPreferences import Preferences
+import brains
+from fen import generate_bitboards_from_board
 
 ctk.set_default_color_theme("GUI\\Themes.json")
 
@@ -21,6 +23,8 @@ class SideBar(ctk.CTkFrame):
 
         self.grid_columnconfigure(0, weight=1)
 
+        self.Fen = ctk.StringVar()
+
         self.LogoLabel = ctk.CTkLabel(
             self, text="Chess", font=ctk.CTkFont(size=25, weight="bold"))
 
@@ -33,7 +37,7 @@ class SideBar(ctk.CTkFrame):
 
         photo = Image.open("GUI\\Resources\\Misc\\SaveIcon.png")
 
-        self.SaveQuitButton = ctk.CTkButton(self, height=25, text="Save Progress", image=ctk.CTkImage(
+        self.SaveQuitButton = ctk.CTkButton(self, height=25, command=self.CopyFENToClipboard, text="Save Progress", image=ctk.CTkImage(
             light_image=photo, dark_image=photo, size=(25, 25)), anchor="center")
 
         self.SaveQuitButton.image = ctk.CTkImage(
@@ -81,9 +85,32 @@ class SideBar(ctk.CTkFrame):
         self.PreferencesButton.grid(
             row=8, column=0, ipadx=10, ipady=10, pady=20)
         
+        self.FenEntry = ctk.CTkEntry(self, textvariable=self.Fen, placeholder_text='Enter FEN',width=200)
+
+        self.FenEntry.grid(row=3,column=0)
+        
     def showPreferences(self):
 
         Preferences(self.ParentObject).show()
+
+    def CopyFENToClipboard(self):
+
+        BitBoards, BoardData = self.ParentObject.ChessBoardObj.bitboards, self.ParentObject.ChessBoardObj.board_data
+
+        from fen import convert_bitboards_to_fen
+
+        import pyperclip
+
+        from tkinter import messagebox
+
+        # rnbq1rk1/pppp2pp/5n2/4pp2/1BPP4/8/PPQ1PPPP/RN2KBNR w kq - 0 0
+        # rn2kbnr/ppq1pppp/8/1bpp4/4PP2/5N2/PPPP2PP/RNBQ1RK1 w kq - 0 6
+
+        fen = convert_bitboards_to_fen(BitBoards,BoardData)
+
+        pyperclip.copy(fen)
+
+        messagebox.showinfo('FEN Copied','The FEN Notation has been added to your Clip Board')
 
     def ChangeScaling(self, ScalingValue):
 
@@ -100,16 +127,29 @@ class SideBar(ctk.CTkFrame):
         self.ParentObject.BaseColour = (26, 26, 26) if ctk.get_appearance_mode() == "Dark" else (242, 242, 242)
 
     def StartNewGame(self):
+        if self.Fen.get():
 
-        self.ParentObject.Turn = 'W'
+            BitBoards,BoardData = generate_bitboards_from_board(self.Fen.get())
 
-        with open("FENString.txt", "r"):
+            self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
 
-            BitBoards, BoardData = generate_bitboards_from_board(fenString)
+            self.ParentObject.ValidMoves = self.ParentObject.ChessBoardObj.ReturnMoves()
 
-        self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
+            self.ParentObject.Turn = self.Fen.get().split()[1].upper()
 
-        self.ParentObject.CurrentSquare = None
+        else:
+
+            self.ParentObject.Turn = 'W'
+
+            with open("FENString.txt", "r"):
+
+                BitBoards, BoardData = generate_bitboards_from_board(fenString)
+
+            self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
+
+            self.ParentObject.ValidMoves = self.ParentObject.ChessBoardObj.ReturnMoves()
+
+            self.ParentObject.CurrentSquare = None
 
     def SwitchToAIMode(self, Mode):
 
@@ -120,5 +160,7 @@ class SideBar(ctk.CTkFrame):
         else:
 
             self.ParentObject.AgainstAI = False
+
+        self.StartNewGame()
 
         self.ParentObject.CurrentSquare = None

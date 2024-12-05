@@ -41,3 +41,5 @@ class Preferences(ctk.CTkToplevel):
         pyobj.execute('update chess set piece = ?, board = ? where username = ?',(self.Piece.get(),self.Board.get(),self.ParentObject.UserName))
 
         sqliteobj.commit()
+
+        self.destroy()
