@@ -132,10 +132,16 @@ class SideBar(ctk.CTkFrame):
             BitBoards,BoardData = generate_bitboards_from_board(self.Fen.get())
 
             self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
+            print(BoardData)
+            
+            self.ParentObject.BitBoards = self.ParentObject.ChessBoardObj.bitboards
+            self.ParentObject.BoardData = self.ParentObject.ChessBoardObj.board_data
 
             self.ParentObject.ValidMoves = self.ParentObject.ChessBoardObj.ReturnMoves()
 
             self.ParentObject.Turn = self.Fen.get().split()[1].upper()
+
+            print('yes')
 
         else:
 
@@ -147,9 +153,16 @@ class SideBar(ctk.CTkFrame):
 
             self.ParentObject.ChessBoardObj = brains.Board(BitBoards,BoardData)
 
+            print(BoardData)
+
+            self.ParentObject.BitBoards = self.ParentObject.ChessBoardObj.bitboards
+            self.ParentObject.BoardData = self.ParentObject.ChessBoardObj.board_data
+
             self.ParentObject.ValidMoves = self.ParentObject.ChessBoardObj.ReturnMoves()
 
             self.ParentObject.CurrentSquare = None
+
+            print('yes')
 
     def SwitchToAIMode(self, Mode):
 
