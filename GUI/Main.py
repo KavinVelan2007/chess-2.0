@@ -106,6 +106,16 @@ class Game(ctk.CTk):
         self.BitBoards = self.ChessBoardObj.bitboards
         self.BoardData = self.ChessBoardObj.board_data
 
+        if self.AgainstAI and self.Turn == 'B':
+
+            move = brains.BestMove(self.ChessBoardObj, 3)
+
+            from_index = move & uint32((1 << 6) - 1)
+            to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+            self.ChessBoardObj.MakeMove(move)
+            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+            self.Turn = 'W' if self.Turn == 'B' else 'B'
+
         self.WHITE = self.BLACK = uint(0)
         for i in range(6):
             self.WHITE |= self.BitBoards[i]

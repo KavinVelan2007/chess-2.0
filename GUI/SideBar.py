@@ -85,10 +85,6 @@ class SideBar(ctk.CTkFrame):
         self.PreferencesButton.grid(
             row=8, column=0, ipadx=10, ipady=10, pady=20)
         
-        self.FenEntry = ctk.CTkEntry(self, textvariable=self.Fen, placeholder_text='Enter FEN',width=200)
-
-        self.FenEntry.grid(row=3,column=0)
-        
     def showPreferences(self):
 
         Preferences(self.ParentObject).show()
