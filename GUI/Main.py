@@ -108,10 +108,7 @@ class Game(ctk.CTk):
 
         if self.AgainstAI and self.Turn == 'B':
 
-            move = brains.BestMove(self.ChessBoardObj, 3)
-
-            from_index = move & uint32((1 << 6) - 1)
-            to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+            move = brains.BestMove(self.ChessBoardObj, 4)
             self.ChessBoardObj.MakeMove(move)
             self.ValidMoves = self.ChessBoardObj.ReturnMoves()
             self.Turn = 'W' if self.Turn == 'B' else 'B'

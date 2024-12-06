@@ -1418,7 +1418,8 @@ def perft():
 cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta):
 
 	cdef Moves moves = board.return_moves()
-	cdef Board copy_board
+	cdef U32 data = board.board_data
+	cdef U64[12] bitboards = board.bitboards
 	cdef int maxEval = -2147483648
 	cdef int minEval = 2147483647
 	
@@ -1428,18 +1429,20 @@ cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta
 	if maximizing:
 		once = False
 		for i in range(moves.count):
-			copy_board = Board(board.copy())
 			if board.make_move(moves.move_list[i]):
 				once = True
 				val = minimax_int(board, depth - 1, False, alpha, beta)
+				print('0')
 				maxEval = max(val, maxEval)
 				alpha = max(alpha, val)
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 				if beta <= alpha:
 					break
 				return maxEval
 			else:
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 
 		if not once and board.check_for_check(0):
 
@@ -1448,17 +1451,20 @@ cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta
 	else:
 		once = False
 		for i in range(moves.count):
-			copy_board = Board(board.copy())
 			if board.make_move(moves.move_list[i]):
-				val = minimax_int(board, depth - 1, False, alpha, beta)
+				once = True
+				val = minimax_int(board, depth - 1, True, alpha, beta)
 				minEval = min(val, minEval)
+				print('1')
 				beta = min(beta, val)
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 				if beta <= alpha:
 					break
 				return minEval
 			else:
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 		if not once and board.check_for_check(1):
 			return 2147483647
 
@@ -1469,6 +1475,8 @@ cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):
 	cdef Board copy_board
 	cdef int maxEval = -2147483648
 	cdef int minEval = 2147483647
+	cdef U32 data = board.board_data
+	cdef U64[12] bitboards = board.bitboards
 	cdef U32 move
 	
 	if depth == 0:
@@ -1477,7 +1485,6 @@ cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):
 	if maximizing:
 		once = False
 		for i in range(moves.count):
-			copy_board = Board(board.copy())
 			if board.make_move(moves.move_list[i]):
 				once = True
 				val = minimax_int(board, depth - 1, False, alpha, beta)
@@ -1485,11 +1492,13 @@ cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):
 					maxEval = val
 					move = moves.move_list[i]
 				alpha = max(alpha, val)
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 				if beta <= alpha:
 					break
 			else:
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 
 		if not once and board.check_for_check(0):
 			return 0
@@ -1498,19 +1507,21 @@ cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):
 	else:
 		once = False
 		for i in range(moves.count):
-			copy_board = Board(board.copy())
 			if board.make_move(moves.move_list[i]):
-				val = minimax_int(board, depth - 1, False, alpha, beta)
+				once = True
+				val = minimax_int(board, depth - 1, True, alpha, beta)
 				if val < minEval:
 					minEval = val
 					move = moves.move_list[i]
 				minEval = min(val, minEval)
 				beta = min(beta, val)
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 				if beta <= alpha:
 					break
 			else:
-				board = copy_board
+				board.board_data = data
+				board.bitboards = bitboards
 		if not once and board.check_for_check(1):
 			return 0
 		return move
