@@ -1432,14 +1432,12 @@ cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta
 			if board.make_move(moves.move_list[i]):
 				once = True
 				val = minimax_int(board, depth - 1, False, alpha, beta)
-				print('0')
 				maxEval = max(val, maxEval)
 				alpha = max(alpha, val)
 				board.board_data = data
 				board.bitboards = bitboards
 				if beta <= alpha:
 					break
-				return maxEval
 			else:
 				board.board_data = data
 				board.bitboards = bitboards
@@ -1447,6 +1445,8 @@ cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta
 		if not once and board.check_for_check(0):
 
 			return -2147483648
+
+		return maxEval
 	
 	else:
 		once = False
@@ -1455,18 +1455,18 @@ cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta
 				once = True
 				val = minimax_int(board, depth - 1, True, alpha, beta)
 				minEval = min(val, minEval)
-				print('1')
 				beta = min(beta, val)
 				board.board_data = data
 				board.bitboards = bitboards
 				if beta <= alpha:
 					break
-				return minEval
 			else:
 				board.board_data = data
 				board.bitboards = bitboards
 		if not once and board.check_for_check(1):
 			return 2147483647
+
+		return minEval
 
 
 cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):

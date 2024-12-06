@@ -8,7 +8,7 @@ from numpy import uint32
 import platform
 import brains
 import sqlite3
-
+from threading import Thread, active_count
 
 ctk.set_default_color_theme("GUI\\Themes.json")
 
@@ -27,6 +27,8 @@ class Game(ctk.CTk):
         self.after(0, lambda: self.state('zoomed'))
 
         self.grid_rowconfigure(0, weight=1)
+
+        self.INITIAL_THREAD_COUNT = active_count()
 
         self.UserName = kwargs["username"]
 
@@ -103,15 +105,13 @@ class Game(ctk.CTk):
 
 
     def update(self):
-        self.BitBoards = self.ChessBoardObj.bitboards
-        self.BoardData = self.ChessBoardObj.board_data
 
         if self.AgainstAI and self.Turn == 'B':
 
-            move = brains.BestMove(self.ChessBoardObj, 4)
-            self.ChessBoardObj.MakeMove(move)
-            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
-            self.Turn = 'W' if self.Turn == 'B' else 'B'
+            self.PlayBestMove()
+        
+        self.BitBoards = self.ChessBoardObj.bitboards
+        self.BoardData = self.ChessBoardObj.board_data
 
         self.WHITE = self.BLACK = uint(0)
         for i in range(6):
@@ -148,6 +148,12 @@ class Game(ctk.CTk):
 
         self.after(1, self.update)
 
+    def PlayBestMove(self):
+        move = brains.BestMove(self.ChessBoardObj, 4)
+        self.ChessBoardObj.MakeMove(move)
+        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+        self.Turn = 'W' if self.Turn == 'B' else 'B'
+
     def showValidMoves(self):
 
         if self.CurrentSquare:
@@ -183,45 +189,47 @@ class Game(ctk.CTk):
 
         for Event in pygame.event.get():
 
-            if Event.type == pygame.MOUSEBUTTONDOWN:
+            if active_count() <= self.INITIAL_THREAD_COUNT:
 
-                x,y = pygame.mouse.get_pos()
-                x -= self.x
-                y -= self.y
-                row,col = y // 83,x // 90
-                if 0 <= row < 8 and 0 <= col < 8:
-                    pos = row * 8 + col
-                    if self.Turn == 'W':
-                        if self.WHITE & (uint(1) << pos):
-                            self.CurrentSquare = (row,col)
-                            x,y = pygame.mouse.get_pos()
-                            self.ActivePoint = (x,y)
-                    else:
-                        if self.BLACK & (uint(1) << pos) and not self.AgainstAI:
-                            self.CurrentSquare = (row,col)
-                            x,y = pygame.mouse.get_pos()
-                            self.ActivePoint = (x,y)
+                if Event.type == pygame.MOUSEBUTTONDOWN:
 
-                    
-            elif Event.type == pygame.MOUSEBUTTONUP and self.CurrentSquare:
+                    x,y = pygame.mouse.get_pos()
+                    x -= self.x
+                    y -= self.y
+                    row,col = y // 83,x // 90
+                    if 0 <= row < 8 and 0 <= col < 8:
+                        pos = row * 8 + col
+                        if self.Turn == 'W':
+                            if self.WHITE & (uint(1) << pos):
+                                self.CurrentSquare = (row,col)
+                                x,y = pygame.mouse.get_pos()
+                                self.ActivePoint = (x,y)
+                        else:
+                            if self.BLACK & (uint(1) << pos) and not self.AgainstAI:
+                                self.CurrentSquare = (row,col)
+                                x,y = pygame.mouse.get_pos()
+                                self.ActivePoint = (x,y)
 
-                row,col = self.CurrentSquare
+                        
+                elif Event.type == pygame.MOUSEBUTTONUP and self.CurrentSquare:
 
-                x,y = pygame.mouse.get_pos()
-                x -= self.x
-                y -= self.y
-                to_row,to_col = y // 83,x // 90
+                    row,col = self.CurrentSquare
 
-                for move in self.ValidMoves:
-                    from_index = move & uint32((1 << 6) - 1)
-                    to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
-                    if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
-                        self.ChessBoardObj.MakeMove(move)
-                        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
-                        self.Turn = 'W' if self.Turn == 'B' else 'B'
-                        self.CurrentSquare = None
+                    x,y = pygame.mouse.get_pos()
+                    x -= self.x
+                    y -= self.y
+                    to_row,to_col = y // 83,x // 90
 
-                self.ActivePoint = None
+                    for move in self.ValidMoves:
+                        from_index = move & uint32((1 << 6) - 1)
+                        to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+                        if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
+                            self.ChessBoardObj.MakeMove(move)
+                            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                            self.Turn = 'W' if self.Turn == 'B' else 'B'
+                            self.CurrentSquare = None
+
+                    self.ActivePoint = None
 
 if __name__ == '__main__':
     a = Game(username='kavin')
