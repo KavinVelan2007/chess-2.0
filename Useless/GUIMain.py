@@ -1,90 +1,196 @@
-import customtkinter as ctk
-from GUIGameFrame import GameFrame
+import pygame
+
+import pygame_widgets
+
+import threading
+
+import time
+
+from GUI.GUISideBar import *
+
+from GUI.GUIBoard import *
+
+from GUI.GUIMoveHistory import *
+
+from GUI.GUISettings import *
 
 
-def global_init():
-    ctk.deactivate_automatic_dpi_awareness()
+class Game:
 
 
-class App(ctk.CTk):
+    def __init__(self,display, **kwargs):
 
-    def __init__(self):
+        if kwargs["BitBoards"] and kwargs["BoardData"]:
 
-        super().__init__()
-        self.geometry(self.CenterWindowToDisplay(1280, 720))
-        self._set_appearance_mode('dark')
-        self.configure(fg_color = ('#D8D8D8', '#303030'))
-        self.title('Chess')
-        self.resizable(False, False)
+            self.BitBoards = kwargs["BitBoards"]
 
-        self.game_running = False
-        
-        self.sidebar_frame = ctk.CTkFrame(self, corner_radius = 20, width = 225, height = 720, fg_color = ('#F0F0F0', '#101010'), bg_color = ('#D8D8D8', '#303030'))
-        self.sidebar_frame._set_appearance_mode(self._get_appearance_mode())
-        self.sidebar_frame.place(x = 0, y = 0, anchor = 'nw')
-        self.sidebar_frame.grid_propagate(False)
-        
-        self.sidebar_frame.grid_columnconfigure(0, weight = 1)
-        self.sidebar_frame.grid_rowconfigure((3, ), weight = 1)
-        self.sidebar_frame.grid_rowconfigure((0, 1, 2, 4), weight = 0)
-        
-        self.logo_label = ctk.CTkLabel(self.sidebar_frame, text = "Options", font = ctk.CTkFont(size = 25, weight="bold", family = "Cascadia Code SemiBold"))
-        self.logo_label._set_appearance_mode(self._get_appearance_mode())
-        self.logo_label.grid(row = 0, column = 0, pady = 30)
-        
-        self.new_game_ai = ctk.CTkButton(self.sidebar_frame, text = "New Game with AI", command = self.on_ai_button, font = ctk.CTkFont(size = 17, weight="normal", family = "Cascadia Code SemiBold"), fg_color = ('blue', 'darkblue'))
-        self.new_game_ai.grid(row = 1, column = 0, pady = 20, ipadx = 10, ipady = 15)
-        self.new_game_ai._set_appearance_mode(self._get_appearance_mode())
+            self.BoardData = kwargs["BoardData"]
 
-        self.new_game_person = ctk.CTkButton(self.sidebar_frame, text = "New Game with\na Friend", command = self.on_person_button, font = ctk.CTkFont(size = 17, weight="normal", family = "Cascadia Code SemiBold"), fg_color = ('blue', 'darkblue'))
-        self.new_game_person.grid(row = 2, column = 0, pady = 20, ipadx = 10, ipady = 15)
-        self.new_game_person._set_appearance_mode(self._get_appearance_mode())
+            del kwargs["BitBoards"], kwargs["BoardData"]
 
-        self.preferences_button = ctk.CTkButton(self.sidebar_frame, text = "Preferences", font = ctk.CTkFont(size = 25, weight="normal", family = "Cascadia Code SemiBold"), fg_color = ('blue', 'darkblue'))
-        self.preferences_button._set_appearance_mode(self._get_appearance_mode())
-        self.preferences_button.grid(row = 3, column = 0, pady = 20, ipadx = 10, ipady = 15, sticky = 's')
+        elif kwargs:
 
-        self.quit_button = ctk.CTkButton(self.sidebar_frame, text = "Quit", command = self.on_quit, font = ctk.CTkFont(size = 25, weight="normal", family = "Cascadia Code SemiBold"), fg_color = ('red', 'darkred'))
-        self.quit_button._set_appearance_mode(self._get_appearance_mode())
-        self.quit_button.grid(row = 4, column = 0, pady = 20, ipadx = 10, ipady = 15, sticky = 's')
+            raise ValueError("Unknown Keyword Arguments")
 
-        self.gameframe = GameFrame(self)
-        self.gameframe.place(x = 275, y = 50, anchor = 'nw')
-        self.gameframe.grid_propagate(False)
+        del kwargs
+
+        import sys
+
+        if sys.platform == "win32":
+
+            import ctypes
+
+            ctypes.windll.user32.SetProcessDPIAware()
+
+        pygame.init()
+
+        self.font = pygame.font.SysFont("Arial", 100)
+
+        self.SmallFont = pygame.font.SysFont("Arial", 30)
+
+        self.Display = display
+
+        self.LoadingFlag = True
 
 
-        self.mainloop()
-    
+        def LoadingScreen():
 
-    def CenterWindowToDisplay(self, width, height):
-        
-        screen_width = self.winfo_screenwidth()
-        screen_height = self.winfo_screenheight()
-        x = int((screen_width/2) - (width/2))
-        y = int((screen_height/2) - (height/2) - 50)
-        return f"{width}x{height}+{x}+{y}"
+            while self.LoadingFlag:
 
+                ReferenceText = self.font.render(
+                    "Loading...", False, (255, 255, 255))
 
-    def on_quit(self):
-        self.destroy()
+                for i in range(5):
 
+                    if not self.LoadingFlag:
 
-    def on_ai_button(self):
-        pass
+                        break
 
+                    self.Display.fill((70, 70, 70))
 
-    def on_person_button(self):
-        pass
+                    Text = self.font.render(
+                        "Loading" + '.' * i, False, (0, 0, 255))
 
+                    self.Display.blit(
+                        Text, (960 - ReferenceText.get_width() // 2, 540 - ReferenceText.get_height() // 2))
 
+                    pygame.display.update()
 
-class ToplevelWindow(ctk.CTkToplevel):
-
-    def __init__(self):
-
-        super().__init__()
-        self.geometry("400x300")
+                    time.sleep(0.2)
 
 
-global_init()
-a = App()
+        threading.Thread(target=LoadingScreen).start()
+
+        self.InitPreferences()
+
+        self.SettingsOpen = False
+
+        self.GameRunning = False
+
+        self.SideBar = SideBar(self.Display)
+
+        self.Settings = Settings(self)
+
+        self.Board = Board(self)
+
+        self.Running = True
+
+
+    def DisplayBase(self):
+
+        self.Display.fill((70, 70, 70))
+
+        self.Board.DisplayBoard()
+
+        self.SideBar.DisplaySideBar()
+
+        if self.SettingsOpen:
+
+            self.Settings.DisplaySettings()
+
+
+    def InitPreferences(self):
+
+        import pickle
+
+        with open("GUI\\PreferenceData.dat", "rb") as File:
+
+            Data = pickle.load(File)
+
+            self.BoardOptions = Data["BoardOptions"]
+
+            self.PieceOptions = Data["PieceOptions"]
+
+            self.Pieces = Data["Pieces"]
+
+            self.BoardPreference = Data["BoardPreference"]
+
+            self.PiecePreference = Data["PiecePreference"]
+
+
+    def MainLoop(self):
+
+        Clock = pygame.time.Clock()
+
+        self.LoadingFlag = False
+
+        while self.Running:
+
+            Events = pygame.event.get()
+
+            for Event in Events:
+
+                if Event.type == pygame.QUIT:
+
+                    self.Running = False
+
+                elif Event.type == self.SideBar.EventSettingsOpened:
+
+                    self.SettingsOpen = True
+
+                if not self.SettingsOpen:
+
+                    self.SideBar.SideBarEventCheck(Event)
+
+                    if self.GameRunning:
+
+                        self.Board.BoardEventCheck(Event)
+
+                else:
+
+                    self.Settings.SettingsEventCheck(Event)
+
+            self.DisplayBase()
+
+            if self.SettingsOpen:
+
+                self.Settings.WidgetsUpdate(Events)
+
+            Clock.tick()
+
+            """ self.Display.blit(
+                self.font.render(f"{Clock.get_fps()}", False,
+                            (255, 255, 255)), (0, 0)
+            ) """
+
+            pygame.display.update()
+
+        import pickle
+
+        with open("GUI\\PreferenceData.dat", "wb") as File:
+
+            Data = {}
+
+            Data["BoardOptions"] = self.BoardOptions
+
+            Data["PieceOptions"] = self.PieceOptions
+
+            Data["Pieces"] = self.Pieces
+
+            Data["BoardPreference"] = self.BoardPreference
+
+            Data["PiecePreference"] = self.PiecePreference
+
+            pickle.dump(Data, File)
+
+        pygame.quit()

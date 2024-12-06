@@ -630,6 +630,69 @@ for i in range(64):
 
 del temp_BISHOP_ATTACKS, temp_ROOK_ATTACKS
 
+
+cdef int[64] Pawns = [
+		0,   0,   0,   0,   0,   0,   0,   0,
+		50,  50,  50,  50,  50,  50,  50,  50,
+		10,  10,  20,  30,  30,  20,  10,  10,
+		5,   5,  10,  25,  25,  10,   5,   5,
+		0,   0,   0,  20,  20,   0,   0,   0,
+		5,  -5, -10,   0,   0, -10,  -5,   5,
+		5,  10,  10, -20, -20,  10,  10,   5,
+		0,   0,   0,   0,   0,   0,   0,   0
+]
+
+cdef int[64] Rooks =  [
+	0,  0,  0,  0,  0,  0,  0,  0,
+	5, 10, 10, 10, 10, 10, 10,  5,
+	-5,  0,  0,  0,  0,  0,  0, -5,
+	-5,  0,  0,  0,  0,  0,  0, -5,
+	-5,  0,  0,  0,  0,  0,  0, -5,
+	-5,  0,  0,  0,  0,  0,  0, -5,
+	-5,  0,  0,  0,  0,  0,  0, -5,
+	0,  0,  0,  5,  5,  0,  0,  0
+]
+cdef int[64] Knights = [
+	-50,-40,-30,-30,-30,-30,-40,-50,
+	-40,-20,  0,  0,  0,  0,-20,-40,
+	-30,  0, 10, 15, 15, 10,  0,-30,
+	-30,  5, 15, 20, 20, 15,  5,-30,
+	-30,  0, 15, 20, 20, 15,  0,-30,
+	-30,  5, 10, 15, 15, 10,  5,-30,
+	-40,-20,  0,  5,  5,  0,-20,-40,
+	-50,-40,-30,-30,-30,-30,-40,-50,
+]
+cdef int[64] Bishops =  [
+	-20,-10,-10,-10,-10,-10,-10,-20,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-10,  0,  5, 10, 10,  5,  0,-10,
+	-10,  5,  5, 10, 10,  5,  5,-10,
+	-10,  0, 10, 10, 10, 10,  0,-10,
+	-10, 10, 10, 10, 10, 10, 10,-10,
+	-10,  5,  0,  0,  0,  0,  5,-10,
+	-20,-10,-10,-10,-10,-10,-10,-20,
+]
+cdef int[64] Queens =  [
+	-20,-10,-10, -5, -5,-10,-10,-20,
+	-10,  0,  0,  0,  0,  0,  0,-10,
+	-10,  0,  5,  5,  5,  5,  0,-10,
+	-5,   0,  5,  5,  5,  5,  0, -5,
+	0,    0,  5,  5,  5,  5,  0, -5,
+	-10,  5,  5,  5,  5,  5,  0,-10,
+	-10,  0,  5,  0,  0,  0,  0,-10,
+	-20,-10,-10, -5, -5,-10,-10,-20
+]
+cdef int[64] King = [
+	-80, -70, -70, -70, -70, -70, -70, -80, 
+	-60, -60, -60, -60, -60, -60, -60, -60, 
+	-40, -50, -50, -60, -60, -50, -50, -40, 
+	-30, -40, -40, -50, -50, -40, -40, -30, 
+	-20, -30, -30, -40, -40, -30, -30, -20, 
+	-10, -20, -20, -20, -20, -20, -20, -10, 
+	20,  20,  -5,  -5,  -5,  -5,  20,  20, 
+	20,  30,  10,   0,   0,  10,  30,  20
+]
+
 '''
 DATA ENDS HERE
 '''
@@ -1278,6 +1341,17 @@ cdef class Board:
 	cdef copy(self):
 		return (self.bitboards, self.board_data)
 
+	
+	cdef int evaluate(self):
+
+		score = 0
+		for i in range(64):
+			score += count_bits(self.bitboards[0]) * 10 + count_bits(self.bitboards[1]) * 30 + count_bits(self.bitboards[2]) * 30 + count_bits(self.bitboards[3]) * 50 + count_bits(self.bitboards[4]) * 90 - (count_bits(self.bitboards[6]) * 10 + count_bits(self.bitboards[7]) * 30 + count_bits(self.bitboards[8]) * 30 + count_bits(self.bitboards[9]) * 50  +count_bits(self.bitboards[10]) * 90)
+			score += ((self.bitboards[0] >> i) & one) * Pawns[i] + ((self.bitboards[1] >> i) & one) * Knights[i] + ((self.bitboards[2] >> i) & one) * Bishops[i] + ((self.bitboards[3] >> i) & one) * Rooks[i] + ((self.bitboards[4] >> i) & one) * Queens[i] + ((self.bitboards[0] >> i) & one) * King[i]
+			i = 64 - ((i // 8 + 1) * 8) + i % 8
+			score -= ((self.bitboards[6] >> i) & one) * Pawns[i] + ((self.bitboards[7] >> i) & one) * Knights[i] + ((self.bitboards[8] >> i) & one) * Bishops[i] + ((self.bitboards[9] >> i) & one) * Rooks[i] + ((self.bitboards[10] >> i) & one) * Queens[i] + ((self.bitboards[11] >> i) & one) * King[i]
+		return score
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -1335,3 +1409,118 @@ def perft():
 	stime = time.time()
 	perft_(depth)
 	print(f'Time: {time.time() - stime}')
+
+
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+@cython.cdivision(True)
+cdef int minimax_int(Board board, U8 depth, bint maximizing, int alpha, int beta):
+
+	cdef Moves moves = board.return_moves()
+	cdef Board copy_board
+	cdef int maxEval = -2147483648
+	cdef int minEval = 2147483647
+	
+	if depth == 0:
+		return board.evaluate()
+
+	if maximizing:
+		once = False
+		for i in range(moves.count):
+			copy_board = Board(board.copy())
+			if board.make_move(moves.move_list[i]):
+				once = True
+				val = minimax_int(board, depth - 1, False, alpha, beta)
+				maxEval = max(val, maxEval)
+				alpha = max(alpha, val)
+				board = copy_board
+				if beta <= alpha:
+					break
+				return maxEval
+			else:
+				board = copy_board
+
+		if not once and board.check_for_check(0):
+
+			return -2147483648
+	
+	else:
+		once = False
+		for i in range(moves.count):
+			copy_board = Board(board.copy())
+			if board.make_move(moves.move_list[i]):
+				val = minimax_int(board, depth - 1, False, alpha, beta)
+				minEval = min(val, minEval)
+				beta = min(beta, val)
+				board = copy_board
+				if beta <= alpha:
+					break
+				return minEval
+			else:
+				board = copy_board
+		if not once and board.check_for_check(1):
+			return 2147483647
+
+
+cdef U32 minimax(Board board, U8 depth, bint maximizing, int alpha, int beta):
+
+	cdef Moves moves = board.return_moves()
+	cdef Board copy_board
+	cdef int maxEval = -2147483648
+	cdef int minEval = 2147483647
+	cdef U32 move
+	
+	if depth == 0:
+		return board.evaluate()
+
+	if maximizing:
+		once = False
+		for i in range(moves.count):
+			copy_board = Board(board.copy())
+			if board.make_move(moves.move_list[i]):
+				once = True
+				val = minimax_int(board, depth - 1, False, alpha, beta)
+				if val > maxEval:
+					maxEval = val
+					move = moves.move_list[i]
+				alpha = max(alpha, val)
+				board = copy_board
+				if beta <= alpha:
+					break
+			else:
+				board = copy_board
+
+		if not once and board.check_for_check(0):
+			return 0
+		return move
+	
+	else:
+		once = False
+		for i in range(moves.count):
+			copy_board = Board(board.copy())
+			if board.make_move(moves.move_list[i]):
+				val = minimax_int(board, depth - 1, False, alpha, beta)
+				if val < minEval:
+					minEval = val
+					move = moves.move_list[i]
+				minEval = min(val, minEval)
+				beta = min(beta, val)
+				board = copy_board
+				if beta <= alpha:
+					break
+			else:
+				board = copy_board
+		if not once and board.check_for_check(1):
+			return 0
+		return move
+		
+def BestMove(board, depth):
+
+	if board.board_data & (1):
+
+		return minimax(board, depth, False, -2147483648, 2147483647)
+	
+	else:
+
+		return minimax(board, depth, True, -2147483648, 2147483647)

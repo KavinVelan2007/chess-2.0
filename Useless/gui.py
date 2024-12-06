@@ -1,188 +1,110 @@
-from sprites import *
-from main import *
-from utils import *
+import pygame
+import pygame_widgets
+from pygame_widgets.animations import Translate
+from fen import *
 
-class Game:
-    
-    def __init__(self,display,bitboards):
-        self.curr = None
-        self.display = display
-        self.data = data
-        self.white_pawns = bitboards[0]
-        self.white_knights = bitboards[1]
-        self.white_bishops = bitboards[2]
-        self.white_rooks = bitboards[3]
-        self.white_queen = bitboards[4]
-        self.white_king = bitboards[5]
-        self.black_pawns = bitboards[6]
-        self.black_knights = bitboards[7]
-        self.black_bishops = bitboards[8]
-        self.black_rooks = bitboards[9]
-        self.black_queen = bitboards[10]
-        self.black_king = bitboards[11]
-        self.moves = None
 
-    def display_board(self,display):
-        for row in range(8):
-            for col in range(8):
-                if (row + col) & 1 == 0:
-                    pygame.draw.rect(display,(255,255,255,255),((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
-                else:
-                    pygame.draw.rect(display,(86,99,239,255),((WINDOW_WIDTH >> 1) - (BOARD_HEIGHT >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)),BOARD_WIDTH >> 3,BOARD_HEIGHT >> 3))
+def count_bits(bit_board):
+	c = 0
+	while bit_board:
+		bit_board &= bit_board - 1
+		c += 1
+	return c
 
-    def display_black_pieces(self,display):
-        temp = self.black_bishops
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['b'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.black_rooks
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['r'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.black_queen
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.black_knights
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['n'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.black_pawns
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['p'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.black_king
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['k'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
+
+def least_significant_bit_count(bit_board):
+	return count_bits((bit_board & -bit_board) - 1)
+
+
+def global_init():
+    import sys
+    if sys.platform == 'win32':
+        import ctypes
+        ctypes.windll.user32.SetProcessDPIAware()
+
+BITBOARDS = list(generate_bitboards_from_board('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1')[0])
+            
+
+class GUI:
+
+
+    def __init__(self):
+
+        pygame.init()
+        self.display = pygame.display.set_mode((1920, 1080), pygame.FULLSCREEN)
+        pygame.display.set_caption("Chess")
+
+        self.current_board_theme = 'Green-Glass'
+        self.current_piece_theme = 'Glass'
         
-    def display_white_pieces(self,display):
-        temp = self.white_bishops
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['B'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.white_rooks
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['R'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.white_queen
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['Q'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.white_knights
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['N'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.white_pawns
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['P'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
-        temp = self.white_king
-        while temp:
-            index = least_significant_bit_count(temp)
-            row,col = index >> 3,index % 8
-            display.blit(sprites['K'],((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-            temp &= temp - uint(1)
+        self.init_images()
 
-    def display_moves(self,curr):
-        for move in self.moves:
-            from_index = chess_square_to_index(square_string[move & uint32((1 << 6) - 1)])
-            to_index = chess_square_to_index(square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)])
-            if curr[0] * 8 + curr[1] == from_index:
-                row,col = to_index // 8,to_index % 8
-                surface = pygame.Surface((BOARD_WIDTH // 8,BOARD_HEIGHT // 8),pygame.SRCALPHA)
-                surface.fill((255,255,255) if (row + col) & 1 == 0 else (86,99,239))
-                surface.set_alpha(100)
-                if (uint(1) << uint(to_index)) & self.white_pieces or (uint(1) << uint(to_index)) & self.black_pieces:
-                    pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 4,12)
-                else:
-                    pygame.draw.circle(surface,(0,0,0,200),(BOARD_WIDTH >> 4,BOARD_HEIGHT >> 4),BOARD_WIDTH >> 5)
-                x,y = (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))
-                display.blit(surface,(x,y))
+        self.mainloop()
 
-    def run(self):
-        run = True
-        clock = pygame.time.Clock()
-        while run:
-            self.bitboard = [self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king]
-            self.white_pieces = self.white_pawns | self.white_knights | self.white_bishops | self.white_rooks | self.white_queen | self.white_king
-            self.black_pieces = self.black_pawns | self.black_knights | self.black_bishops | self.black_rooks | self.black_queen | self.black_king
+
+    def init_images(self):
+        self.pieces = ['White-Pawn', 'White-Knight', 'White-Bishop', 'White-Rook', 'White-Queen', 'White-King', 'Black-Pawn', 'Black-Knight', 'Black-Bishop', 'Black-Rook', 'Black-Queen', 'Black-King']
+        board_themes = ['Black-White-Aluminium', 'Brushed-Aluminium', 'China-Blue', 'China-Green', 'China-Grey', 'China-Scarlet', 'China-Yellow', 'Classic-Blue', 'Glass', 'Gold-Silver', 'Green-Glass', 'Jade', 'Light-Wood', 'Power-Coated', 'Purple-Black', 'Rosewood', 'Wax', 'Wood-Glass']
+        piece_themes = ['Basic', 'Experimental', 'Glass', 'Lord', 'Metal', 'Modern', 'ModernJade', 'ModernWood', 'RedVBlue', 'Tournament', 'Trimmed', 'Wax', 'Wood']
+        
+
+        self.piece_images = {}
+        self.board_images = {}
+
+        for i in board_themes:
+            self.board_images[i] = pygame.image.load(f'Resources\\Boards\\{i}.png').convert_alpha()
+
+        for i in piece_themes:
+            self.piece_images[i] = {}
+            for j in self.pieces:
+                self.piece_images[i][j] = pygame.image.load(f'Resources\\Pieces\\{i}\\{j}.png').convert_alpha()
+
+
+    def mainloop(self):
+
+        self.running = True
+
+        board_image = pygame.transform.scale_by(self.board_images[self.current_board_theme], 4/7)
+        piece_image = self.piece_images[self.current_piece_theme]
+        for i in piece_image:
+            piece_image[i] = pygame.transform.scale_by(piece_image[i], 0.35)
+
+        self.clock = pygame.time.Clock()
+
+        offset = (560 - 10, ((1080 - 1310 * (4/7)) / 2) - 55)
+
+        bitboards = BITBOARDS.copy()
+        
+        squares = [None for i in range(64)]
+
+        for i in range(12):
+            while bitboards[i]:
+                square = least_significant_bit_count(bitboards[i])
+                bitboards[i] &= (bitboards[i] - 1)
+                squares[square] = piece_image[self.pieces[i]]
+        font = pygame.font.SysFont('Arial', 30)
+
+        while self.running:
+
             for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        run = False
-                    elif event.key == pygame.K_r:
-                        for i in range(48,48 + 8):
-                            self.white_pawns ^= uint(1 << i)
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if pygame.Rect(WINDOW_WIDTH - 50,0,50,50).collidepoint(pygame.mouse.get_pos()):
-                        run = False
-                    x,y = pygame.mouse.get_pos()
-                    x -= (WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1)
-                    y -= (WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1)
-                    row,col = y // (BOARD_HEIGHT >> 3),x // (BOARD_WIDTH >> 3)
-                    if self.white_pieces & (uint(1) << uint((row << 3) + col)) and 0 <= row < 8 and 0 <= col < 8:
-                        self.curr = (row,col)
-                        self.moves = return_moves(0,self.bitboard,self.data)
-                    else:
-                        if len(self.moves):
-                            for move in self.moves:
-                                to_index = chess_square_to_index(square_string[(move >> uint32(6)) & uint32((1 << 6) - 1)])
-                                if to_index == row * 8 + col:
-                                    self.bitboard,self.data = make_move(move,self.bitboard,self.data)
-                                    self.white_pawns,self.white_knights,self.white_bishops,self.white_rooks,self.white_queen,self.white_king,self.black_pawns,self.black_knights,self.black_bishops,self.black_rooks,self.black_queen,self.black_king = self.bitboard
-                                    self.curr = None
-            display.fill((30,30,30))
-            
-            # DISPLAYING BOARD
-            self.display_board(self.display)
 
-            # DISPLAYING WINDOW CLOSE BUTTON
-            pygame.draw.rect(self.display,(255,0,0),(WINDOW_WIDTH - 50,0,50,50),0,0,0,0,5)
-            pygame.draw.line(self.display,(255,255,255),(WINDOW_WIDTH,0),(WINDOW_WIDTH - 47,47),3)
-            pygame.draw.line(self.display,(255,255,255),(WINDOW_WIDTH - 50,0),(WINDOW_WIDTH,47),3)
-            
-            if self.curr:
-                # DISPLAY POINTER
-                row,col = self.curr
-                self.display.blit(POINTER,((WINDOW_WIDTH >> 1) - (BOARD_WIDTH >> 1) + col * (BOARD_WIDTH >> 3),row * (BOARD_HEIGHT >> 3) + ((WINDOW_HEIGHT >> 1) - (BOARD_HEIGHT >> 1))))
-                self.display_moves(self.curr)
-                
-            # DISPLAYLING PIECES
-            self.display_black_pieces(self.display)
-            self.display_white_pieces(self.display)
-            
-            text = SMALL_FONT.render(f'{round(clock.get_fps(),2)}',True,(255,255,255))
-            self.display.blit(text,(0,0))
+                if event.type == pygame.QUIT:
 
+                    running = False
+            
+
+
+            self.display.fill((20, 20, 20))
+            self.display.blit(board_image, (560, (1080 - 1310 * (4/7)) / 2))
+
+            for i in range(64):
+                if squares[i] != None:
+                    self.display.blit(squares[i], ((i % 8) * 100 + offset[0], (i // 8) * 91 + offset[1]))
+
+            self.clock.tick()
+            
+            self.display.blit(font.render(f'{self.clock.get_fps()}', False, (255, 255, 255)), (0, 0))
             pygame.display.update()
-            
-            clock.tick()
-            
-        pygame.quit()
 
-if __name__ == '__main__':
-    game = Game(display,BITBOARDS)
-    game.run()
+global_init()
+GUI()

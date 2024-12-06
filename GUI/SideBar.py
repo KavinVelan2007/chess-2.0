@@ -2,7 +2,7 @@ import customtkinter as ctk
 import brains
 from fen import *
 from PIL import Image
-from GUI.GUIPreferences import Preferences
+from GUI.Preferences import Preferences
 import brains
 from fen import generate_bitboards_from_board
 

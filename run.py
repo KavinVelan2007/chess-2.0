@@ -13,7 +13,7 @@ MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
 # perft()
 
 
-from GUI.GUIAccount import Account
+from GUI.Account import Account
 
 a = Account()
 a.mainloop()
