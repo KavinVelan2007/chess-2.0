@@ -1,7 +1,7 @@
 import customtkinter as ctk
 import sqlite3
 import tkinter.messagebox
-from GUI.Main import Game
+from ..GUI.Main import Game
 from fen import *
 
 ctk.set_default_color_theme("GUI\\Themes.json")
@@ -58,7 +58,7 @@ class Account(ctk.CTk):
         self.signUpLabel = ctk.CTkLabel(self.tab_view.tab('Sign Up'),text='Enter User Name',font=('Helvetica',20))
         self.signUpLabel.place(x=170,y=30)
 
-        self.passwordEntry = ctk.CTkEntry(self.tab_view.tab('Sign Up'),textvariable=self.password,width=300)
+        self.passwordEntry = ctk.CTkEntry(self.tab_view.tab('Sign Up'),textvariable=self.password,width=300, show='*')
         self.passwordEntry.place(x=93,y=180)
 
         self.passwordLabel = ctk.CTkLabel(self.tab_view.tab('Sign Up'),text='Enter Password',font=('Helvetica',20))
@@ -77,7 +77,7 @@ class Account(ctk.CTk):
         self.signInLabel = ctk.CTkLabel(self.tab_view.tab('Sign In'),text='Enter User Name',font=('Helvetica',20))
         self.signInLabel.place(x=170,y=30)
 
-        self.passwordEntry = ctk.CTkEntry(self.tab_view.tab('Sign In'),textvariable=self.password,width=300)
+        self.passwordEntry = ctk.CTkEntry(self.tab_view.tab('Sign In'),textvariable=self.password,width=300, show='*')
         self.passwordEntry.place(x=93,y=180)
 
         self.passwordLabel = ctk.CTkLabel(self.tab_view.tab('Sign In'),text='Enter Password',font=('Helvetica',20))

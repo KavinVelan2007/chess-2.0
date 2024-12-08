@@ -1,4 +1,7 @@
 from numpy import uint64 as uint,uint32
+import os
+
+os.chdir(os.getcwd() + '/chess')
 
 with open('fenString.txt','r') as file:
 	fenString = file.read().replace('\n', '')
@@ -129,7 +132,7 @@ def convert_bitboards_to_fen(bitboard,board_data):
 		if count:
 			fen += str(count)
 		fen += '/'
-	fen = fen[:-1] + ' '
+	fen = fen[:-1][::-1] + ' '
 	fen += 'b' if board_data & uint(1) else 'w'
 	fen += ' '
 	bit_positions_for_castling = {

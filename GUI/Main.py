@@ -1,14 +1,14 @@
 import customtkinter as ctk
 import pygame
-from GUI.SideBar import SideBar
-from GUI.Board import Board
+from ..GUI.SideBar import SideBar
+from ..GUI.Board import Board
 import os
 from numpy import uint64 as uint
 from numpy import uint32
 import platform
-import brains
+import chess.brains as brains
 import sqlite3
-from threading import Thread, active_count
+from fen import convert_bitboards_to_fen
 
 ctk.set_default_color_theme("GUI\\Themes.json")
 
@@ -27,8 +27,6 @@ class Game(ctk.CTk):
         self.after(0, lambda: self.state('zoomed'))
 
         self.grid_rowconfigure(0, weight=1)
-
-        self.INITIAL_THREAD_COUNT = active_count()
 
         self.UserName = kwargs["username"]
 
@@ -99,6 +97,10 @@ class Game(ctk.CTk):
 
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
 
+        with open('fenString.txt') as file:
+
+            self.History = [file.read()]
+
         self.update()
 
         self.mainloop()
@@ -109,6 +111,14 @@ class Game(ctk.CTk):
         if self.AgainstAI and self.Turn == 'B':
 
             self.PlayBestMove()
+
+        if not self.ValidMoves and self.ChessBoardObj.check_for_check(1 if self.Turn == 'B' else 0):
+
+            from tkinter import messagebox
+
+            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
+
+            self.SideBarFrame.StartNewGame()
         
         self.BitBoards = self.ChessBoardObj.bitboards
         self.BoardData = self.ChessBoardObj.board_data
@@ -149,10 +159,14 @@ class Game(ctk.CTk):
         self.after(1, self.update)
 
     def PlayBestMove(self):
+        import time
+        a = time.time()
         move = brains.BestMove(self.ChessBoardObj, 4)
+        print(time.time() - a)
         self.ChessBoardObj.MakeMove(move)
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
         self.Turn = 'W' if self.Turn == 'B' else 'B'
+        
 
     def showValidMoves(self):
 
@@ -189,47 +203,44 @@ class Game(ctk.CTk):
 
         for Event in pygame.event.get():
 
-            if active_count() <= self.INITIAL_THREAD_COUNT:
+            if Event.type == pygame.MOUSEBUTTONDOWN:
 
-                if Event.type == pygame.MOUSEBUTTONDOWN:
+                x,y = pygame.mouse.get_pos()
+                x -= self.x
+                y -= self.y
+                row,col = y // 83,x // 90
+                if 0 <= row < 8 and 0 <= col < 8:
+                    pos = row * 8 + col
+                    if self.Turn == 'W':
+                        if self.WHITE & (uint(1) << pos):
+                            self.CurrentSquare = (row,col)
+                            x,y = pygame.mouse.get_pos()
+                            self.ActivePoint = (x,y)
+                    else:
+                        if self.BLACK & (uint(1) << pos) and not self.AgainstAI:
+                            self.CurrentSquare = (row,col)
+                            x,y = pygame.mouse.get_pos()
+                            self.ActivePoint = (x,y)
 
-                    x,y = pygame.mouse.get_pos()
-                    x -= self.x
-                    y -= self.y
-                    row,col = y // 83,x // 90
-                    if 0 <= row < 8 and 0 <= col < 8:
-                        pos = row * 8 + col
-                        if self.Turn == 'W':
-                            if self.WHITE & (uint(1) << pos):
-                                self.CurrentSquare = (row,col)
-                                x,y = pygame.mouse.get_pos()
-                                self.ActivePoint = (x,y)
-                        else:
-                            if self.BLACK & (uint(1) << pos) and not self.AgainstAI:
-                                self.CurrentSquare = (row,col)
-                                x,y = pygame.mouse.get_pos()
-                                self.ActivePoint = (x,y)
+            elif Event.type == pygame.MOUSEBUTTONUP and self.CurrentSquare:
 
-                        
-                elif Event.type == pygame.MOUSEBUTTONUP and self.CurrentSquare:
+                row,col = self.CurrentSquare
 
-                    row,col = self.CurrentSquare
+                x,y = pygame.mouse.get_pos()
+                x -= self.x
+                y -= self.y
+                to_row,to_col = y // 83,x // 90
 
-                    x,y = pygame.mouse.get_pos()
-                    x -= self.x
-                    y -= self.y
-                    to_row,to_col = y // 83,x // 90
+                for move in self.ValidMoves:
+                    from_index = move & uint32((1 << 6) - 1)
+                    to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+                    if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
+                        self.ChessBoardObj.MakeMove(move)
+                        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                        self.Turn = 'W' if self.Turn == 'B' else 'B'
+                        self.CurrentSquare = None
 
-                    for move in self.ValidMoves:
-                        from_index = move & uint32((1 << 6) - 1)
-                        to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
-                        if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
-                            self.ChessBoardObj.MakeMove(move)
-                            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
-                            self.Turn = 'W' if self.Turn == 'B' else 'B'
-                            self.CurrentSquare = None
-
-                    self.ActivePoint = None
+                self.ActivePoint = None
 
 if __name__ == '__main__':
     a = Game(username='kavin')

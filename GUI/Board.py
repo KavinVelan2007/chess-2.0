@@ -59,7 +59,7 @@ class Board:
                     row = y // 83
                     col = x // 90
 
-                if self.ParentObject.BitBoards[Piece] & (1 << Square):
+                if self.ParentObject.ChessBoardObj.bitboards[Piece] & (1 << Square):
 
                     if not self.ParentObject.ActivePoint or (self.ParentObject.ActivePoint and Square != row * 8 + col):
 

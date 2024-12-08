@@ -1,25 +1,10 @@
-"""from GUI.Main import Game
+from .GUI.Account import Account
 
-from fen import *
+def run():
 
-with open("FENString.txt", "r"):
+    a = Account()
+    a.mainloop()
 
-    BitBoards, BoardData = generate_bitboards_from_board(fenString)
+if __name__ == '__main__':
 
-MainGame = Game(BitBoards=BitBoards, BoardData=BoardData)
-"""
-# from brains import *
-
-# perft()
-
-
-from GUI.Account import Account
-
-a = Account()
-a.mainloop()
-
-
-"""from brains import perft # type: ignore
-
-perft(int(input('Enter Depth: ')))
-"""
+    run()
