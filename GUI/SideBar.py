@@ -1,12 +1,12 @@
 import customtkinter as ctk
-from ..fen import *
+from fen import *
 from PIL import Image
-from ..GUI.Preferences import Preferences
-import chess.brains as brains
+from GUI.Preferences import Preferences
+import brains
 from tkinter import messagebox
 import sqlite3
 
-ctk.set_default_color_theme("GUI\\Themes.json")
+ctk.set_default_color_theme("chess-2.0\\GUI\\Themes.json")
 
 class SideBar(ctk.CTkFrame):
 
@@ -35,7 +35,7 @@ class SideBar(ctk.CTkFrame):
 
         self.NewGameButton.grid(row=1, column=0, ipadx=10, ipady=10, pady=20)
 
-        photo = Image.open("GUI\\Resources\\Misc\\SaveIcon.png")
+        photo = Image.open("chess-2.0\\GUI\\Resources\\Misc\\SaveIcon.png")
 
         self.SaveQuitButton = ctk.CTkButton(self, height=25, command=self.CopyFENToClipboard, text="Save Progress", image=ctk.CTkImage(
             light_image=photo, dark_image=photo, size=(25, 25)), anchor="center")
@@ -45,7 +45,7 @@ class SideBar(ctk.CTkFrame):
 
         self.SaveQuitButton.grid(row=2, column=0, ipadx=10, ipady=10, pady=20)
 
-        photo = Image.open("GUI\\Resources\\Misc\\AppearanceModeIcon.png")
+        photo = Image.open("chess-2.0\\GUI\\Resources\\Misc\\AppearanceModeIcon.png")
 
         self.AppeareceModeLabel = ctk.CTkLabel(self, font=ctk.CTkFont(size=20), text=" Appearance Mode", anchor="center", image=ctk.CTkImage(
             light_image=photo, dark_image=photo, size=(30, 30)), compound="left")
@@ -80,7 +80,7 @@ class SideBar(ctk.CTkFrame):
         self.ScalingMenu.set("100%")
 
         self.PreferencesButton = ctk.CTkButton(self, text="Preferences", command=self.showPreferences, height=30, anchor="center", image=ctk.CTkImage(light_image=Image.open(
-            "GUI\\Resources\\Misc\\PreferencesIcon.png"), dark_image=Image.open("GUI\\Resources\\Misc\\PreferencesIcon.png"), size=(30, 30)), compound="left")
+            "chess-2.0\\GUI\\Resources\\Misc\\PreferencesIcon.png"), dark_image=Image.open("chess-2.0\\GUI\\Resources\\Misc\\PreferencesIcon.png"), size=(30, 30)), compound="left")
 
         self.PreferencesButton.grid(
             row=8, column=0, ipadx=10, ipady=10, pady=20)
@@ -99,11 +99,9 @@ class SideBar(ctk.CTkFrame):
 
         fen = convert_bitboards_to_fen(BitBoards,BoardData)
 
-        sqliteobj = sqlite3.connect('games.db')
+        import pyperclip
 
-        pyobj = sqliteobj.cursor()
-
-        # NOT YET COMPLETED
+        pyperclip.copy(fen)
 
         messagebox.showinfo('FEN Copied','The FEN Notation has been added to your Clip Board')
 

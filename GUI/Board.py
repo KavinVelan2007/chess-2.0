@@ -26,7 +26,7 @@ class Board:
         for i in self.ParentObject.BoardOptions:
 
             self.Data["BoardOptions"][i] = pygame.transform.scale(
-                pygame.image.load(f"GUI\\Resources\\Boards\\{i}.png"),
+                pygame.image.load(f"chess-2.0\\GUI\\Resources\\Boards\\{i}.png"),
                 (720, 674)
             ).convert_alpha()
 
@@ -37,7 +37,7 @@ class Board:
             for j in self.ParentObject.Pieces:
 
                 self.Data["PieceOptions"][i][j] = pygame.transform.scale(
-                    pygame.image.load(f"GUI\\Resources\\Pieces\\{i}\\{j}.png"),
+                    pygame.image.load(f"chess-2.0\\GUI\\Resources\\Pieces\\{i}\\{j}.png"),
                     (126, 161),
                 ).convert_alpha()
 

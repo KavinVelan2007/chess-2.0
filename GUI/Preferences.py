@@ -34,7 +34,7 @@ class Preferences(ctk.CTkToplevel):
 
         self.ParentObject.PiecePreference = self.Piece.get()
 
-        sqliteobj = sqlite3.connect('database.db')
+        sqliteobj = sqlite3.connect('chess-2.0/database.db')
 
         pyobj = sqliteobj.cursor()
 

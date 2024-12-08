@@ -1,4 +1,4 @@
-from .GUI.Account import Account
+from GUI.Account import Account
 
 def run():
 

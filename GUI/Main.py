@@ -1,16 +1,16 @@
 import customtkinter as ctk
 import pygame
-from ..GUI.SideBar import SideBar
-from ..GUI.Board import Board
+from GUI.SideBar import SideBar
+from GUI.Board import Board
 import os
 from numpy import uint64 as uint
 from numpy import uint32
 import platform
-import chess.brains as brains
+import brains
 import sqlite3
 from fen import convert_bitboards_to_fen
 
-ctk.set_default_color_theme("GUI\\Themes.json")
+ctk.set_default_color_theme("chess-2.0\\GUI\\Themes.json")
 
 
 class Game(ctk.CTk):
@@ -62,7 +62,7 @@ class Game(ctk.CTk):
         self.Pieces = ['White-Pawn', 'White-Knight', 'White-Bishop', 'White-Rook', 'White-Queen', 'White-King',
                        'Black-Pawn', 'Black-Knight', 'Black-Bishop', 'Black-Rook', 'Black-Queen', 'Black-King']
                        
-        sqliteobj = sqlite3.connect('database.db')
+        sqliteobj = sqlite3.connect('chess-2.0/database.db')
 
         pyobj = sqliteobj.cursor()
 
@@ -97,7 +97,7 @@ class Game(ctk.CTk):
 
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
 
-        with open('fenString.txt') as file:
+        with open('chess-2.0/fenString.txt') as file:
 
             self.History = [file.read()]
 

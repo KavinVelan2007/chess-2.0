@@ -1,10 +1,10 @@
 import customtkinter as ctk
 import sqlite3
 import tkinter.messagebox
-from ..GUI.Main import Game
+from GUI.Main import Game
 from fen import *
 
-ctk.set_default_color_theme("GUI\\Themes.json")
+ctk.set_default_color_theme("chess-2.0\\GUI\\Themes.json")
 
 class TabView(ctk.CTkTabview):
 
@@ -27,7 +27,7 @@ class Account(ctk.CTk):
 
         super().__init__()
 
-        self.sqliteobj = sqlite3.connect('database.db')
+        self.sqliteobj = sqlite3.connect('chess-2.0/database.db')
         self.pyobj = self.sqliteobj.cursor()
         self.pyobj.execute('create table if not exists chess (username varchar(50), password varchar(50), piece varchar(30), board varchar(30))')
 
@@ -117,7 +117,7 @@ class Account(ctk.CTk):
                 self.statusLabel.configure(text='Wrong Credentials')
 
     def startGame(self,username):
-        with open("FENString.txt", "r"):
+        with open("chess-2.0/FENString.txt", "r"):
 
             BitBoards, BoardData = generate_bitboards_from_board(fenString)
 
