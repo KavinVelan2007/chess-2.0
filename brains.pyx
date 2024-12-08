@@ -611,7 +611,7 @@ cdef U64[64] BISHOP_MAGIC_NUMBERS = [
 	4521201074455568,
 ]
 
-with open('rookAttacks.dat','rb') as f:
+with open('chess-2.0/rookAttacks.dat','rb') as f:
 	temp_ROOK_ATTACKS = pickle.load(f)
 
 cdef U64[64][4096] ROOK_ATTACKS
@@ -619,7 +619,7 @@ cdef U64[64][4096] ROOK_ATTACKS
 for i in range(64):
 	ROOK_ATTACKS[i] = temp_ROOK_ATTACKS[i]
 
-with open('bishopAttacks.dat','rb') as f:
+with open('chess-2.0/bishopAttacks.dat','rb') as f:
 	temp_BISHOP_ATTACKS = pickle.load(f)
 
 cdef U64[64][512] BISHOP_ATTACKS
