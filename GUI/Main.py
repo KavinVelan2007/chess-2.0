@@ -2,6 +2,7 @@ import customtkinter as ctk
 import pygame
 from GUI.SideBar import SideBar
 from GUI.Board import Board
+from GUI.MoveHistory import ScrollableCheckBoxFrame
 import os
 from numpy import uint64 as uint
 from numpy import uint32
@@ -36,9 +37,28 @@ class Game(ctk.CTk):
 
         self.BoardCanvas = ctk.CTkCanvas(self, width=800, height=800)
 
+        self.MoveHistory = ScrollableCheckBoxFrame(self)
+
+        self.MoveHistory.place(x=1200,y=50)
+
         self.BoardCanvas.place(x=600, y=90)
 
         os.environ['SDL_WINDOWID'] = str(self.BoardCanvas.winfo_id())
+
+        self.PieceIndex = {
+            0: 'P',
+            1: 'N',
+            2: 'B',
+            3: 'R',
+            4: 'Q',
+            5: 'K',
+            6: 'p',
+            7: 'n',
+            8: 'b',
+            9: 'r',
+            10: 'q',
+            11: 'k',
+        }
 
         system = platform.system()
 
@@ -180,6 +200,21 @@ class Game(ctk.CTk):
                     to_row,to_col = to_index // 8, to_index % 8
                     self.Display.blit(self.SquareSurface,(self.x + to_col * 90,self.y + to_row * 83))
 
+    def AddMove(self, move):
+        from_index = move & uint32((1 << 6) - 1)
+        to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+        square = f'{chr(97 + to_index % 8)}{8 - to_index // 8}'
+
+        for i in range(12):
+            if self.ChessBoardObj.bitboards[i] & (uint(1) << to_index):
+                if i in [0,6]:
+                    if int(from_index) - int(to_index) in [9,7,-9,-7]:
+                        self.MoveHistory.add_item(chr(97 + from_index % 8) + 'x' + square)
+                    else:
+                        self.MoveHistory.add_item(square)
+                else:
+                    self.MoveHistory.add_item(self.PieceIndex[i] + square)
+
     def showDraggingPiece(self):
         if self.ActivePoint and self.CurrentSquare:
 
@@ -237,6 +272,7 @@ class Game(ctk.CTk):
                     if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
                         self.ChessBoardObj.MakeMove(move)
                         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                        self.AddMove(move)
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
 
