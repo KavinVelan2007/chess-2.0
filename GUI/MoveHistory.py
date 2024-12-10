@@ -22,7 +22,7 @@ class ScrollableCheckBoxFrame(customtkinter.CTkScrollableFrame):
 
         self.column += 1
 
-        if self.column == 6:
+        if self.column == 2:
 
             self.row += 1
             

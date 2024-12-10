@@ -46,18 +46,18 @@ class Game(ctk.CTk):
         os.environ['SDL_WINDOWID'] = str(self.BoardCanvas.winfo_id())
 
         self.PieceIndex = {
-            0: 'P',
-            1: 'N',
-            2: 'B',
-            3: 'R',
-            4: 'Q',
-            5: 'K',
-            6: 'p',
-            7: 'n',
-            8: 'b',
-            9: 'r',
-            10: 'q',
-            11: 'k',
+            0: '♙',
+            1: '♘',
+            2: '♗',
+            3: '♖',
+            4: '♕',
+            5: '♔',
+            6: '♟',
+            7: '♞',
+            8: '♝',
+            9: '♜',
+            10: '♛',
+            11: '♚',
         }
 
         system = platform.system()
@@ -200,7 +200,7 @@ class Game(ctk.CTk):
                     to_row,to_col = to_index // 8, to_index % 8
                     self.Display.blit(self.SquareSurface,(self.x + to_col * 90,self.y + to_row * 83))
 
-    def AddMove(self, move):
+    def AddMove(self, move, isCapture):
         from_index = move & uint32((1 << 6) - 1)
         to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
         square = f'{chr(97 + to_index % 8)}{8 - to_index // 8}'
@@ -208,12 +208,15 @@ class Game(ctk.CTk):
         for i in range(12):
             if self.ChessBoardObj.bitboards[i] & (uint(1) << to_index):
                 if i in [0,6]:
-                    if int(from_index) - int(to_index) in [9,7,-9,-7]:
+                    if isCapture:
                         self.MoveHistory.add_item(chr(97 + from_index % 8) + 'x' + square)
                     else:
                         self.MoveHistory.add_item(square)
+                elif i in [5,11]:
+                    if int(from_index) - int(to_index) in [2,-2]:
+                        self.MoveHistory.add_item('O-O')
                 else:
-                    self.MoveHistory.add_item(self.PieceIndex[i] + square)
+                    self.MoveHistory.add_item(self.PieceIndex[i] + ('x' if isCapture else '') + square)
 
     def showDraggingPiece(self):
         if self.ActivePoint and self.CurrentSquare:
@@ -270,9 +273,15 @@ class Game(ctk.CTk):
                     from_index = move & uint32((1 << 6) - 1)
                     to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
                     if from_index == row * 8 + col and to_index == to_row * 8 + to_col:
+                        p1 = p2 = False
+                        for i in range(12):
+                            if self.ChessBoardObj.bitboards[i] & (uint(1) << from_index):
+                                p1 = True
+                            elif self.ChessBoardObj.bitboards[i] & (uint(1) << to_index):
+                                p2 = True
                         self.ChessBoardObj.MakeMove(move)
                         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
-                        self.AddMove(move)
+                        self.AddMove(move, p1 and p2)
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
 
