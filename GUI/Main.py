@@ -139,6 +139,10 @@ class Game(ctk.CTk):
             messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
 
             self.SideBarFrame.StartNewGame()
+
+            for i in range(len(self.MoveHistory.label_list)):
+
+                self.MoveHistory.label_list.pop().destroy()
         
         self.BitBoards = self.ChessBoardObj.bitboards
         self.BoardData = self.ChessBoardObj.board_data
@@ -174,6 +178,8 @@ class Game(ctk.CTk):
 
         self.showDraggingPiece()
 
+        self.Board.DrawSquarePositions()
+
         pygame.display.update()
 
         self.after(1, self.update)
@@ -183,8 +189,17 @@ class Game(ctk.CTk):
         a = time.time()
         move = brains.BestMove(self.ChessBoardObj, 4)
         print(time.time() - a)
+        from_index = move & uint32((1 << 6) - 1)
+        to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
+        p1 = p2 = False
+        for i in range(12):
+            if self.ChessBoardObj.bitboards[i] & (uint(1) << from_index):
+                p1 = True
+            elif self.ChessBoardObj.bitboards[i] & (uint(1) << to_index):
+                p2 = True
         self.ChessBoardObj.MakeMove(move)
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+        self.AddMove(move, p1 and p2)
         self.Turn = 'W' if self.Turn == 'B' else 'B'
         
 

@@ -1,8 +1,8 @@
 import pygame
 
+pygame.init()
 
 class Board:
-
 
     def __init__(self, ParentObject):
 
@@ -13,6 +13,8 @@ class Board:
         self.Width = 800
 
         self.Height = 800
+
+        self.Font = pygame.font.SysFont('freesansbold',25)
 
         self.OffSet = (24, 0)
 
@@ -66,3 +68,21 @@ class Board:
                         self.Display.blit(
                             self.Data["PieceOptions"][self.ParentObject.PiecePreference][self.ParentObject.Pieces[Piece]],
                             (self.OffSet[0] + (Square % 8) * 90, self.OffSet[1] + (Square // 8) * 83))
+                        
+    def DrawSquarePositions(self):
+
+        for row in range(1, 9):
+
+            y = row * 83
+
+            text = self.Font.render(f'{8 - row + 1}', True, (255,255,255))
+
+            self.ParentObject.Display.blit(text, (10,y + text.get_height() // 2))
+
+        for col in range(1, 9):
+
+            x = col * 90
+
+            text = self.Font.render(f'{chr(97 + col - 1)}', True, (255,255,255))
+
+            self.ParentObject.Display.blit(text, (x - text.get_width() // 2,self.Height - 50))

@@ -99,6 +99,10 @@ class SideBar(ctk.CTkFrame):
 
         fen = convert_bitboards_to_fen(BitBoards,BoardData)
 
+        import pygame
+
+        pygame.image.save(self.ParentObject.Display,'board.png')
+
         import pyperclip
 
         pyperclip.copy(fen)

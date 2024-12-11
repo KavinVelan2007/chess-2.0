@@ -1,5 +1,4 @@
 from numpy import uint64 as uint,uint32
-import os
 
 with open('chess-2.0/fenString.txt','r') as file:
 	fenString = file.read().replace('\n', '')
