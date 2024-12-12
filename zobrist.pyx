@@ -2,18 +2,26 @@ import pickle
 from numpy import uint64 as uint
 from fen import *
 import random
+cimport cython
+
+ctypedef (unsigned long long) U64
+ctypedef (unsigned int) U32
 
 def InitTable():
 
-    ZobristTable = [[[random.randint(0, 2 ** 64) for _ in range(12)] for i in range(8)] for j in range(8)]
+    cdef U64[8][8][12] ZobristTable = [[[random.randint(0, 2 ** 64) for _ in range(12)] for i in range(8)] for j in range(8)]
 
     with open('zobristtable.bin','wb') as file:
 
         pickle.dump(ZobristTable, file)
 
-def ComputeHash(bitboards, table):
+cdef ComputeHashInt(bitboards, table):
 
-    hash = 0
+    cdef U64 hash = 0
+    cdef int i = 0
+    cdef U64 bitboard
+    cdef int row
+    cdef int col
 
     for i, bitboard in enumerate(bitboards):
 
@@ -27,10 +35,6 @@ def ComputeHash(bitboards, table):
 
     return hash
 
-with open('chess-2.0/zobristtable.bin','rb') as file:
+cpdef ComputeHash(bitboards, table):
 
-    table = pickle.load(file)
-
-bitboards, boarddata = generate_bitboards_from_board(fenString)
-
-print(ComputeHash(bitboards, table))
+    return ComputeHashInt(bitboards, table)
