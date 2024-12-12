@@ -1,6 +1,6 @@
 from distutils.core import setup
 from Cython.Build import cythonize
-from os import remove, rmdir
+from os import remove
 from shutil import rmtree
 
 files = ["brains.pyx"]
