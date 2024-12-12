@@ -1,9 +1,9 @@
-from distutils.core import setup # type: ignore
+from distutils.core import setup
 from Cython.Build import cythonize
 from os import remove, rmdir
 from shutil import rmtree
 
-files = ["brains.pyx", 'zobrist.pyx']
+files = ["brains.pyx"]
 setup(
     ext_modules=cythonize(
         files, compiler_directives={"language_level": "3"}
@@ -14,4 +14,4 @@ for file in files:
 
 rmtree("build", ignore_errors=True)
 
-# terminal command: python setup.py build_ext --inplace
+# command for compiling : python setup.py build_ext --inplace
