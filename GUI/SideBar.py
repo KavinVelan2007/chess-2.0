@@ -175,6 +175,8 @@ class SideBar(ctk.CTkFrame):
             )
             self.ParentObject.History = [fenString]
             self.ParentObject.CurrentSquare = None
+        for label in self.ParentObject.MoveHistory.label_list:
+            label.destroy()
 
     def SwitchToAIMode(self, Mode):
         if Mode == "Bot":
