@@ -2,14 +2,12 @@ import customtkinter as ctk
 import pygame
 from GUI.SideBar import SideBar
 from GUI.Board import Board
-from GUI.MoveHistory import ScrollableCheckBoxFrame
 import os
 from numpy import uint64 as uint
 from numpy import uint32
 import platform
 import brains
 import sqlite3
-from fen import convert_bitboards_to_fen
 
 ctk.set_default_color_theme("chess-2.0\\GUI\\Themes.json")
 
@@ -37,27 +35,31 @@ class Game(ctk.CTk):
 
         self.BoardCanvas = ctk.CTkCanvas(self, width=800, height=800)
 
-        self.MoveHistory = ScrollableCheckBoxFrame(self)
+        self.MoveString = ctk.StringVar()
 
-        self.MoveHistory.place(x=1200,y=50)
+        self.MoveHistory = ctk.CTkLabel(self, textvariable=self.MoveString)
+
+        self.MoveHistory.place(relx=0.72, rely=0.05)
+
+        self.MovesCount = 1
 
         self.BoardCanvas.place(x=600, y=90)
 
         os.environ['SDL_WINDOWID'] = str(self.BoardCanvas.winfo_id())
 
         self.PieceIndex = {
-            0: '♙',
-            1: '♘',
-            2: '♗',
-            3: '♖',
-            4: '♕',
-            5: '♔',
-            6: '♟',
-            7: '♞',
-            8: '♝',
-            9: '♜',
-            10: '♛',
-            11: '♚',
+            0: '♟',
+            1: '♞',
+            2: '♝',
+            3: '♜',
+            4: '♛',
+            5: '♚',
+            6: '♙',
+            7: '♘',
+            8: '♗',
+            9: '♖',
+            10: '♕',
+            11: '♔',
         }
 
         system = platform.system()
@@ -131,18 +133,6 @@ class Game(ctk.CTk):
         if self.AgainstAI and self.Turn == 'B':
 
             self.PlayBestMove()
-
-        if not self.ValidMoves and self.ChessBoardObj.check_for_check(1 if self.Turn == 'B' else 0):
-
-            from tkinter import messagebox
-
-            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
-
-            self.SideBarFrame.StartNewGame()
-
-            for i in range(len(self.MoveHistory.label_list)):
-
-                self.MoveHistory.label_list.pop().destroy()
         
         self.BitBoards = self.ChessBoardObj.bitboards
         self.BoardData = self.ChessBoardObj.board_data
@@ -182,6 +172,18 @@ class Game(ctk.CTk):
 
         pygame.display.update()
 
+        if not self.ValidMoves and self.ChessBoardObj.check_for_check(1 if self.Turn == 'B' else 0):
+
+            from tkinter import messagebox
+
+            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
+
+            self.SideBarFrame.StartNewGame()
+
+            self.MoveString.set('')
+
+            self.MovesCount = 1
+
         self.after(1, self.update)
 
     def PlayBestMove(self):
@@ -200,6 +202,9 @@ class Game(ctk.CTk):
         self.ChessBoardObj.MakeMove(move)
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
         self.AddMove(move, p1 and p2)
+        self.MovesCount += 1
+        if self.MovesCount % 6 == 1:
+            self.MoveString.set(self.MoveString.get() + '\n')
         self.Turn = 'W' if self.Turn == 'B' else 'B'
         
 
@@ -224,14 +229,14 @@ class Game(ctk.CTk):
             if self.ChessBoardObj.bitboards[i] & (uint(1) << to_index):
                 if i in [0,6]:
                     if isCapture:
-                        self.MoveHistory.add_item(chr(97 + from_index % 8) + 'x' + square)
+                        self.MoveString.set(self.MoveString.get() + '  ' + str(self.MovesCount) + '.' + chr(97 + from_index % 8) + 'x' + square)
                     else:
-                        self.MoveHistory.add_item(square)
+                        self.MoveString.set(self.MoveString.get() + '  ' + str(self.MovesCount) + '.' + square)
                 elif i in [5,11]:
                     if int(from_index) - int(to_index) in [2,-2]:
-                        self.MoveHistory.add_item('O-O')
+                        self.MoveString.set(self.MoveString.get() + '  ' + str(self.MovesCount) + '.' + 'O-O')
                 else:
-                    self.MoveHistory.add_item(self.PieceIndex[i] + ('x' if isCapture else '') + square)
+                    self.MoveString.set(self.MoveString.get() + '  ' + str(self.MovesCount) + '.' + self.PieceIndex[i] + ('x' if isCapture else '') + square)
 
     def showDraggingPiece(self):
         if self.ActivePoint and self.CurrentSquare:
@@ -297,6 +302,9 @@ class Game(ctk.CTk):
                         self.ChessBoardObj.MakeMove(move)
                         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
                         self.AddMove(move, p1 and p2)
+                        self.MovesCount += 1
+                        if self.MovesCount % 6 == 1:
+                            self.MoveString.set(self.MoveString.get() + '\n')
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
 

@@ -118,7 +118,7 @@ def convert_bitboards_to_fen(bitboard,board_data):
 	fen = ''
 	for rank in board:
 		count = 0
-		for square in rank:
+		for square in rank[::-1]:
 			if square:
 				if count:
 					fen += str(count)

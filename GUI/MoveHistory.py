@@ -2,8 +2,10 @@ import customtkinter
 
 class ScrollableCheckBoxFrame(customtkinter.CTkScrollableFrame):
 
-    def __init__(self, master):
-        super().__init__(master, height=700, width=300)
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+
+        self.grid(row=0, column=0, sticky="nsew")
 
         self.label_list = []
 

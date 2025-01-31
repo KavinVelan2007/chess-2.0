@@ -18,13 +18,13 @@ class Preferences(ctk.CTkToplevel):
         self.geometry('900x700')
 
         self.PieceDropdown = ctk.CTkOptionMenu(self, variable=self.Piece, values = self.ParentObject.PieceOptions,width=300)
-        self.PieceDropdown.place(x=100,y=10)
+        self.PieceDropdown.place(relx=0.111,rely=0.0142)
 
         self.BoardDropdown = ctk.CTkOptionMenu(self, variable=self.Board, values = self.ParentObject.BoardOptions,width=300)
-        self.BoardDropdown.place(x=500,y=10)
+        self.BoardDropdown.place(relx=0.555,rely=0.0142)
 
         self.ApplyButton = ctk.CTkButton(self, command=self.applyPreference, text='Apply')
-        self.ApplyButton.place(x=350,y=600)
+        self.ApplyButton.place(relx=0.388,rely=0.857)
 
         self.mainloop()
 
