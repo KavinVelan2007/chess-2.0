@@ -1,5 +1,5 @@
 from numpy import uint64 as uint, uint32
-
+from tkinter import messagebox
 
 with open("chess-2.0/fenString.txt", "r") as file:
     fenString = file.read().replace("\n", "")
@@ -19,40 +19,46 @@ def least_significant_bit_count(bit_board):
 
 
 def translate_from_fen(fen: str):
-    board = [[" " for _ in range(8)] for _ in range(8)]
-    fen = fen.split(" ")
-    position = fen[0].split("/")
-    for rank in range(len(position)):
-        file = 0
-        index = 0
-        while index < len(position[rank]):
-            if position[rank][index].isalpha():
-                board[rank][file] = position[rank][index]
-                file += 1
-            elif "1" <= position[rank][index] <= "9":
-                file += int(position[rank][index])
-            index += 1
-    data = uint32(0)
-    if fen[1] == "b":
-        data |= uint32(1)
-    if fen[2] != "-":
-        bit_positions_for_castling = {"K": 1, "Q": 2, "k": 3, "q": 4}
-        for side in fen[2]:
-            data |= uint32(1) << uint32(bit_positions_for_castling[side])
-    if fen[3] != "-":
-        data |= uint32(1 << 5)
-        pos = fen[3]
-        index = uint32(ord(pos[0]) - ord("a") + (8 - int(pos[1])) * 8)
-        data |= index << uint32(6)
-    halfMoves = uint32(fen[4])
-    data |= (halfMoves & uint32((1 << 6) - 1)) << uint32(12)
-    moves = uint32(fen[5])
-    data |= (moves & uint32((1 << 8) - 1)) << uint(18)
+    try:
+        board = [[" " for _ in range(8)] for _ in range(8)]
+        fen = fen.split(" ")
+        position = fen[0].split("/")
+        for rank in range(len(position)):
+            file = 0
+            index = 0
+            while index < len(position[rank]):
+                if position[rank][index].isalpha():
+                    board[rank][file] = position[rank][index]
+                    file += 1
+                elif "1" <= position[rank][index] <= "9":
+                    file += int(position[rank][index])
+                index += 1
+        data = uint32(0)
+        if fen[1] == "b":
+            data |= uint32(1)
+        if fen[2] != "-":
+            bit_positions_for_castling = {"K": 1, "Q": 2, "k": 3, "q": 4}
+            for side in fen[2]:
+                data |= uint32(1) << uint32(bit_positions_for_castling[side])
+        if fen[3] != "-":
+            data |= uint32(1 << 5)
+            pos = fen[3]
+            index = uint32(ord(pos[0]) - ord("a") + (8 - int(pos[1])) * 8)
+            data |= index << uint32(6)
+        halfMoves = uint32(fen[4])
+        data |= (halfMoves & uint32((1 << 6) - 1)) << uint32(12)
+        moves = uint32(fen[5])
+        data |= (moves & uint32((1 << 8) - 1)) << uint(18)
+    except:
+        messagebox.showerror('Invalid FEN','The FEN you entered is invalid')
+        return -1,-1
     return board, data
 
 
 def generate_bitboards_from_board(fen):
     board, data = translate_from_fen(fen)
+    if data == -1:
+        return -1,-1
     p = r = b = n = q = k = P = R = B = N = Q = K = uint(0)
     for row in range(8):
         for col in range(8):

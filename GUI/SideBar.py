@@ -147,6 +147,8 @@ class SideBar(ctk.CTkFrame):
     def StartNewGame(self):
         if self.Fen.get():
             BitBoards, BoardData = generate_bitboards_from_board(self.Fen.get())
+            if BoardData == -1:
+                return
             self.ParentObject.ChessBoardObj = brains.Board(BitBoards, BoardData)
             self.ParentObject.BitBoards = (
                 self.ParentObject.ChessBoardObj.bitboards
