@@ -274,7 +274,6 @@ class Game(ctk.CTk):
                 x -= self.x
                 y -= self.y
                 to_row, to_col = y // 83, x // 90
-                promo = False
                 for move in self.ValidMoves:
                     from_index = move & uint32((1 << 6) - 1)
                     to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
@@ -292,15 +291,19 @@ class Game(ctk.CTk):
                                 uint(1) << to_index
                             ):
                                 p2 = True
-                        if (move >> uint(16)) & uint(1) and not promo:
-                            promo = True
+                        if (move >> uint(16)) & uint(1):
                             self.PromotionPopup(move)
+                            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                            self.AddMove(move, p1 and p2)
+                            self.Turn = 'W' if self.Turn == 'B' else 'B'
+                            self.CurrentSquare = None
+                            break
                         else:
                             self.ChessBoardObj.MakeMove(move)
-                        self.ValidMoves = self.ChessBoardObj.ReturnMoves()
-                        self.AddMove(move, p1 and p2)
-                        self.Turn = 'W' if self.Turn == 'B' else 'B'
-                        self.CurrentSquare = None
+                            self.ValidMoves = self.ChessBoardObj.ReturnMoves()
+                            self.AddMove(move, p1 and p2)
+                            self.Turn = 'W' if self.Turn == 'B' else 'B'
+                            self.CurrentSquare = None
                 self.ActivePoint = None
 
     def PromotionPopup(self, move):
@@ -314,6 +317,7 @@ class Game(ctk.CTk):
 
     def Promote(self, piece, move, popup):
         popup.destroy()
+        popup.quit()
         move &= ~(uint(1 << 17) & uint(1 << 18))
         if piece == 'Queen':
             move |= (uint(1 << 17) & uint(1 << 18))
@@ -322,3 +326,4 @@ class Game(ctk.CTk):
         elif piece == 'Bishop':
             move |= (uint(1 << 17))
         self.ChessBoardObj.MakeMove(move)
+        print(1)

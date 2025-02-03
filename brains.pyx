@@ -1107,6 +1107,9 @@ cdef class Board:
             if (move >> (16)) & (1):
                 self.bitboards[0] ^= (one << source)
                 self.bitboards[((move >> (17)) & (3)) + 1] |= (one << target)
+                for i in range(6, 12):
+                    if self.bitboards[i] & (one << target):
+                        self.bitboards[i] ^= (one << target)
                 self.board_data &= (4095)
             elif (move >> (19)) & (1):
                 self.bitboards[0] ^= ((one << source) | (one << target))
@@ -1151,6 +1154,9 @@ cdef class Board:
             if (move >> (16)) & (1):
                 self.bitboards[6] ^= (one << source)
                 self.bitboards[((move >> (17)) & (3)) + 7] |= (one << target)
+                for i in range(6):
+                    if self.bitboards[i] & (one << target):
+                        self.bitboards[i] ^= (one << target)
                 self.board_data &= (4095)
             elif (move >> (19)) & (1):
                 self.bitboards[6] ^= ((one << source) | (one << target))
