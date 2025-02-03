@@ -291,9 +291,23 @@ class Game(ctk.CTk):
                                 uint(1) << to_index
                             ):
                                 p2 = True
+                        if (move >> uint(16)) & uint(1):
+                            self.PromotionPopup()
                         self.ChessBoardObj.MakeMove(move)
                         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
                         self.AddMove(move, p1 and p2)
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
                         self.CurrentSquare = None
                 self.ActivePoint = None
+
+    def PromotionPopup(self, move):
+        popup = ctk.CTkToplevel()
+        popup.title('Promotion')
+        pieces = ['Queen', 'Rook', 'Knight', 'Bishop']
+        for piece in pieces:
+            button = ctk.CTkButton(popup, text=piece, command=lambda piece=piece, move=move: self.Promote(piece, move), width=400)
+            button.pack()
+        popup.mainloop()
+
+    def Promote(self, piece, move):
+        pass
