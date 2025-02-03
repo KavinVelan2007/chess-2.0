@@ -1160,9 +1160,9 @@ cdef class Board:
                 self.bitboards[11] ^= ((one << source) | (one << target))
                 self.bitboards[9] ^= (one << ((source + target) // 2))
                 if target == 2:
-                    self.bitboards[9] ^= (one << 3)
+                    self.bitboards[9] ^= (one << 1)
                 else:
-                    self.bitboards[9] ^= (one << 5)
+                    self.bitboards[9] ^= (one << 7)
             else:
                 self.bitboards[piece] ^= ((one << source) | (one << target))
                 mask = 0
