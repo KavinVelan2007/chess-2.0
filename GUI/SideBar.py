@@ -143,6 +143,8 @@ class SideBar(ctk.CTkFrame):
             if ctk.get_appearance_mode() == "Dark"
             else (242, 242, 242)
         )
+        for label in self.ParentObject.MoveHistory.label_list:
+            label.configure(text_color='white' if ctk.get_appearance_mode() == 'Dark' else 'black')
 
     def StartNewGame(self):
         if self.Fen.get():

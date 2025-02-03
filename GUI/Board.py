@@ -1,5 +1,5 @@
 import pygame
-
+import customtkinter as ctk
 
 pygame.init()
 
@@ -66,14 +66,14 @@ class Board:
     def DrawSquarePositions(self):
         for row in range(1, 9):
             y = row * 83
-            text = self.Font.render(f"{8 - row + 1}", True, (255, 255, 255))
+            text = self.Font.render(f"{8 - row + 1}", True, (255, 255, 255) if ctk.get_appearance_mode() == 'Dark' else (0, 0, 0))
             self.ParentObject.Display.blit(
                 text, (10, y + text.get_height() // 2)
             )
         for col in range(1, 9):
             x = col * 90
             text = self.Font.render(
-                f"{chr(97 + col - 1)}", True, (255, 255, 255)
+                f"{chr(97 + col - 1)}", True, (255, 255, 255) if ctk.get_appearance_mode() == 'Dark' else (0, 0, 0)
             )
             self.ParentObject.Display.blit(
                 text, (x - text.get_width() // 2, self.Height - 50)

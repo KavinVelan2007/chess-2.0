@@ -28,23 +28,23 @@ class Game(ctk.CTk):
 
         self.MoveHistory = ScrollableCheckBoxFrame(self)
 
-        self.MoveHistory.place(x=1200,y=50)
+        self.MoveHistory.place(relx=0.8,rely=0.1)
 
         self.BoardCanvas.place(x=600, y=90)
         os.environ["SDL_WINDOWID"] = str(self.BoardCanvas.winfo_id())
         self.PieceIndex = {
-            0: '♙',
-            1: '♘',
-            2: '♗',
-            3: '♖',
-            4: '♕',
-            5: '♔',
-            6: '♟',
-            7: '♞',
-            8: '♝',
-            9: '♜',
-            10: '♛',
-            11: '♚',
+            6: '♙',
+            7: '♘',
+            8: '♗',
+            9: '♖',
+            10: '♕',
+            11: '♔',
+            0: '♟',
+            1: '♞',
+            2: '♝',
+            3: '♜',
+            4: '♛',
+            5: '♚',
         }
         system = platform.system()
         if system == "Windows":
@@ -134,18 +134,6 @@ class Game(ctk.CTk):
     def update(self):
         if self.AgainstAI and self.Turn == "B":
             self.PlayBestMove()
-
-        if not self.ValidMoves and self.ChessBoardObj.check_for_check(1 if self.Turn == 'B' else 0):
-
-            from tkinter import messagebox
-
-            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
-
-            self.SideBarFrame.StartNewGame()
-
-            for i in range(len(self.MoveHistory.label_list)):
-
-                self.MoveHistory.label_list.pop().destroy()
         
         self.BitBoards = self.ChessBoardObj.bitboards
         self.BoardData = self.ChessBoardObj.board_data
@@ -174,7 +162,20 @@ class Game(ctk.CTk):
         self.Board.drawPieces()
         self.showDraggingPiece()
         self.Board.DrawSquarePositions()
+
         pygame.display.update()
+
+        if not self.ValidMoves and self.ChessBoardObj.check_for_check(1 if self.Turn == 'B' else 0):
+
+            from tkinter import messagebox
+
+            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
+
+            self.SideBarFrame.StartNewGame()
+
+            for i in range(len(self.MoveHistory.label_list)):
+
+                self.MoveHistory.label_list.pop().destroy()
 
         self.after(1, self.update)
 
@@ -224,6 +225,8 @@ class Game(ctk.CTk):
                 elif i in [5,11]:
                     if int(from_index) - int(to_index) in [2,-2]:
                         self.MoveHistory.add_item('O-O')
+                    else:
+                        self.MoveHistory.add_item(self.PieceIndex[i] + ('x' if isCapture else '') + square)
                 else:
                     self.MoveHistory.add_item(self.PieceIndex[i] + ('x' if isCapture else '') + square)
 

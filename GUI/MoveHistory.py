@@ -16,7 +16,7 @@ class ScrollableCheckBoxFrame(customtkinter.CTkScrollableFrame):
 
     def add_item(self, item):
         
-        label = customtkinter.CTkLabel(self, text_color='white', text=item, font=customtkinter.CTkFont(size=25),padx=5,pady=5)
+        label = customtkinter.CTkLabel(self, text_color='white' if customtkinter.get_appearance_mode() == 'Dark' else 'black', text=item, font=customtkinter.CTkFont(size=25),padx=5,pady=5)
 
         label.grid(row=self.row, column=self.column, padx=2, pady=5)
 
