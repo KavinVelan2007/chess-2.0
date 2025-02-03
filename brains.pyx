@@ -1160,7 +1160,7 @@ cdef class Board:
                 self.bitboards[11] ^= ((one << source) | (one << target))
                 self.bitboards[9] ^= (one << ((source + target) // 2))
                 if target == 2:
-                    self.bitboards[9] ^= (one << 1)
+                    self.bitboards[9] ^= (one << 0)
                 else:
                     self.bitboards[9] ^= (one << 7)
             else:
