@@ -320,10 +320,9 @@ class Game(ctk.CTk):
         popup.quit()
         move &= ~(uint(1 << 17) & uint(1 << 18))
         if piece == 'Queen':
-            move |= (uint(1 << 17) & uint(1 << 18))
+            move |= (uint(1 << 17) | uint(1 << 18))
         elif piece == 'Rook':
             move |= uint(1 << 18)
         elif piece == 'Bishop':
             move |= (uint(1 << 17))
         self.ChessBoardObj.MakeMove(move)
-        print(1)
