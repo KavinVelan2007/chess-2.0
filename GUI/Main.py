@@ -274,6 +274,7 @@ class Game(ctk.CTk):
                 x -= self.x
                 y -= self.y
                 to_row, to_col = y // 83, x // 90
+                promo = False
                 for move in self.ValidMoves:
                     from_index = move & uint32((1 << 6) - 1)
                     to_index = (move >> uint32(6)) & uint32((1 << 6) - 1)
@@ -291,9 +292,11 @@ class Game(ctk.CTk):
                                 uint(1) << to_index
                             ):
                                 p2 = True
-                        if (move >> uint(16)) & uint(1):
-                            self.PromotionPopup()
-                        self.ChessBoardObj.MakeMove(move)
+                        if (move >> uint(16)) & uint(1) and not promo:
+                            promo = True
+                            self.PromotionPopup(move)
+                        else:
+                            self.ChessBoardObj.MakeMove(move)
                         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
                         self.AddMove(move, p1 and p2)
                         self.Turn = 'W' if self.Turn == 'B' else 'B'
@@ -305,9 +308,17 @@ class Game(ctk.CTk):
         popup.title('Promotion')
         pieces = ['Queen', 'Rook', 'Knight', 'Bishop']
         for piece in pieces:
-            button = ctk.CTkButton(popup, text=piece, command=lambda piece=piece, move=move: self.Promote(piece, move), width=400)
+            button = ctk.CTkButton(popup, text=piece, command=lambda piece=piece, move=move: self.Promote(piece, move, popup), width=400)
             button.pack()
         popup.mainloop()
 
-    def Promote(self, piece, move):
-        pass
+    def Promote(self, piece, move, popup):
+        popup.destroy()
+        move &= ~(uint(1 << 17) & uint(1 << 18))
+        if piece == 'Queen':
+            move |= (uint(1 << 17) & uint(1 << 18))
+        elif piece == 'Rook':
+            move |= uint(1 << 18)
+        elif piece == 'Bishop':
+            move |= (uint(1 << 17))
+        self.ChessBoardObj.MakeMove(move)
