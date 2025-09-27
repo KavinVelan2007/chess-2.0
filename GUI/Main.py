@@ -169,7 +169,9 @@ class Game(ctk.CTk):
 
             from tkinter import messagebox
 
-            messagebox.showinfo("Game Over",f'{"White" if self.Turn == 'B' else "Black"} Won!')
+            msg = "White" if self.Turn == 'B' else "Black"
+
+            messagebox.showinfo("Game Over",f'{msg} Won!')
 
             self.SideBarFrame.StartNewGame()
 
