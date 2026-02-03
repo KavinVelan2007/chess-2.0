@@ -48,13 +48,40 @@ The game supports **Human vs Human** and **Human vs Bot** play, with full chess 
 
 ## 📦 Installation
 
-### 1️⃣ Download or Clone the Project
+### 1️⃣ Clone the Project
 ```bash
-git clone <repository-url>
-cd <repository-name>
+git clone https://github.com/KavinVelan2007/chess-2.0
+cd chess-2.0
 ```
 
 ### 2️⃣ Install Required Python Libraries
 ```bash
-pip install pygame customtkinter numpy pillow cython
+pip install pygame-ce customtkinter numpy pillow cython
 ```
+
+### 3️⃣ Build the Cython File
+#### __Note__: Build the brains.pyx file when there are any changes made. The Latest Microsoft Visual Studio must be already installed before running the below command.
+```
+python setup.py build_ext --inplace
+```
+
+### 4️⃣ File-Folder Structure
+```bash 
+ ├──root.py
+ ├──chess-2.0
+        ├───Source Code &
+            Resources
+```
+
+### Move the **root.py** to parent directory
+
+### 5️⃣ Execute **root.py**
+```bash
+python root.py
+```
+
+---
+
+## __Contributors__
+- **M. Kavin Velan** (@KavinVelan2007) 
+- **G. Pranav** (@useless-coder-person)
