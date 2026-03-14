@@ -122,7 +122,7 @@ class Game(ctk.CTk):
         self.y = 63
         self.CurrentSquare = None
         self.ActivePoint = None
-        self.AgainstAI = False
+        self.AgainstAI = True
         self.Turn = "W"
         self.ChessBoardObj = brains.Board(self.BitBoards, self.BoardData)
         self.ValidMoves = self.ChessBoardObj.ReturnMoves()
