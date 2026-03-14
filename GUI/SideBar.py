@@ -68,7 +68,7 @@ class SideBar(ctk.CTkFrame):
             self,
             height=40,
             width=200,
-            values=["Human", "Bot"],
+            values=["Bot", "Human"],
             command=self.SwitchToAIMode,
         )
         self.OpponentMode.grid(row=3, column=0, pady=50)
