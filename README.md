@@ -1,7 +1,9 @@
-# ♟️ Chess 2.0 — Bitboard Chess Game with AI
+# ♟️ **Chess 2.0** — Bitboard Chess Game with Optimal Move Generation using Minimax Algorithm
 
-Chess 2.0 is a desktop chess game built using Python, featuring a fast **bitboard-based chess engine**, an **AI opponent powered by the Minimax algorithm**, and a modern graphical user interface.  
+**Chess 2.0** is a desktop chess game built using Python, featuring a fast **bitboard-based chess engine**, an **AI opponent powered by the Minimax algorithm**, and a modern graphical user interface.  
 The game supports **Human vs Human** and **Human vs Bot** play, with full chess rules and smooth gameplay.
+
+We built as part of my 12th grade final project, focusing on algorithmic problem solving and game logic implementation.
 
 ---
 
@@ -43,6 +45,7 @@ The game supports **Human vs Human** and **Human vs Bot** play, with full chess 
 
 - Python **3.10 or newer**
 - Windows or Linux (Windows recommended)
+- Microsoft Visual Studio (>2024)
 
 ---
 
@@ -56,24 +59,18 @@ cd chess-2.0
 
 ### 2️⃣ Install Required Python Libraries
 ```bash
-pip install pygame-ce customtkinter numpy pillow cython
+pip install -r requirements.txt
 ```
 
 ### 3️⃣ Build the Cython File
-#### __Note__: Build the brains.pyx file when there are any changes made. The Latest Microsoft Visual Studio must be already installed before running the below command.
 ```
 python setup.py build_ext --inplace
 ```
 
-### 4️⃣ File-Folder Structure
-```bash 
- ├──root.py
- ├──chess-2.0
-        ├───Source Code &
-            Resources
+### 4️⃣ Move the **root.py** to parent directory
+```bash
+move root.py ..
 ```
-
-### Move the **root.py** to parent directory
 
 ### 5️⃣ Execute **root.py**
 ```bash
