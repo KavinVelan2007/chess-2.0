@@ -1,0 +1,6 @@
+pygame-ce
+customtkinter
+numpy
+pillow
+cython
+pyperclip

@@ -1,0 +1,11 @@
+services:
+  chess:
+    build: .
+    ports:
+      - "6080:6080"
+    environment:
+      APP_ENTRY: run_.py
+      DISPLAY: ":99"
+      RESOLUTION: 1600x1000x24
+      RUNNING_IN_DOCKER: "1"
+    restart: unless-stopped

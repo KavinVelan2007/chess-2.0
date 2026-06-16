@@ -1,0 +1,13 @@
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.c
+build/
+dist/
+.git/
+.codex/
+.agents/
+board.png
