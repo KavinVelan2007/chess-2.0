@@ -138,16 +138,18 @@ class Game(ctk.CTk):
         self.mainloop()
 
     def createPygameDisplay(self):
-        system = platform.system()
-        if system == "Windows":
-            os.environ["SDL_VIDEODRIVER"] = "windib"
-        elif system == "Linux":
-            os.environ["SDL_VIDEODRIVER"] = "x11"
+        if not os.environ.get('RUNNING_IN_DOCKER'):
+            system = platform.system()
+            if system == "Windows":
+                os.environ["SDL_VIDEODRIVER"] = "windib"
+            elif system == "Linux":
+                os.environ["SDL_VIDEODRIVER"] = "x11"
 
-        self.update_idletasks()
-        self.BoardCanvas.update_idletasks()
-        self.BoardCanvas.wait_visibility()
-        os.environ["SDL_WINDOWID"] = str(self.BoardCanvas.winfo_id())
+            self.update_idletasks()
+            self.BoardCanvas.update_idletasks()
+            self.BoardCanvas.wait_visibility()
+            os.environ["SDL_WINDOWID"] = str(self.BoardCanvas.winfo_id())
+
         pygame.display.init()
         return pygame.display.set_mode((800, 800), pygame.NOFRAME)
 
