@@ -30,9 +30,7 @@ We built as part of my 12th grade final project, focusing on algorithmic problem
   - Multiple board and piece themes  
   - Light / Dark / System appearance modes  
 
-- 💾 User accounts & preferences  
-  - Sign In / Sign Up system  
-  - Saved board and piece themes  
+- 💾 preferences  
   - Save game progress using FEN  
 
 - 📜 Move history panel  
